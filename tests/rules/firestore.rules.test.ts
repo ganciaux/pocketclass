@@ -126,7 +126,7 @@ describe('users index', () => {
 		await assertFails(setDoc(at(as('bob'), 'users/alice'), entry));
 	});
 
-	it('the index cannot be updated', async () => {
+	it('a parent cannot repoint their index (only a linked device rewrites it)', async () => {
 		await env.withSecurityRulesDisabled((ctx) =>
 			setDoc(doc(ctx.firestore(), 'users/alice'), { familyId: FAMILY, profileId: 'alice' })
 		);
@@ -134,7 +134,7 @@ describe('users index', () => {
 	});
 });
 
-describe('linked devices (phase 5)', () => {
+describe('linked devices', () => {
 	it('read the family and the whole catalogue but cannot write it', async () => {
 		const kid = as('kid-phone');
 		for (const path of [
@@ -151,7 +151,7 @@ describe('linked devices (phase 5)', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/paths/p1`), { t: 1 }));
 	});
 
-	it('cannot write profiles, assignments or device links (phase 5 will open some)', async () => {
+	it('cannot write points, assignments or their device link without a code', async () => {
 		const kid = as('kid-phone');
 		await assertFails(updateDoc(at(kid, `families/${FAMILY}/profiles/lea`), { points: 999 }));
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/lea/assignments/p2`), { s: 1 }));
@@ -225,6 +225,26 @@ describe('device linking', () => {
 		await assertFails(setDoc(at(kid, 'users/kid2'), { familyId: FAMILY, profileId: 'tom' }));
 		// Another device's code cannot be deleted.
 		await assertFails(deleteDoc(at(kid, 'linkCodes/TOMOK2')));
+	});
+
+	it('a code links one device only: the link batch must delete it', async () => {
+		const device = { profileId: 'tom', code: 'TOMOK2', linkedAt: serverTimestamp() };
+		await assertFails(setDoc(at(asAnonymous('kid2'), `families/${FAMILY}/devices/kid2`), device));
+		await assertSucceeds(linkBatch(asAnonymous('kid2'), 'kid2', 'TOMOK2'));
+		await assertFails(linkBatch(asAnonymous('kid3'), 'kid3', 'TOMOK2'));
+	});
+
+	it('a linked device may switch profile with a new valid code only', async () => {
+		const kid = as('kid-phone'); // linked to lea
+		await assertFails(linkBatch(kid, 'kid-phone', 'TOMOLD'));
+		await assertSucceeds(linkBatch(kid, 'kid-phone', 'TOMOK2'));
+		await assertSucceeds(getDoc(at(kid, `families/${FAMILY}/profiles/tom`)));
+		await assertFails(getDoc(at(kid, `families/${FAMILY}/profiles/lea`)));
+	});
+
+	it('only the parent deletes an unused code', async () => {
+		await assertFails(deleteDoc(at(as('bob'), 'linkCodes/TOMOK2')));
+		await assertSucceeds(deleteDoc(at(as('alice'), 'linkCodes/TOMOK2')));
 	});
 
 	it('an unlinked device can be linked again (index rewritten)', async () => {

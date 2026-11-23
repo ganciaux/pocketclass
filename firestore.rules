@@ -121,13 +121,15 @@ service cloud.firestore {
       }
 
       // Devices: read and delete (unlink) their own entry; create it with a valid code for
-      // this family and profile (the code as it is before the link batch deletes it).
+      // this family and profile (the code as it is before the link batch), which the same
+      // batch must delete: a code links one device only.
       match /devices/{uid} {
         allow read, delete: if signedIn() && request.auth.uid == uid;
         allow create, update: if signedIn()
           && request.auth.uid == uid
           && request.resource.data.keys().hasOnly(['profileId', 'code', 'linkedAt'])
-          && validCode(familyId, request.resource.data.code, request.resource.data.profileId);
+          && validCode(familyId, request.resource.data.code, request.resource.data.profileId)
+          && !existsAfter(/databases/$(database)/documents/linkCodes/$(request.resource.data.code));
       }
 
       // Linked devices: read their own profile and its subcollections (assignments,
