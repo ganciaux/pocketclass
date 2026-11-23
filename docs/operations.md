@@ -1,0 +1,96 @@
+# PocketClass — build, déploiement et règles
+
+Aide-mémoire des commandes de mise en production.
+
+- Installation et développement : [README](../README.md).
+- Choix techniques : [CLAUDE.md](../CLAUDE.md).
+
+## Liens
+
+| Quoi                              | Lien                                                         |
+| --------------------------------- | ------------------------------------------------------------ |
+| **L'app (production)**            | https://pocketclass-bd866.web.app                            |
+| Adresse alternative               | https://pocketclass-bd866.firebaseapp.com                    |
+| Console Firebase                  | https://console.firebase.google.com/project/pocketclass-bd866 |
+| Règles Firestore (console)        | https://console.firebase.google.com/project/pocketclass-bd866/firestore/rules |
+| Historique des versions (Hosting) | https://console.firebase.google.com/project/pocketclass-bd866/hosting |
+
+## Avant toute commande
+
+```sh
+nvm use 24          # Firebase 13 exige Node ≥ 24.12
+firebase login      # une seule fois par poste
+```
+
+Le projet Firebase par défaut est `pocketclass-bd866` (fichier `.firebaserc`).
+
+## Raccourcis npm
+
+| Commande               | Ce qu'elle fait                                                                                   | Quand l'utiliser                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `npm run prod`         | `verify`, puis `deploy` : tout vérifier, puis tout déployer. **S'arrête à la première erreur.**   | **La commande normale de mise en production.**           |
+| `npm run verify`       | `check` + `lint` + `test` + `test:rules`                                                          | Avant un commit important ou un déploiement              |
+| `npm run deploy`       | Build de production + déploiement de **l'app et des règles** (et des index)                       | Déployer sans relancer les vérifications                 |
+| `npm run deploy:app`   | Build de production + déploiement de l'app seulement (Hosting)                                    | Changement d'interface sans modification des règles      |
+| `npm run deploy:rules` | Déploiement des règles Firestore seulement (`firestore.rules` + `firestore.indexes.json`)         | Changement des règles seules                             |
+| `npm run build`        | Build de production dans `build/` (sans déployer)                                                 | Vérifier que le build passe                              |
+| `npm run test:rules`   | Tests des règles sur l'émulateur Firestore                                                        | Après toute modification de `firestore.rules`            |
+
+⚠️ **Les règles et l'app vont ensemble.** Une fonctionnalité qui écrit de nouvelles données a
+besoin des nouvelles règles, sinon elle est refusée en production. C'est le cas de la liaison
+des appareils, des remarques et des fiches lues. En cas de doute, utiliser `npm run prod` ou
+`npm run deploy`, qui envoient les deux.
+
+## Mettre en production (cas normal)
+
+```sh
+nvm use 24
+npm run prod
+```
+
+Puis vérifier :
+
+1. Ouvrir https://pocketclass-bd866.web.app et recharger : la nouvelle version s'active au
+   chargement suivant (service worker en `autoUpdate`).
+2. Contrôler les en-têtes de cache (l'émulateur ne les applique pas) :
+
+   ```sh
+   curl -I https://pocketclass-bd866.web.app/        # Cache-Control: no-cache
+   ```
+
+3. Vérifier la version servie : `https://pocketclass-bd866.web.app/_app/version.json` doit
+   correspondre à `build/_app/version.json`.
+
+## Mettre à jour uniquement les règles
+
+1. Modifier `firestore.rules`.
+2. Ajouter un cas dans `tests/rules/firestore.rules.test.ts`.
+3. Lancer :
+
+   ```sh
+   npm run test:rules
+   npm run deploy:rules
+   ```
+
+Les règles s'appliquent en quelques secondes, sans redéployer l'app. On peut les relire dans la
+console (lien plus haut).
+
+## Revenir en arrière
+
+- **App** : console Firebase → Hosting → historique des versions → « Restaurer » sur la version
+  précédente. Autre solution : `git checkout <commit>`, puis `npm run deploy:app`.
+- **Règles** : revenir à l'ancien `firestore.rules` avec git, puis `npm run deploy:rules`. La
+  console garde aussi l'historique des règles.
+
+## Pièges connus
+
+- **`test:rules` (et donc `verify` / `prod`) démarre son propre émulateur Firestore** sur le
+  port 8080. Si `npm run emulators` tourne déjà, arrêter les emulators avant, ou lancer
+  directement `npx vitest --run --project rules` : il utilise alors l'émulateur déjà lancé.
+  Les tests utilisent le projet `demo-pocketclass-rules` et n'effacent jamais les données de
+  développement.
+- **Le build de déploiement ne doit pas pointer sur les emulators** : `npm run build` (utilisé
+  par les commandes de déploiement) ignore `PUBLIC_USE_EMULATORS`. `npm run build:emulators`
+  sert uniquement aux tests locaux.
+- **Changement du modèle de données** : si une nouvelle version lit les anciennes données
+  autrement, réimporter le parcours concerné depuis l'espace parent.

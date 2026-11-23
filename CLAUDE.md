@@ -236,10 +236,15 @@ npm run test:rules   # Firestore rules tests (starts the Firestore emulator itse
 npm run schemas      # export JSON Schemas to static/schemas/
 npm run build        # static production build into build/
 npm run build:emulators  # build wired to the emulators (PWA testing with npm run preview)
-npm run deploy       # build + firebase deploy (only when the user asks)
+npm run verify       # check + lint + test + test:rules
+npm run prod         # verify, then deploy (only when the user asks)
+npm run deploy       # build + firebase deploy: app + rules (only when the user asks)
+npm run deploy:app   # build + hosting only
+npm run deploy:rules # Firestore rules + indexes only
 ```
 
-Firebase project id: `pocketclass-bd866`.
+Firebase project id: `pocketclass-bd866`. App: https://pocketclass-bd866.web.app. Operations guide (French):
+[docs/operations.md](docs/operations.md).
 
 ## Roadmap
 

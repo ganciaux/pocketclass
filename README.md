@@ -83,8 +83,12 @@ npm run schemas    # régénère static/schemas/*.json
 ## Déploiement
 
 ```sh
-npm run deploy   # npm run build && firebase deploy
+npm run prod          # vérifie tout (check, lint, tests, règles) puis déploie app + règles
+npm run deploy:app    # app seule
+npm run deploy:rules  # règles Firestore seules
 ```
+
+Détails, liens et retour arrière : [docs/operations.md](docs/operations.md).
 
 ## Firebase
 
