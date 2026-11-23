@@ -48,6 +48,33 @@ redémarrage.
 Premier login parent : l'app crée la famille, le profil parent et l'index `users/{uid}`.
 Les profils enfants se créent dans **Gérer les profils**.
 
+## Tester la PWA (service worker, hors-ligne)
+
+Le service worker n'existe que dans un build. Avec les emulators lancés :
+
+```sh
+npm run build:emulators   # build connecté aux emulators (jamais utilisé pour déployer)
+npm run preview           # http://localhost:4173
+```
+
+Ouvre une fiche, puis DevTools → Application → Service workers (vérifier qu'il est actif),
+coche « Offline » et recharge : la fiche doit rester consultable et l'indicateur « Hors-ligne »
+apparaître. DevTools → Application → Manifest doit indiquer que l'app est installable.
+
+## Tests et vérifications
+
+```sh
+npm run check    # svelte-check
+npm run test     # Vitest (schémas, import, fractions, rendu Markdown, exactitude de l'exemple)
+npm run schemas  # régénère static/schemas/*.json
+```
+
+## Déploiement
+
+```sh
+npm run deploy   # npm run build && firebase deploy
+```
+
 ## Firebase
 
 - Projet : `pocketclass-bd866` (`.firebaserc`)

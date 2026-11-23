@@ -95,6 +95,12 @@ made.
 - 2026-11-23 — End-to-end check done with Playwright against the emulators (sign-in, family +
   2 children, invalid JSON errors, import + assignment, re-import v2 with one exercise less →
   archived, no duplicates, map, sheet with 24 KaTeX formulas, offline navigation).
+- 2026-11-23 — PWA: `withPwa(kitOptions, pwaOptions)` replaces `sveltekit()` (key `strategies`),
+  `generateSW` + `autoUpdate`, registered in the root layout (`virtual:pwa-register`). Manifest
+  and icons are static links in `app.html`. `globStrict: false` (the plugin always adds an empty
+  `prerendered/**`). Needs `magicast`. Placeholder icons generated once from `static/icon.svg`.
+- 2026-11-23 — `npm run build:emulators` (mode `emulators`) = build wired to the emulators, to
+  test the SW with `npm run preview`. `usingEmulators` is always false in mode `production`.
 
 ## Firestore model
 
@@ -134,7 +140,8 @@ npm run emulators    # Firebase Auth + Firestore emulators + UI (second terminal
 npm run check        # svelte-check
 npm run test         # Vitest
 npm run schemas      # export JSON Schemas to static/schemas/
-npm run build        # static build into build/
+npm run build        # static production build into build/
+npm run build:emulators  # build wired to the emulators (PWA testing with npm run preview)
 npm run deploy       # build + firebase deploy (the user runs it, never Claude)
 ```
 

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '#lib/assets/favicon.svg';
 	import { session } from '#lib/auth.svelte.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { resolve } from '$app/paths';
+	import { registerSW } from 'virtual:pwa-register';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -12,6 +12,9 @@
 	let online = $state(navigator.onLine);
 
 	session.start();
+
+	// Service worker (app shell cache). autoUpdate: a new version is activated on next load.
+	registerSW({ immediate: true });
 
 	async function signIn() {
 		signInError = false;
@@ -25,7 +28,6 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
 	<title>{fr.app.name}</title>
 </svelte:head>
 

@@ -35,7 +35,10 @@ export const db = initializeFirestore(app, {
 
 export const auth = getAuth(app);
 
-export const usingEmulators = dev && PUBLIC_USE_EMULATORS;
+// Emulators in `npm run dev` and `npm run build:emulators` (to test the PWA build locally).
+// Never in a production build (`npm run build`, used by `npm run deploy`).
+export const usingEmulators =
+	PUBLIC_USE_EMULATORS && (dev || import.meta.env.MODE !== 'production');
 
 if (usingEmulators) {
 	connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
