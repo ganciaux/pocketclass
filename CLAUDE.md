@@ -52,7 +52,7 @@ made.
   session state is a runes class in `src/lib/auth.svelte.ts` (`session.start()` in root layout).
 - 2026-11-23 — Hosting cache headers use two **non-overlapping** rules (regex `no-cache` for
   index/SPA routes/SW/manifest, `immutable` for `/_app/immutable/**`). The Hosting emulator
-  ignores custom headers: verify with `curl -I` after a real deploy.
+  ignores custom headers. Verified in production on 2026-11-23 (first deploy): OK.
 - 2026-11-23 — Rules were checked against the emulators (two parents, 15 allow/deny cases).
 - 2026-11-23 — Zod structural errors use Zod's built-in French locale, passed per call
   (`validate()` in `schemas/errors.ts`, no global `z.config`). Business messages (refs, slugs,
