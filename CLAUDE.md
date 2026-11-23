@@ -232,7 +232,7 @@ npm run emulators    # Firebase Auth + Firestore emulators + UI (second terminal
 npm run check        # svelte-check
 npm run lint         # prettier --check (npm run format to fix)
 npm run test         # Vitest unit tests (project "server")
-npm run test:rules   # Firestore rules tests (starts the Firestore emulator itself)
+npm run test:rules   # Firestore rules tests (reuses a running emulator, else starts one)
 npm run schemas      # export JSON Schemas to static/schemas/
 npm run build        # static production build into build/
 npm run build:emulators  # build wired to the emulators (PWA testing with npm run preview)

@@ -76,7 +76,7 @@ apparaître. DevTools → Application → Manifest doit indiquer que l'app est i
 npm run check      # svelte-check
 npm run lint       # vérifie le formatage (npm run format pour corriger)
 npm run test       # Vitest (schémas, import, fractions, rendu Markdown, textes, exactitude de l'exemple)
-npm run test:rules # règles Firestore (lance l'emulator Firestore tout seul)
+npm run test:rules # règles Firestore (réutilise l'emulator lancé, sinon en démarre un)
 npm run schemas    # régénère static/schemas/*.json
 ```
 

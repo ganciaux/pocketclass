@@ -25,7 +25,7 @@
 		"deploy:app": "npm run build && firebase deploy --only hosting",
 		"deploy:rules": "firebase deploy --only firestore",
 		"schemas": "node scripts/export-schemas.ts",
-		"test:rules": "firebase emulators:exec --only firestore \"vitest --run --project rules\""
+		"test:rules": "node scripts/test-rules.ts"
 	},
 	"devDependencies": {
 		"@firebase/rules-unit-testing": "^6.0.0",

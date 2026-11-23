@@ -84,11 +84,10 @@ console (lien plus haut).
 
 ## Pièges connus
 
-- **`test:rules` (et donc `verify` / `prod`) démarre son propre émulateur Firestore** sur le
-  port 8080. Si `npm run emulators` tourne déjà, arrêter les emulators avant, ou lancer
-  directement `npx vitest --run --project rules` : il utilise alors l'émulateur déjà lancé.
-  Les tests utilisent le projet `demo-pocketclass-rules` et n'effacent jamais les données de
-  développement.
+- **`test:rules` (et donc `verify` / `prod`)** réutilise l'émulateur Firestore s'il tourne
+  déjà (`npm run emulators`), sinon il en démarre un le temps des tests
+  (`scripts/test-rules.ts`). Les tests utilisent le projet `demo-pocketclass-rules` et
+  n'effacent jamais les données de développement.
 - **Le build de déploiement ne doit pas pointer sur les emulators** : `npm run build` (utilisé
   par les commandes de déploiement) ignore `PUBLIC_USE_EMULATORS`. `npm run build:emulators`
   sert uniquement aux tests locaux.
