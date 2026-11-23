@@ -40,24 +40,30 @@ pastes it into the app. **The app never calls an AI API.**
 
 Layers, from the outside in. A layer only imports from layers below it.
 
-| Layer      | Where                                                             | Rules                                                                                                                                                                                                                                             |
-| ---------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Routes     | `src/routes/**`                                                   | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                          |
-| Components | `src/lib/components/`                                             | Reusable UI (`LoadState`, `SessionGate`).                                                                                                                                                                                                         |
-| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`) | Runes singletons.                                                                                                                                                                                                                                 |
-| Data       | `src/lib/data/`                                                   | The only code touching Firestore. `refs.ts` builds every path. Live reads are `Subscribe` sources (`docSource`, `querySource`) named `watchX` in `catalog.ts`, `family.ts`; one-shot reads are cache-first (`firstSnapshot`, `getDocCacheFirst`). |
-| Pure logic | `schemas/`, `import/importPlan.ts`, `math/`, `render/`, `i18n/`   | No Firebase import: unit-tested with Vitest. Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                         |
+| Layer      | Where                                                             | Rules                                                                                                                                                                                                                                                                                                                                               |
+| ---------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes     | `src/routes/**`                                                   | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                                                                                                                            |
+| Components | `src/lib/components/`                                             | Reusable UI (`LoadState`, `SessionGate`).                                                                                                                                                                                                                                                                                                           |
+| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`) | Runes singletons.                                                                                                                                                                                                                                                                                                                                   |
+| Data       | `src/lib/data/`                                                   | The only code touching Firestore. `refs.ts` builds every path (names in `collections.ts`). `sources.ts`: `Subscribe` sources (`docSource`, `querySource`) and cache-first one-shot reads (`firstSnapshot`, `getDocCacheFirst`). Domain sources are named `watchX` (`catalog.ts`, `family.ts`). Executors of pure plans live here (`importPath.ts`). |
+| Pure logic | `schemas/`, `import/`, `math/`, `render/`, `i18n/`                | No **runtime** Firebase import: unit-tested with Vitest. May import types from `data/types.ts` and names from `data/collections.ts` (both pure). Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                       |
 
-- **Pattern for Firestore features**: pure planner (unit-tested) + thin executor in `data/` or
-  `import/` (e.g. `planImport` / `importPath`). Keep it for attempts, points, summaries.
-- **Live data in components**: `live()` (`data/live.svelte.ts`) resets on source change and
-  drops late results; sources must read **primitives** (ids), not objects that change on every
-  keystroke. Async one-shot loads in effects need a `cancelled` flag in the cleanup.
+- **Pattern for Firestore features**: pure planner in a pure module (unit-tested) + thin
+  executor in `data/` (e.g. `import/importPlan.ts` + `data/importPath.ts`). Keep it for
+  attempts, points, summaries.
+- **Reads are cache-first** (work offline), except deliberate online-only parent actions such as
+  the import, which reads from the server (`data/importPath.ts`).
+- **Live data in components**: `live()` (`data/live.svelte.ts`) resets on source change (in
+  `$effect.pre`, so no frame shows stale data) and drops late results; sources must read
+  **primitives** (ids), not objects that change on every keystroke. Name the live value
+  `xLive` and the `<LoadState>` snippet parameter `x`. Async one-shot loads in effects need a
+  `cancelled` flag in the cleanup; read non-trigger values with `untrack`.
 - **Storage types** (`data/types.ts`) derive nested content from the Zod schemas; exercises are
   stored **flat** (`{ id, ...record }` is the `Exercise` again).
 - **UI text** only in `fr.ts`; counts with `plural()`. **CSS**: reuse the utilities at the end of
-  `app.css` (`.list`, `.card-link`, `.callout`, `.pill`, `.mono`, `label.check`, `.prose`)
-  before adding page CSS.
+  `app.css` before adding page CSS: layout `.stack`, `.stack-tight`, `.row`, `.card`; text
+  `.muted`, `.small`, `.block`, `.mono`; lists `.list`, `.list.plain`; states `.error`,
+  `.warning`, `.callout`, `.pill`; `.card-link`, `button.link`, `label.check`, `.prose`.
 - **Rules** change ⇒ add a case in `tests/rules/firestore.rules.test.ts` (`npm run test:rules`).
 
 ### To plan in later phases (not coded on purpose)
@@ -104,7 +110,7 @@ made.
   evaluator kept inside the test) and checks value + irreducibility. Keep this convention in
   the AI prompts (phase 6) if we want generated content to be auto-checkable.
 - 2026-11-23 — Import split in two: `import/importPlan.ts` (pure `planImport(path, existing)` →
-  write ops, unit-tested) and `import/importPath.ts` (reads existing state, runs the plan in
+  write ops, unit-tested) and `import/importPath.ts`, now `data/importPath.ts` (reads existing state, runs the plan in
   `writeBatch` chunks of 450). Existing state only lists **active** items, so archiving counts
   are exact; a reappearing item is reactivated by its `set`.
 - 2026-11-23 — Stored path `version = max(json.version, existing.version + 1)`.
@@ -116,8 +122,8 @@ made.
   fields). Pure modules usable in tests must not import `#lib/firebase.ts` (it needs
   `$app/env`); collection names live in `data/collections.ts`.
 - 2026-11-23 — Static assets are typed in Kit 3: `asset('samples/x.json')` (no leading slash).
-- 2026-11-23 — **Cache-first reads** (`data/live.ts`): pages use `onSnapshot` (`watchDoc`,
-  `watchQuery`), which serves the IndexedDB cache immediately offline; `getDoc` would wait for
+- 2026-11-23 — **Cache-first reads** (now `data/sources.ts`): pages use `onSnapshot` (via `docSource` /
+  `querySource` and `live()`), which serves the IndexedDB cache immediately offline; `getDoc` would wait for
   the server first. One-shot reads use `getDocCacheFirst`, which confirms a cache miss with the
   server: the session never creates a family because a document is missing _from the cache_.
 - 2026-11-23 — `render/markdown.ts`: math is cut out before marked (placeholders), rendered by
@@ -149,6 +155,10 @@ made.
     Families created before (auto id) keep working through `users/{uid}`.
   - Session: run counter against overlapping auth events, `retry()`, `notLinked` status.
   - Firestore rules tests in the repo (`@firebase/rules-unit-testing`, `npm run test:rules`).
+- 2026-11-23 — Final review follow-up: `data/live.ts` renamed `data/sources.ts`; `importPath.ts`
+  moved to `data/` (only `data/` touches Firestore); `docSource`/`querySource` without casts;
+  `live()` resets in `.pre`; map page wraps concepts in its own `<LoadState>`; import
+  conflict check also keyed on the path id; 10 rules tests (incl. the real first-login order).
 
 ## Firestore model
 
@@ -186,6 +196,7 @@ nvm use 24
 npm run dev          # Vite dev server (set PUBLIC_USE_EMULATORS=true in .env.local)
 npm run emulators    # Firebase Auth + Firestore emulators + UI (second terminal)
 npm run check        # svelte-check
+npm run lint         # prettier --check (npm run format to fix)
 npm run test         # Vitest unit tests (project "server")
 npm run test:rules   # Firestore rules tests (starts the Firestore emulator itself)
 npm run schemas      # export JSON Schemas to static/schemas/

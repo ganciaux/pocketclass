@@ -65,6 +65,7 @@ apparaître. DevTools → Application → Manifest doit indiquer que l'app est i
 
 ```sh
 npm run check      # svelte-check
+npm run lint       # vérifie le formatage (npm run format pour corriger)
 npm run test       # Vitest (schémas, import, fractions, rendu Markdown, textes, exactitude de l'exemple)
 npm run test:rules # règles Firestore (lance l'emulator Firestore tout seul)
 npm run schemas    # régénère static/schemas/*.json
@@ -81,6 +82,9 @@ npm run deploy   # npm run build && firebase deploy
 - Projet : `pocketclass-bd866` (`.firebaserc`)
 - Règles : `firestore.rules`. Les parents (admins) ont un accès complet à leur famille ; les
   appareils liés (phase 5) lisent le catalogue et leur profil. Tout le reste est refusé.
+  Tests : `npm run test:rules`.
+- Famille : son id est l'uid du parent (premier login rejouable sans doublon).
+- Architecture et conventions du code : voir `CLAUDE.md`.
 - Après un déploiement, vérifier les en-têtes de cache (l'emulator ne les applique pas) :
 
 ```sh

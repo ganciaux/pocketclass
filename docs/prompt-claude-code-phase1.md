@@ -57,7 +57,7 @@ Versions installées : SvelteKit 3.4, Svelte 5.59, Vite 8, TypeScript 6, Vitest 
 - **Erreurs de validation** : la locale française intégrée à Zod 4 (`z.locales.fr()`) sert pour les erreurs de structure ; les messages métier (références, slugs, trous) sont dans `fr.validation`. Les validations croisées ne s'exécutent que si la structure est valide. Les champs inconnus sont ignorés.
 - **`npm run schemas`** : Node 24 exécute directement `scripts/export-schemas.ts`. Les JSON Schema décrivent l'entrée (`io: 'input'`) : les champs qui ont une valeur par défaut sont facultatifs.
 - **Convention des énoncés `calculation`** (vérifiée par le test d'exactitude) : l'expression à calculer est la **dernière formule `$…$`** de l'énoncé (la partie droite si elle contient `=`), ex. « Calcule $\frac{2}{7} + \frac{3}{7}$. ». À reprendre dans les prompts IA pour que le contenu généré soit vérifiable.
-- **Import** : `planImport` (fonction pure, testée) calcule les écritures ; `importPath` lit l'état existant (éléments non archivés uniquement) puis exécute le plan par lots de 450. Version stockée = `max(version du JSON, version existante + 1)`. Id du subject = slug du nom (`mathematiques`). Id de l'assessment = id du concept, avec un champ `pathId` en plus. Les exercices sont stockés **à plat** (le document = l'exercice du JSON sans son id + `archived`). L'import est **bloqué** si un id de notion appartient déjà à un autre parcours.
+- **Import** : `planImport` (fonction pure, testée) calcule les écritures ; `data/importPath.ts` lit l'état existant (depuis le serveur) (éléments non archivés uniquement) puis exécute le plan par lots de 450. Version stockée = `max(version du JSON, version existante + 1)`. Id du subject = slug du nom (`mathematiques`). Id de l'assessment = id du concept, avec un champ `pathId` en plus. Les exercices sont stockés **à plat** (le document = l'exercice du JSON sans son id + `archived`). L'import est **bloqué** si un id de notion appartient déjà à un autre parcours.
 - **Famille** : son id est l'uid du parent (de même pour le profil admin), ce qui rend le premier login rejouable sans doublon. Les règles n'autorisent la création que de `families/{son uid}`.
 - **Architecture** : les routes ne touchent jamais Firestore ; elles lisent via `live(() => watchX(...))` et `<LoadState>`. Détail des couches et conventions dans `CLAUDE.md` (section « Architecture & conventions »).
 - **Lectures hors-ligne** : les pages lisent avec `onSnapshot` (le cache IndexedDB est servi tout de suite, alors que `getDoc` attend d'abord le serveur). Une absence de document lue depuis le cache est confirmée auprès du serveur avant toute création (jamais de seconde famille hors-ligne).
@@ -65,7 +65,7 @@ Versions installées : SvelteKit 3.4, Svelte 5.59, Vite 8, TypeScript 6, Vitest 
 - **Rendu des fiches** : les formules sont extraites avant marked, rendues par KaTeX, puis tout le HTML passe par DOMPurify (testé avec jsdom).
 - **PWA** : `@vite-pwa/sveltekit` 2 s'utilise via `withPwa(optionsKit, optionsPwa)`, qui remplace `sveltekit()` dans `vite.config.ts` (clé `strategies`, pas `strategy`). Stratégie `generateSW` en `autoUpdate`, SW enregistré dans le layout via `virtual:pwa-register`. Manifest et icônes déclarés en statique dans `app.html`. `globStrict: false` car le plugin ajoute toujours `prerendered/**`, vide dans une SPA. Dépendance `magicast` requise. Icônes provisoires générées une fois (`npx pwa-assets-generator --preset minimal static/icon.svg`) et commitées.
 - **Build pour emulators** : `npm run build:emulators` (mode `emulators`) produit un build qui se connecte aux emulators, pour tester la PWA en local avec `npm run preview`. `npm run build` (mode production, utilisé par `deploy`) ne s'y connecte jamais (vérifié : aucune référence à `127.0.0.1:9099` dans le build).
-- **En-têtes de cache Hosting** : deux règles disjointes (regex `no-cache` pour `index.html`, les routes SPA, le service worker et le manifest ; `immutable` pour `/_app/immutable/**`). L'emulator Hosting ignore les en-têtes personnalisés : à vérifier avec `curl -I` après le premier déploiement.
+- **En-têtes de cache Hosting** : deux règles disjointes (regex `no-cache` pour `index.html`, les routes SPA, le service worker et le manifest ; `immutable` pour `/_app/immutable/**`). L'emulator Hosting ignore les en-têtes personnalisés ; vérifié avec `curl -I` en production le 23 nov. 2026 : conforme.
 
 ### Conventions
 
@@ -87,8 +87,8 @@ families/{familyId}                          { name, admins: [uid], createdAt }
                                                keyPoints: [{ id, label }],
                                                sheet: { sections: [...], pitfalls: [string] },
                                                summaryInstruction, archived: false }
-  concepts/{conceptId}/exercises/{exerciseId} { usage, type, keyPoint, difficulty, content, archived: false }
-  assessments/{assessmentId}                 { conceptIds, type, draw?, exerciseIds?, paper?, scoring }
+  concepts/{conceptId}/exercises/{exerciseId} { usage, type, keyPoint, difficulty, ...champs du type, archived: false }
+  assessments/{assessmentId}                 { pathId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }
   profiles/{profileId}/assignments/{pathId}      { since, dueDate? }
   profiles/{profileId}/progress/{conceptId}      (phase 2)
   profiles/{profileId}/attempts/{id}             (phase 2, ajout seulement)
@@ -206,7 +206,7 @@ Ajoute aussi **deux concepts courts** (`maths-3e-powers` dans `numbers`, `maths-
    - exemples repliables (énoncé, puis solution) et pièges mis en avant ;
    - liste des key points ;
    - boutons « S'entraîner » et « Contrôle » désactivés, avec la mention « bientôt ».
-5. **Accueil** (`/`) : selon le rôle, le parent voit l'import et les profils ; tout le monde voit les parcours affectés.
+5. **Accueil** (`/`) : selon le rôle, le parent voit l'import et les profils ; tout le monde voit les parcours affectés. *(Mis à jour : le parent voit tous les parcours de la famille, un enfant voit ses parcours affectés.)*
 6. **Hors-ligne** : une fois une fiche ouverte, elle reste consultable sans réseau (cache Firestore et service worker). Affiche un petit indicateur « Hors-ligne ».
 
 ## 7. Firebase : configuration et règles
@@ -217,7 +217,7 @@ Ajoute aussi **deux concepts courts** (`maths-3e-powers` dans `numbers`, `maths-
   - en-têtes de cache : `immutable` pour `/_app/immutable/**`, `no-cache` pour `index.html` et le service worker ;
   - Firestore : `firestore.rules` et `firestore.indexes.json` ;
   - emulators pour Auth, Firestore et l'UI.
-- `.firebaserc` avec le projet `pocketclass`. **Demande-moi l'id exact du projet** si tu ne le trouves pas.
+- `.firebaserc` avec le projet `pocketclass`. **Demande-moi l'id exact du projet** si tu ne le trouves pas. *(Mis à jour : id réel `pocketclass-bd866`.)*
 - `firestore.rules` (première version) :
   - un utilisateur lit et crée **son** `users/{uid}` ;
   - **admin d'une famille** : `request.auth.uid in get(families/{fid}).data.admins` donne lecture et écriture sur tout ce qui est sous `families/{fid}` ;
@@ -226,7 +226,7 @@ Ajoute aussi **deux concepts courts** (`maths-3e-powers` dans `numbers`, `maths-
   - tout le reste est refusé par défaut. Commente les règles (en anglais).
 - Scripts npm :
   - `dev` (avec les emulators via `firebase emulators:start` dans un second terminal, documenté dans le README) ;
-  - `build`, `preview`, `check`, `test`, `schemas` ;
+  - `build`, `preview`, `check`, `test`, `schemas` ; *(mis à jour : aussi `build:emulators`, `test:rules`, `lint`, `format` — liste complète dans `CLAUDE.md`)*
   - `deploy` (`npm run build && firebase deploy`).
 
 ## 8. Structure suggérée
