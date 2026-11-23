@@ -3,5 +3,5 @@
 	"compilerOptions": {
 		"strict": true
 	},
-	"include": ["src", "scripts", "vite.config.ts", "prettier.config.js"]
+	"include": ["src", "scripts", "tests", "vite.config.ts", "prettier.config.js"]
 }

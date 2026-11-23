@@ -17,12 +17,14 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
-		"test": "vitest --run",
+		"test": "vitest --run --project server",
 		"test:watch": "vitest",
 		"deploy": "npm run build && firebase deploy",
-		"schemas": "node scripts/export-schemas.ts"
+		"schemas": "node scripts/export-schemas.ts",
+		"test:rules": "firebase emulators:exec --only firestore \"vitest --run --project rules\""
 	},
 	"devDependencies": {
+		"@firebase/rules-unit-testing": "^6.0.0",
 		"@sveltejs/adapter-static": "^4.0.1",
 		"@sveltejs/kit": "^3.2.0",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",

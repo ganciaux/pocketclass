@@ -65,6 +65,17 @@ export default defineConfig({
 					include: ['src/**/*.{test,spec}.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}
+			},
+			{
+				// Firestore security rules, against the emulator: npm run test:rules
+				extends: './vite.config.ts',
+				test: {
+					name: 'rules',
+					environment: 'node',
+					include: ['tests/rules/**/*.test.ts'],
+					// assertSucceeds / assertFails are not Vitest `expect` assertions.
+					expect: { requireAssertions: false }
+				}
 			}
 		]
 	}
