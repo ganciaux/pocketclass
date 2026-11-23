@@ -48,9 +48,7 @@ export const fr = {
 		parentSection: 'Espace parent',
 		importPath: 'Importer un parcours',
 		manageProfiles: 'Gérer les profils',
-		assignedPaths: 'Parcours affectés',
 		familyPaths: 'Parcours de la famille',
-		noAssignedPaths: 'Aucun parcours affecté pour le moment.',
 		noFamilyPaths: 'Aucun parcours importé pour le moment.',
 		loadFailed: 'Impossible de charger les parcours.',
 		version: (v: number) => `version ${v}`
@@ -58,7 +56,8 @@ export const fr = {
 	map: {
 		notFound: "Ce parcours n'existe pas (ou plus).",
 		loadFailed: 'Impossible de charger le parcours.',
-		todo: 'à faire'
+		todo: 'à faire',
+		read: 'lue ✓'
 	},
 	concept: {
 		notFound: "Cette notion n'existe pas (ou plus).",
@@ -69,7 +68,10 @@ export const fr = {
 		pitfalls: '⚠️ Pièges à éviter',
 		practice: "S'entraîner",
 		assessment: 'Contrôle',
-		backToMap: '← Retour à la carte'
+		backToMap: '← Retour à la carte',
+		markRead: "J'ai lu cette fiche",
+		isRead: '✓ Fiche lue',
+		markUnread: 'Marquer comme non lue'
 	},
 	profiles: {
 		title: 'Profils',
@@ -84,6 +86,14 @@ export const fr = {
 		firstNameRequired: 'Indique un prénom.',
 		back: '← Profils',
 		notFound: "Ce profil n'existe pas (ou plus)."
+	},
+	dashboard: {
+		title: "Où j'en suis",
+		loadFailed: 'Impossible de charger ta progression.',
+		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
+		next: 'Continuer :',
+		allRead: 'Toutes les fiches sont lues ✓',
+		empty: 'Aucun parcours affecté pour le moment.'
 	},
 	look: {
 		title: 'Pseudo et avatar',

@@ -3,6 +3,7 @@
 	import LoadState from '#lib/components/LoadState.svelte';
 	import { watchConcept } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
+	import { setConceptRead, watchConceptProgress } from '#lib/data/progress.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { renderInline, renderMarkdown } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
@@ -13,6 +14,20 @@
 	const conceptLive = live(
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
+
+	const profileId = $derived(session.isChild ? (session.profile?.id ?? null) : null);
+	const readLive = live(
+		() =>
+			session.familyId &&
+			profileId &&
+			conceptId &&
+			watchConceptProgress(session.familyId, profileId, conceptId)
+	);
+	const isRead = $derived(readLive.status === 'ready');
+
+	function markRead(concept: { id: string; pathId: string }, read: boolean) {
+		if (session.familyId && profileId) setConceptRead(session.familyId, profileId, concept, read);
+	}
 
 	/** Key point number (1-based) shown as a badge next to each section. */
 	const keyPointNumber = $derived(
@@ -77,6 +92,17 @@
 						{/each}
 					</ul>
 				</section>
+			{/if}
+
+			{#if profileId}
+				<div class="stack-tight read-toggle">
+					{#if isRead}
+						<span class="pill success">{t.isRead}</span>
+						<button class="link" onclick={() => markRead(concept, false)}>{t.markUnread}</button>
+					{:else}
+						<button class="primary" onclick={() => markRead(concept, true)}>{t.markRead}</button>
+					{/if}
+				</div>
 			{/if}
 
 			<div class="actions">
@@ -145,6 +171,11 @@
 		margin-top: var(--space-2);
 		padding-top: var(--space-2);
 		border-top: 1px dashed var(--color-border);
+	}
+
+	.read-toggle {
+		align-items: center;
+		text-align: center;
 	}
 
 	.actions {

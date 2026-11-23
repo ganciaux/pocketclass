@@ -211,6 +211,10 @@ button.link {
 }
 
 /* Small rounded badge; combine with .warning / .error for colours. */
+.success {
+	color: var(--color-success);
+}
+
 .pill {
 	padding: 0.1rem var(--space-2);
 	border-radius: 999px;

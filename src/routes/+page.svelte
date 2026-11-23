@@ -1,18 +1,17 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
-	import { watchAssignedPaths, watchFamilyPaths } from '#lib/data/catalog.ts';
+	import ProfileDashboard from '#lib/components/ProfileDashboard.svelte';
+	import { watchFamilyPaths } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { displayName } from '#lib/profile/display.ts';
 	import { resolve } from '$app/paths';
 
-	// Parents see every path of the family; children see the paths assigned to them.
-	const paths = live(() => {
-		const { familyId, profile } = session;
-		if (!familyId || !profile) return null;
-		return session.isAdmin ? watchFamilyPaths(familyId) : watchAssignedPaths(familyId, profile.id);
-	});
+	// Parents see every path of the family; children see their dashboard (assigned paths).
+	const familyPathsLive = live(
+		() => session.isAdmin && session.familyId && watchFamilyPaths(session.familyId)
+	);
 </script>
 
 <main class="stack">
@@ -26,21 +25,26 @@
 				<a class="button" href={resolve('/parent/profiles')}>{fr.home.manageProfiles}</a>
 			</div>
 		</section>
-	{/if}
 
-	<section class="stack">
-		<h2>{session.isAdmin ? fr.home.familyPaths : fr.home.assignedPaths}</h2>
-		<LoadState source={paths} failed={fr.home.loadFailed}>
-			{#snippet children(list)}
-				{#each list as path (path.id)}
-					<a class="card card-link stack-tight" href={resolve('/path/[id]', { id: path.id })}>
-						<strong>{path.title}</strong>
-						<span class="muted">{path.grade} · {fr.home.version(path.version)}</span>
-					</a>
-				{:else}
-					<p class="muted">{session.isAdmin ? fr.home.noFamilyPaths : fr.home.noAssignedPaths}</p>
-				{/each}
-			{/snippet}
-		</LoadState>
-	</section>
+		<section class="stack">
+			<h2>{fr.home.familyPaths}</h2>
+			<LoadState source={familyPathsLive} failed={fr.home.loadFailed}>
+				{#snippet children(list)}
+					{#each list as path (path.id)}
+						<a class="card card-link stack-tight" href={resolve('/path/[id]', { id: path.id })}>
+							<strong>{path.title}</strong>
+							<span class="muted">{path.grade} · {fr.home.version(path.version)}</span>
+						</a>
+					{:else}
+						<p class="muted">{fr.home.noFamilyPaths}</p>
+					{/each}
+				{/snippet}
+			</LoadState>
+		</section>
+	{:else if session.familyId && session.profile}
+		<section class="stack">
+			<h2>{fr.dashboard.title}</h2>
+			<ProfileDashboard familyId={session.familyId} profileId={session.profile.id} />
+		</section>
+	{/if}
 </main>

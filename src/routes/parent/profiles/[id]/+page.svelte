@@ -3,6 +3,7 @@
 	import ChildDevices from '#lib/components/ChildDevices.svelte';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import ProfileDashboard from '#lib/components/ProfileDashboard.svelte';
 	import ProfileLookForm from '#lib/components/ProfileLookForm.svelte';
 	import { watchProfile } from '#lib/data/family.ts';
 	import { live } from '#lib/data/live.svelte.ts';
@@ -27,6 +28,10 @@
 				<h1>{displayName(child)} <span class="muted">{child.grade}</span></h1>
 			</header>
 			{#if session.familyId}
+				<section class="stack">
+					<h2>{fr.dashboard.title}</h2>
+					<ProfileDashboard familyId={session.familyId} profileId={child.id} />
+				</section>
 				<ProfileLookForm familyId={session.familyId} profile={child} />
 				<ChildDevices familyId={session.familyId} profileId={child.id} />
 			{/if}

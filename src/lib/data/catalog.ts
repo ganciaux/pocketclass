@@ -22,6 +22,10 @@ export const watchConceptsOfPath = (familyId: string, pathId: string) =>
 		concepts.filter((c) => !c.archived).sort((a, b) => a.order - b.order)
 	);
 
+/** Every active concept of the family (dashboard: progress of several paths at once). */
+export const watchActiveConcepts = (familyId: string) =>
+	querySource(query(conceptsCol(familyId), where('archived', '==', false)));
+
 /** Paths assigned to a profile (live on the assignments, path documents read cache-first). */
 export function watchAssignedPaths(
 	familyId: string,

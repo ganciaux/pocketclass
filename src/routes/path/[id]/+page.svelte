@@ -3,8 +3,9 @@
 	import LoadState from '#lib/components/LoadState.svelte';
 	import { watchConceptsOfPath, watchPath } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import type { ConceptRecord, PathRecord, WithId } from '#lib/data/types.ts';
+	import { watchProgress } from '#lib/data/progress.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import { topicsOf } from '#lib/progress/paths.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -14,12 +15,15 @@
 	const conceptsLive = live(
 		() => session.familyId && pathId && watchConceptsOfPath(session.familyId, pathId)
 	);
-
-	function topicsOf(path: WithId<PathRecord>, concepts: WithId<ConceptRecord>[]) {
-		return [...path.topics]
-			.sort((a, b) => a.order - b.order)
-			.map((topic) => ({ ...topic, concepts: concepts.filter((c) => c.topicId === topic.id) }));
-	}
+	// Children only: parents do not track their own reading.
+	const progressLive = live(
+		() =>
+			session.isChild &&
+			session.familyId &&
+			session.profile &&
+			watchProgress(session.familyId, session.profile.id)
+	);
+	const readIds = $derived(new Set((progressLive.data ?? []).map((p) => p.id)));
 </script>
 
 <svelte:head>
@@ -44,12 +48,14 @@
 							{:else}
 								<ol class="trail">
 									{#each topic.concepts as concept, i (concept.id)}
-										<li class="stop" class:right={i % 2 === 1}>
+										<li class="stop" class:right={i % 2 === 1} class:read={readIds.has(concept.id)}>
 											<a href={resolve('/concept/[id]', { id: concept.id })} class="node card-link">
 												<span class="dot" aria-hidden="true"></span>
 												<span class="label">
 													<strong>{@html renderInline(concept.title)}</strong>
-													<span class="status">{fr.map.todo}</span>
+													<span class="status">
+														{readIds.has(concept.id) ? fr.map.read : fr.map.todo}
+													</span>
 												</span>
 											</a>
 										</li>
@@ -127,6 +133,15 @@
 		background: var(--color-surface);
 		border: 4px solid var(--color-primary);
 		box-shadow: var(--shadow);
+	}
+
+	.read .dot {
+		background: var(--color-success);
+		border-color: var(--color-success);
+	}
+
+	.read .status {
+		color: var(--color-success);
 	}
 
 	.label {
