@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
+	import Avatar from '#lib/components/Avatar.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import { createChildProfile, watchChildProfiles } from '#lib/data/family.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { GRADES, type Grade } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import { displayName } from '#lib/profile/display.ts';
 	import { resolve } from '$app/paths';
 
 	const t = fr.profiles;
@@ -52,10 +54,13 @@
 					{#each list as child (child.id)}
 						<li>
 							<a
-								class="card card-link block"
+								class="card card-link row"
 								href={resolve('/parent/profiles/[id]', { id: child.id })}
 							>
-								<strong>{child.firstName}</strong> <span class="muted">{child.grade}</span>
+								<Avatar profile={child} size={2} />
+								<span>
+									<strong>{displayName(child)}</strong> <span class="muted">{child.grade}</span>
+								</span>
 							</a>
 						</li>
 					{:else}

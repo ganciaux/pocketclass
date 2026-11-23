@@ -85,6 +85,20 @@ export const fr = {
 		back: '← Profils',
 		notFound: "Ce profil n'existe pas (ou plus)."
 	},
+	look: {
+		title: 'Pseudo et avatar',
+		nickname: 'Pseudo',
+		chooseImage: 'Choisir une image',
+		removeImage: "Retirer l'image",
+		imageFailed: "Cette image n'a pas pu être lue. Essaie une autre image.",
+		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
+		save: 'Enregistrer',
+		saved: 'Enregistré.'
+	},
+	me: {
+		title: 'Mon profil',
+		open: 'Mon profil'
+	},
 	devices: {
 		title: 'Appareils reliés',
 		none: 'Aucun appareil relié.',

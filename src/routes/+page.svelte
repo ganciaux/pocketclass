@@ -4,6 +4,7 @@
 	import { watchAssignedPaths, watchFamilyPaths } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import { displayName } from '#lib/profile/display.ts';
 	import { resolve } from '$app/paths';
 
 	// Parents see every path of the family; children see the paths assigned to them.
@@ -15,7 +16,7 @@
 </script>
 
 <main class="stack">
-	<h1>{fr.auth.hello(session.profile?.firstName ?? '')}</h1>
+	<h1>{fr.auth.hello(session.profile ? displayName(session.profile) : '')}</h1>
 
 	{#if session.isAdmin}
 		<section class="card stack">
