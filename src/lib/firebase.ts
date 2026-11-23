@@ -27,7 +27,9 @@ export const app = initializeApp({
 });
 
 // Persistent IndexedDB cache: documents read once stay available offline.
+// ignoreUndefinedProperties: optional fields absent from the import JSON are simply not written.
 export const db = initializeFirestore(app, {
+	ignoreUndefinedProperties: true,
 	localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 });
 

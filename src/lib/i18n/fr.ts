@@ -44,6 +44,36 @@ export const fr = {
 	parent: {
 		adminOnly: 'Cette page est réservée aux parents.'
 	},
+	import: {
+		title: 'Importer un parcours',
+		help: "Colle ici le JSON produit par l'IA (format pocketclass/path@1).",
+		placeholder: '{ "format": "pocketclass/path@1", … }',
+		loadSample: "Charger l'exemple",
+		sampleFailed: "Impossible de charger l'exemple.",
+		preview: 'Aperçu',
+		errorsTitle: 'Le JSON contient des erreurs',
+		warningsTitle: "Remarques de l'IA",
+		version: 'Version',
+		versionNew: (v: number) => `${v} (nouveau parcours)`,
+		versionUpdate: (from: number, to: number) => `${from} → ${to} (mise à jour)`,
+		grade: 'Niveau',
+		subject: 'Matière',
+		type: 'Type',
+		types: { brevet: 'Brevet', test: 'Contrôle', lessons: 'Leçons' },
+		topicEmpty: 'aucune notion pour le moment',
+		conceptLine: (keyPoints: number, practice: number, assessment: number) =>
+			`${keyPoints} points-clés · ${practice} exercices d'entraînement · ${assessment} de contrôle`,
+		assignTo: 'Affecter à',
+		noChildren: "Crée d'abord un profil enfant pour pouvoir affecter le parcours.",
+		submit: 'Importer',
+		importing: 'Import en cours…',
+		failed: "L'import a échoué. Vérifie ta connexion et réessaie.",
+		done: (concepts: number, exercises: number) =>
+			`Import terminé : ${concepts} notions, ${exercises} exercices.`,
+		archived: (concepts: number, exercises: number) =>
+			`Archivés car absents du nouveau fichier : ${concepts} notions, ${exercises} exercices.`,
+		openPath: 'Voir la carte du parcours'
+	},
 	validation: {
 		slug: 'identifiant invalide : lettres minuscules, chiffres, « - » ou « _ » uniquement',
 		numberOrFraction:

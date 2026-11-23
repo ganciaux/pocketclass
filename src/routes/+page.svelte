@@ -11,6 +11,7 @@
 		<section class="card stack">
 			<h2>{fr.home.parentSection}</h2>
 			<div class="row">
+				<a class="button primary" href={resolve('/parent/import')}>{fr.home.importPath}</a>
 				<a class="button" href={resolve('/parent/profiles')}>{fr.home.manageProfiles}</a>
 			</div>
 		</section>

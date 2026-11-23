@@ -68,6 +68,19 @@ made.
   formula** (right-hand side if it contains `=`). `mathsSample.test.ts` evaluates it (LaTeX
   evaluator kept inside the test) and checks value + irreducibility. Keep this convention in
   the AI prompts (phase 6) if we want generated content to be auto-checkable.
+- 2026-11-23 — Import split in two: `import/importPlan.ts` (pure `planImport(path, existing)` →
+  write ops, unit-tested) and `import/importPath.ts` (reads existing state, runs the plan in
+  `writeBatch` chunks of 450). Existing state only lists **active** items, so archiving counts
+  are exact; a reappearing item is reactivated by its `set`.
+- 2026-11-23 — Stored path `version = max(json.version, existing.version + 1)`.
+- 2026-11-23 — Subject id = slug of the subject name (`Mathématiques` → `mathematiques`).
+  Assessment id = concept id, with an extra `pathId` field (to find those to archive) and
+  `scoring: { pointsPerCorrect: 5, perfectBonus: 15 }`. Exercise docs store type-specific
+  fields under `content`.
+- 2026-11-23 — Firestore initialised with `ignoreUndefinedProperties: true` (optional JSON
+  fields). Pure modules usable in tests must not import `#lib/firebase.ts` (it needs
+  `$app/env`); collection names live in `data/collections.ts`.
+- 2026-11-23 — Static assets are typed in Kit 3: `asset('samples/x.json')` (no leading slash).
 
 ## Firestore model
 
