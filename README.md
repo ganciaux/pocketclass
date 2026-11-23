@@ -64,9 +64,10 @@ apparaître. DevTools → Application → Manifest doit indiquer que l'app est i
 ## Tests et vérifications
 
 ```sh
-npm run check    # svelte-check
-npm run test     # Vitest (schémas, import, fractions, rendu Markdown, exactitude de l'exemple)
-npm run schemas  # régénère static/schemas/*.json
+npm run check      # svelte-check
+npm run test       # Vitest (schémas, import, fractions, rendu Markdown, textes, exactitude de l'exemple)
+npm run test:rules # règles Firestore (lance l'emulator Firestore tout seul)
+npm run schemas    # régénère static/schemas/*.json
 ```
 
 ## Déploiement

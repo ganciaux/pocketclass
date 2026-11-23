@@ -36,6 +36,41 @@ pastes it into the app. **The app never calls an AI API.**
   KaTeX + marked + DOMPurify for sheets (**always sanitise before `{@html}`**). Vitest.
 - Plain CSS with variables (`src/app.css`), mobile first. No Tailwind.
 
+## Architecture & conventions (how to add code)
+
+Layers, from the outside in. A layer only imports from layers below it.
+
+| Layer      | Where                                                             | Rules                                                                                                                                                                                                                                             |
+| ---------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes     | `src/routes/**`                                                   | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                          |
+| Components | `src/lib/components/`                                             | Reusable UI (`LoadState`, `SessionGate`).                                                                                                                                                                                                         |
+| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`) | Runes singletons.                                                                                                                                                                                                                                 |
+| Data       | `src/lib/data/`                                                   | The only code touching Firestore. `refs.ts` builds every path. Live reads are `Subscribe` sources (`docSource`, `querySource`) named `watchX` in `catalog.ts`, `family.ts`; one-shot reads are cache-first (`firstSnapshot`, `getDocCacheFirst`). |
+| Pure logic | `schemas/`, `import/importPlan.ts`, `math/`, `render/`, `i18n/`   | No Firebase import: unit-tested with Vitest. Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                         |
+
+- **Pattern for Firestore features**: pure planner (unit-tested) + thin executor in `data/` or
+  `import/` (e.g. `planImport` / `importPath`). Keep it for attempts, points, summaries.
+- **Live data in components**: `live()` (`data/live.svelte.ts`) resets on source change and
+  drops late results; sources must read **primitives** (ids), not objects that change on every
+  keystroke. Async one-shot loads in effects need a `cancelled` flag in the cleanup.
+- **Storage types** (`data/types.ts`) derive nested content from the Zod schemas; exercises are
+  stored **flat** (`{ id, ...record }` is the `Exercise` again).
+- **UI text** only in `fr.ts`; counts with `plural()`. **CSS**: reuse the utilities at the end of
+  `app.css` (`.list`, `.card-link`, `.callout`, `.pill`, `.mono`, `label.check`, `.prose`)
+  before adding page CSS.
+- **Rules** change ⇒ add a case in `tests/rules/firestore.rules.test.ts` (`npm run test:rules`).
+
+### To plan in later phases (not coded on purpose)
+
+- Phase 2/3: writes must not await the server when offline (fire-and-forget + `onSnapshot`,
+  show `hasPendingWrites`). Points: batch with deterministic ledger ids + `increment()`
+  (transactions do not work offline). Make `session.profile` live (points change).
+- Phase 3: an "active profile" distinct from the signed-in one if a parent tests as a child.
+- Phase 5: `Device` type + `deviceRef`, device resolution in `ensureFamilyForUser`; consider
+  forbidding family creation for anonymous users in the rules. Session status `notLinked`
+  already exists.
+- SW `autoUpdate`: add an update prompt once the data model changes between versions.
+
 ## Technical decisions log
 
 Keep this section, the brief in `docs/` and the README in sync whenever a technical decision is
@@ -75,8 +110,8 @@ made.
 - 2026-11-23 — Stored path `version = max(json.version, existing.version + 1)`.
 - 2026-11-23 — Subject id = slug of the subject name (`Mathématiques` → `mathematiques`).
   Assessment id = concept id, with an extra `pathId` field (to find those to archive) and
-  `scoring: { pointsPerCorrect: 5, perfectBonus: 15 }`. Exercise docs store type-specific
-  fields under `content`.
+  `scoring: { pointsPerCorrect: 5, perfectBonus: 15 }`. (Exercise `content` sub-object: removed
+  in the refactor below, exercises are flat.)
 - 2026-11-23 — Firestore initialised with `ignoreUndefinedProperties: true` (optional JSON
   fields). Pure modules usable in tests must not import `#lib/firebase.ts` (it needs
   `$app/env`); collection names live in `data/collections.ts`.
@@ -101,20 +136,33 @@ made.
   `prerendered/**`). Needs `magicast`. Placeholder icons generated once from `static/icon.svg`.
 - 2026-11-23 — `npm run build:emulators` (mode `emulators`) = build wired to the emulators, to
   test the SW with `npm run preview`. `usingEmulators` is always false in mode `production`.
+- 2026-11-23 — Phase 1 merged into `main`; work continues on `main` (user's choice).
+- 2026-11-23 — **Refactor after audit** (supersedes some entries above):
+  - `watchDoc`/`watchQuery` replaced by `Subscribe` sources (`docSource`/`querySource`) +
+    `live()` + `<LoadState>`; routes no longer import Firebase.
+  - Exercises stored **flat** (no `content` sub-object). Existing data: re-import the path.
+  - `nextVersion()` is the single version rule; path write flagged `touch` for `updatedAt`.
+  - Import **blocked** when a concept id is owned by an active concept of another path
+    (`findConceptConflicts`, `ImportConflictError`).
+  - First login is idempotent: **family id = admin profile id = parent uid**
+    (`ensureFamilyForUser`). Rules: a family can only be created with `familyId == uid`.
+    Families created before (auto id) keep working through `users/{uid}`.
+  - Session: run counter against overlapping auth events, `retry()`, `notLinked` status.
+  - Firestore rules tests in the repo (`@firebase/rules-unit-testing`, `npm run test:rules`).
 
 ## Firestore model
 
 ```
-users/{uid}                                    { familyId, profileId }
-families/{familyId}                            { name, admins: [uid], createdAt }
+users/{uid}                                    { familyId, profileId }   (both = uid for new parents)
+families/{familyId}                            { name, admins: [uid], createdAt }   (familyId = parent uid)
   devices/{uid}                                { profileId, linkedAt }            (phase 5)
   profiles/{profileId}                         { firstName, role: admin|child, grade, points }
   subjects/{subjectId}                         { name, color }
   paths/{pathId}                               { subjectId, title, grade, type, topics[], source, version, updatedAt }
   concepts/{conceptId}                         { pathId, subjectId, topicId, title, order, prerequisites,
                                                  keyPoints, sheet, summaryInstruction, archived }
-  concepts/{conceptId}/exercises/{exerciseId}  { usage, type, keyPoint, difficulty, content, archived }
-  assessments/{assessmentId}                   { conceptIds, type, draw?, exerciseIds?, paper?, scoring }
+  concepts/{conceptId}/exercises/{exerciseId}  { usage, type, keyPoint, difficulty, ...type fields, archived }
+  assessments/{assessmentId}                   { pathId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }
   profiles/{profileId}/assignments/{pathId}    { since, dueDate? }
   profiles/{profileId}/progress|attempts|summaries|pointsLedger   (phases 2–4)
 ```
@@ -138,11 +186,12 @@ nvm use 24
 npm run dev          # Vite dev server (set PUBLIC_USE_EMULATORS=true in .env.local)
 npm run emulators    # Firebase Auth + Firestore emulators + UI (second terminal)
 npm run check        # svelte-check
-npm run test         # Vitest
+npm run test         # Vitest unit tests (project "server")
+npm run test:rules   # Firestore rules tests (starts the Firestore emulator itself)
 npm run schemas      # export JSON Schemas to static/schemas/
 npm run build        # static production build into build/
 npm run build:emulators  # build wired to the emulators (PWA testing with npm run preview)
-npm run deploy       # build + firebase deploy (the user runs it, never Claude)
+npm run deploy       # build + firebase deploy (only when the user asks)
 ```
 
 Firebase project id: `pocketclass-bd866`.
