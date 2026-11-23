@@ -79,6 +79,7 @@ Versions installées : SvelteKit 3.4, Svelte 5.59, Vite 8, TypeScript 6, Vitest 
 users/{uid}                                  { familyId, profileId }        ← index pour retrouver sa famille
 families/{familyId}                          { name, admins: [uid], createdAt }
   devices/{uid}                              { profileId, linkedAt }        ← appareils liés (enfants, phase 5)
+                                             (mis à jour : + `code` ; voir `CLAUDE.md` pour linkCodes, progress, notes)
   profiles/{profileId}                       { firstName, role: "admin"|"child", grade, points }
   subjects/{subjectId}                       { name, color }
   paths/{pathId}                             { subjectId, title, grade, type: "brevet"|"test"|"lessons",
@@ -265,6 +266,7 @@ Fais des **commits atomiques** avec des messages clairs (en anglais, format conv
 - Phase 3 : assessments, barème (5 points par bonne réponse, +15 si sans-faute ; rejouer ne rapporte que l'amélioration), `pointsLedger`.
 - Phase 4 : summary par photo (prompt copié, import `summary@1`, validation par le parent).
 - Phase 5 : liaison des téléphones enfants par QR code et PIN (Auth anonyme et `devices/{uid}`), règles côté enfant.
+  > Mis à jour (2026-11-23) : fait en avance, par **code à usage unique** (6 caractères, 10 min) saisi dans l'app, sans QR ni PIN (sur iOS, un QR ouvre Safari, dont le stockage est séparé de la PWA installée). Ajoutés en même temps : pseudo / avatar, suivi « fiche lue » + tableau de bord, remarques de l'enfant. Détails dans `CLAUDE.md`.
 - Phase 6 : révision espacée, prompts IA dans l'app (copier le prompt), saisie rapide de leçons (`lesson@1`).
 
 Garde l'architecture prête pour ces phases, sans les implémenter.

@@ -46,7 +46,16 @@ compte fictif. Les données sont visibles dans l'UI des emulators et repartent d
 redémarrage.
 
 Premier login parent : l'app crée la famille, le profil parent et l'index `users/{uid}`.
-Les profils enfants se créent dans **Gérer les profils**.
+Rien à configurer dans la console Firebase : le parent (admin) est celui qui a créé la famille
+(`families.admins`, `profile.role = admin`).
+
+Les profils enfants se créent dans **Gérer les profils**. Pour connecter le téléphone d'un
+enfant : ouvrir son profil → **Lier un appareil** affiche un code (6 caractères, 10 minutes,
+usage unique) ; sur le téléphone de l'enfant, ouvrir l'app → « Je suis un enfant » → saisir le
+code. L'enfant reste connecté (compte anonyme Firebase) ; s'il perd la session (données
+effacées, nouveau téléphone), il suffit d'un nouveau code : sa progression est rattachée à son
+profil. Le parent peut délier un appareil à tout moment. En local, tester avec une deuxième
+fenêtre de navigation privée pour l'enfant.
 
 ## Tester la PWA (service worker, hors-ligne)
 
@@ -81,7 +90,8 @@ npm run deploy   # npm run build && firebase deploy
 
 - Projet : `pocketclass-bd866` (`.firebaserc`)
 - Règles : `firestore.rules`. Les parents (admins) ont un accès complet à leur famille ; les
-  appareils liés (phase 5) lisent le catalogue et leur profil. Tout le reste est refusé.
+  appareils enfants liés lisent le catalogue et leur profil, et n'écrivent que leur pseudo /
+  avatar, leurs fiches lues et leurs remarques. Tout le reste est refusé.
   Tests : `npm run test:rules`.
 - Famille : son id est l'uid du parent (premier login rejouable sans doublon).
 - Architecture et conventions du code : voir `CLAUDE.md`.
