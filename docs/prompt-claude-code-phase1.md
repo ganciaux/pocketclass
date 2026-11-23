@@ -54,6 +54,8 @@ Versions installées : SvelteKit 3.4, Svelte 5.59, Vite 8, TypeScript 6, Vitest 
 - **Git** : le travail de la phase 1 se fait sur la branche `feat/phase-1`.
 - Id du projet Firebase : `pocketclass-bd866`.
 - **Premier login parent** : écritures séquentielles (famille → profil admin → `users/{uid}`) et non un `writeBatch`, car les règles vérifient `admins` avec `get()`, qui ne voit que les données déjà écrites.
+- **Erreurs de validation** : la locale française intégrée à Zod 4 (`z.locales.fr()`) sert pour les erreurs de structure ; les messages métier (références, slugs, trous) sont dans `fr.validation`. Les validations croisées ne s'exécutent que si la structure est valide. Les champs inconnus sont ignorés.
+- **`npm run schemas`** : Node 24 exécute directement `scripts/export-schemas.ts`. Les JSON Schema décrivent l'entrée (`io: 'input'`) : les champs qui ont une valeur par défaut sont facultatifs.
 - **En-têtes de cache Hosting** : deux règles disjointes (regex `no-cache` pour `index.html`, les routes SPA, le service worker et le manifest ; `immutable` pour `/_app/immutable/**`). L'emulator Hosting ignore les en-têtes personnalisés : à vérifier avec `curl -I` après le premier déploiement.
 
 ### Conventions

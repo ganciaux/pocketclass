@@ -1,0 +1,715 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"properties": {
+		"format": {
+			"type": "string",
+			"const": "pocketclass/path@1"
+		},
+		"id": {
+			"type": "string",
+			"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+		},
+		"subject": {
+			"type": "string",
+			"minLength": 1
+		},
+		"title": {
+			"type": "string",
+			"minLength": 1
+		},
+		"grade": {
+			"type": "string",
+			"minLength": 1
+		},
+		"type": {
+			"type": "string",
+			"enum": [
+				"brevet",
+				"test",
+				"lessons"
+			]
+		},
+		"version": {
+			"type": "integer",
+			"minimum": 1,
+			"maximum": 9007199254740991
+		},
+		"topics": {
+			"minItems": 1,
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+					},
+					"title": {
+						"type": "string",
+						"minLength": 1
+					}
+				},
+				"required": [
+					"id",
+					"title"
+				]
+			}
+		},
+		"concepts": {
+			"minItems": 1,
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+					},
+					"topic": {
+						"type": "string",
+						"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+					},
+					"title": {
+						"type": "string",
+						"minLength": 1
+					},
+					"prerequisites": {
+						"default": [],
+						"type": "array",
+						"items": {
+							"type": "string",
+							"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+						}
+					},
+					"keyPoints": {
+						"minItems": 1,
+						"maxItems": 8,
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string",
+									"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+								},
+								"label": {
+									"type": "string",
+									"minLength": 1
+								}
+							},
+							"required": [
+								"id",
+								"label"
+							]
+						}
+					},
+					"sheet": {
+						"type": "object",
+						"properties": {
+							"sections": {
+								"minItems": 1,
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"title": {
+											"type": "string",
+											"minLength": 1
+										},
+										"text": {
+											"type": "string",
+											"minLength": 1
+										},
+										"examples": {
+											"default": [],
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"statement": {
+														"type": "string",
+														"minLength": 1
+													},
+													"solution": {
+														"type": "string",
+														"minLength": 1
+													}
+												},
+												"required": [
+													"statement",
+													"solution"
+												]
+											}
+										},
+										"keyPoints": {
+											"type": "array",
+											"items": {
+												"type": "string",
+												"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+											}
+										}
+									},
+									"required": [
+										"title",
+										"text",
+										"keyPoints"
+									]
+								}
+							},
+							"pitfalls": {
+								"default": [],
+								"type": "array",
+								"items": {
+									"type": "string",
+									"minLength": 1
+								}
+							}
+						},
+						"required": [
+							"sections"
+						]
+					},
+					"summaryInstruction": {
+						"type": "string",
+						"minLength": 1
+					},
+					"exercises": {
+						"type": "array",
+						"items": {
+							"oneOf": [
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "pair"
+										},
+										"front": {
+											"type": "string",
+											"minLength": 1
+										},
+										"back": {
+											"type": "string",
+											"minLength": 1
+										},
+										"direction": {
+											"default": "front_to_back",
+											"type": "string",
+											"enum": [
+												"front_to_back",
+												"both"
+											]
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"front",
+										"back"
+									]
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "mcq"
+										},
+										"question": {
+											"type": "string",
+											"minLength": 1
+										},
+										"answer": {
+											"type": "string",
+											"minLength": 1
+										},
+										"distractors": {
+											"minItems": 3,
+											"maxItems": 3,
+											"type": "array",
+											"items": {
+												"type": "string",
+												"minLength": 1
+											}
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"question",
+										"answer",
+										"distractors"
+									]
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "calculation"
+										},
+										"statement": {
+											"type": "string",
+											"minLength": 1
+										},
+										"answer": {
+											"anyOf": [
+												{
+													"type": "number"
+												},
+												{
+													"type": "string",
+													"pattern": "^-?\\d+(?:[.,]\\d+)?$|^-?\\d+\\s*\\/\\s*-?\\d+$"
+												}
+											]
+										},
+										"requireIrreducible": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"statement",
+										"answer"
+									]
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "cloze"
+										},
+										"text": {
+											"type": "string",
+											"minLength": 1
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"text"
+									]
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "ordering"
+										},
+										"instruction": {
+											"type": "string",
+											"minLength": 1
+										},
+										"items": {
+											"minItems": 2,
+											"type": "array",
+											"items": {
+												"type": "string",
+												"minLength": 1
+											}
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"instruction",
+										"items"
+									]
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "open"
+										},
+										"question": {
+											"type": "string",
+											"minLength": 1
+										},
+										"answers": {
+											"minItems": 1,
+											"type": "array",
+											"items": {
+												"type": "string",
+												"minLength": 1
+											}
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"question",
+										"answers"
+									]
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "paper"
+										},
+										"instruction": {
+											"type": "string",
+											"minLength": 1
+										},
+										"answer": {
+											"type": "string"
+										},
+										"answerFormat": {
+											"type": "string",
+											"enum": [
+												"number",
+												"fraction",
+												"text",
+												"none"
+											]
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"instruction"
+									]
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"usage": {
+											"type": "string",
+											"enum": [
+												"practice",
+												"assessment"
+											]
+										},
+										"keyPoint": {
+											"type": "string",
+											"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+										},
+										"difficulty": {
+											"default": 1,
+											"type": "number",
+											"enum": [
+												1,
+												2,
+												3
+											]
+										},
+										"type": {
+											"type": "string",
+											"const": "generator"
+										},
+										"generator": {
+											"type": "string",
+											"minLength": 1
+										},
+										"params": {
+											"default": {},
+											"type": "object",
+											"propertyNames": {
+												"type": "string"
+											},
+											"additionalProperties": {}
+										}
+									},
+									"required": [
+										"id",
+										"usage",
+										"keyPoint",
+										"type",
+										"generator"
+									]
+								}
+							]
+						}
+					},
+					"assessment": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"enum": [
+									"brevet",
+									"test"
+								]
+							},
+							"draw": {
+								"type": "object",
+								"properties": {
+									"perKeyPoint": {
+										"type": "integer",
+										"minimum": 1,
+										"maximum": 9007199254740991
+									}
+								},
+								"required": [
+									"perKeyPoint"
+								]
+							},
+							"exerciseIds": {
+								"type": "array",
+								"items": {
+									"type": "string",
+									"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+								}
+							},
+							"paper": {
+								"type": "object",
+								"properties": {
+									"instruction": {
+										"type": "string",
+										"minLength": 1
+									},
+									"rubric": {
+										"minItems": 1,
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"keyPoint": {
+													"type": "string",
+													"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+												},
+												"criterion": {
+													"type": "string",
+													"minLength": 1
+												}
+											},
+											"required": [
+												"keyPoint",
+												"criterion"
+											]
+										}
+									}
+								},
+								"required": [
+									"instruction",
+									"rubric"
+								]
+							}
+						},
+						"required": [
+							"type"
+						]
+					}
+				},
+				"required": [
+					"id",
+					"topic",
+					"title",
+					"keyPoints",
+					"sheet",
+					"exercises"
+				]
+			}
+		},
+		"warnings": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		}
+	},
+	"required": [
+		"format",
+		"id",
+		"subject",
+		"title",
+		"grade",
+		"type",
+		"version",
+		"topics",
+		"concepts"
+	]
+}

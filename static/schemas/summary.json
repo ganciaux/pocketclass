@@ -1,0 +1,105 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"properties": {
+		"format": {
+			"type": "string",
+			"const": "pocketclass/summary@1"
+		},
+		"conceptId": {
+			"type": "string",
+			"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+		},
+		"code": {
+			"type": "string",
+			"minLength": 1
+		},
+		"legible": {
+			"type": "boolean"
+		},
+		"transcription": {
+			"type": "string"
+		},
+		"keyPoints": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"acquired",
+							"partial",
+							"missing",
+							"wrong"
+						]
+					},
+					"comment": {
+						"default": "",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"status"
+				]
+			}
+		},
+		"errors": {
+			"default": [],
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"excerpt": {
+						"type": "string",
+						"minLength": 1
+					},
+					"correction": {
+						"type": "string",
+						"minLength": 1
+					}
+				},
+				"required": [
+					"excerpt",
+					"correction"
+				]
+			}
+		},
+		"score": {
+			"type": "object",
+			"properties": {
+				"acquired": {
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 9007199254740991
+				},
+				"total": {
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 9007199254740991
+				}
+			},
+			"required": [
+				"acquired",
+				"total"
+			]
+		},
+		"advice": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"format",
+		"conceptId",
+		"code",
+		"legible",
+		"transcription",
+		"keyPoints",
+		"advice"
+	]
+}

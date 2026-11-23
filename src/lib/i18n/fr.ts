@@ -43,5 +43,18 @@ export const fr = {
 	},
 	parent: {
 		adminOnly: 'Cette page est réservée aux parents.'
+	},
+	validation: {
+		slug: 'identifiant invalide : lettres minuscules, chiffres, « - » ou « _ » uniquement',
+		numberOrFraction:
+			'réponse invalide : un nombre (ex. 3 ou 2,5) ou une fraction « a/b » est attendu',
+		clozeNoBlank: 'le texte doit contenir au moins un trou [[…]]',
+		clozeEmptyBlank: 'un trou [[ ]] est vide',
+		duplicateId: (id: string) => `l'identifiant « ${id} » est utilisé plusieurs fois`,
+		unknownRef: (id: string, where: string) => `« ${id} » n'existe pas dans ${where}`,
+		scoreTooHigh: 'score.acquired ne peut pas dépasser score.total',
+		root: 'document',
+		invalidJson: "Ce texte n'est pas un JSON valide.",
+		noJsonObject: 'Aucun objet JSON trouvé (il doit commencer par « { » et finir par « } »).'
 	}
 } as const;

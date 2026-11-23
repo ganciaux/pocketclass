@@ -54,6 +54,14 @@ made.
   index/SPA routes/SW/manifest, `immutable` for `/_app/immutable/**`). The Hosting emulator
   ignores custom headers: verify with `curl -I` after a real deploy.
 - 2026-11-23 — Rules were checked against the emulators (two parents, 15 allow/deny cases).
+- 2026-11-23 — Zod structural errors use Zod's built-in French locale, passed per call
+  (`validate()` in `schemas/errors.ts`, no global `z.config`). Business messages (refs, slugs,
+  cloze) live in `fr.validation`. Cross-checks (`superRefine`) only run once the structure is
+  valid, so the user fixes structural errors first. Unknown keys are stripped (Zod default).
+- 2026-11-23 — Exercise variants are defined once in `schemas/common.ts`; `path@1` and
+  `lesson@1` build their unions from them with different common fields.
+- 2026-11-23 — `npm run schemas` runs `scripts/export-schemas.ts` directly with Node 24 (native
+  type stripping, no `tsx`). JSON Schemas use `io: 'input'` (fields with defaults are optional).
 
 ## Firestore model
 

@@ -1,0 +1,19 @@
+// Exports the JSON Schemas of the import formats to static/schemas/ (npm run schemas).
+// Run directly by Node 24 (native TypeScript type stripping).
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { z } from 'zod';
+import { lessonSchema } from '#lib/schemas/lesson.ts';
+import { pathSchema } from '#lib/schemas/path.ts';
+import { summarySchema } from '#lib/schemas/summary.ts';
+
+const outDir = 'static/schemas';
+const schemas = { path: pathSchema, lesson: lessonSchema, summary: summarySchema };
+
+mkdirSync(outDir, { recursive: true });
+for (const [name, schema] of Object.entries(schemas)) {
+	// `input`: what the external AI must produce (fields with defaults are optional).
+	const jsonSchema = z.toJSONSchema(schema, { io: 'input' });
+	const file = `${outDir}/${name}.json`;
+	writeFileSync(file, JSON.stringify(jsonSchema, null, '\t') + '\n');
+	console.log(`wrote ${file}`);
+}
