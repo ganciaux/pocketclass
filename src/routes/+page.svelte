@@ -10,9 +10,7 @@
 	const paths = live(() => {
 		const { familyId, profile } = session;
 		if (!familyId || !profile) return null;
-		return profile.role === 'admin'
-			? watchFamilyPaths(familyId)
-			: watchAssignedPaths(familyId, profile.id);
+		return session.isAdmin ? watchFamilyPaths(familyId) : watchAssignedPaths(familyId, profile.id);
 	});
 </script>
 
@@ -31,7 +29,7 @@
 
 	<section class="stack">
 		<h2>{session.isAdmin ? fr.home.familyPaths : fr.home.assignedPaths}</h2>
-		<LoadState source={paths} notFound="" failed={fr.home.loadFailed}>
+		<LoadState source={paths} failed={fr.home.loadFailed}>
 			{#snippet children(list)}
 				{#each list as path (path.id)}
 					<a class="card card-link stack-tight" href={resolve('/path/[id]', { id: path.id })}>

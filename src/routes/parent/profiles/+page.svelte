@@ -45,7 +45,7 @@
 
 	<section class="card stack">
 		<h2>{t.children}</h2>
-		<LoadState source={childProfiles} notFound="" failed={t.loadFailed}>
+		<LoadState source={childProfiles} failed={t.loadFailed}>
 			{#snippet children(list)}
 				<ul class="list plain">
 					{#each list as child (child.id)}

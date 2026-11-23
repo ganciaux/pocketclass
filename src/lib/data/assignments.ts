@@ -1,5 +1,5 @@
 import { deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { firstSnapshot } from './live.ts';
+import { firstSnapshot } from './sources.ts';
 import { assignmentRef } from './refs.ts';
 
 /** Ids of the profiles (among `profileIds`) that already have `pathId` assigned (cache-first). */

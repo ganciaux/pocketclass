@@ -19,11 +19,11 @@ export type Subscribe<T> = (
 	onError: (error: Error) => void
 ) => () => void;
 
-/** Live document; `select` may map it or return null to treat it as missing (e.g. archived). */
-export function docSource<T, R = WithId<T>>(
+/** Live document; `select` may return null to treat it as missing (e.g. archived). */
+export function docSource<T>(
 	ref: DocumentReference<T>,
-	select: (doc: WithId<T>) => R | null = (doc) => doc as unknown as R
-): Subscribe<R | null> {
+	select: (doc: WithId<T>) => WithId<T> | null = (doc) => doc
+): Subscribe<WithId<T> | null> {
 	return (onData, onError) =>
 		onSnapshot(
 			ref,
@@ -32,11 +32,11 @@ export function docSource<T, R = WithId<T>>(
 		);
 }
 
-/** Live query; `select` may filter, sort or map the documents. */
-export function querySource<T, R = WithId<T>[]>(
+/** Live query; `select` may filter or sort the documents. */
+export function querySource<T>(
 	query: Query<T>,
-	select: (docs: WithId<T>[]) => R = (docs) => docs as unknown as R
-): Subscribe<R> {
+	select: (docs: WithId<T>[]) => WithId<T>[] = (docs) => docs
+): Subscribe<WithId<T>[]> {
 	return (onData, onError) =>
 		onSnapshot(
 			query,

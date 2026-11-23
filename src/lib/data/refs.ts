@@ -6,7 +6,7 @@ import {
 	type DocumentReference
 } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
-import { COLLECTIONS } from './collections.ts';
+import { COLLECTIONS, ROOT } from './collections.ts';
 import type {
 	AssessmentRecord,
 	Assignment,
@@ -21,22 +21,20 @@ import type {
 
 // Typed references to Firestore locations. The only place that builds Firestore paths.
 
-type Segments = [string, ...string[]];
+const { families: FAMILIES, users: USERS } = ROOT;
 
-const FAMILIES = 'families';
+// The SDK types documents as DocumentData; these helpers state the stored type once.
+const typedDoc = <T = DocumentData>(familyId: string, ...segments: string[]) =>
+	doc(db, FAMILIES, familyId, ...segments) as DocumentReference<T>;
+const familyCol = <T>(familyId: string, ...segments: string[]) =>
+	collection(db, FAMILIES, familyId, ...segments) as CollectionReference<T>;
 
 /** Any document under families/{familyId} (untyped, used by the import executor). */
-export const familyDoc = (familyId: string, ...segments: Segments) =>
-	doc(db, FAMILIES, familyId, ...segments) as DocumentReference<DocumentData>;
+export const familyDoc = (familyId: string, ...segments: string[]) =>
+	typedDoc(familyId, ...segments);
 
-const familyCol = <T>(familyId: string, ...segments: Segments) =>
-	collection(db, FAMILIES, familyId, ...segments) as CollectionReference<T>;
-const typedDoc = <T>(familyId: string, ...segments: Segments) =>
-	familyDoc(familyId, ...segments) as unknown as DocumentReference<T>;
-
-export const userRef = (uid: string) => doc(db, 'users', uid) as DocumentReference<UserIndex>;
-export const familyRef = (familyId: string) =>
-	doc(db, FAMILIES, familyId) as DocumentReference<Family>;
+export const userRef = (uid: string) => doc(db, USERS, uid) as DocumentReference<UserIndex>;
+export const familyRef = (familyId: string) => typedDoc<Family>(familyId);
 
 export const profilesCol = (familyId: string) => familyCol<Profile>(familyId, COLLECTIONS.profiles);
 export const profileRef = (familyId: string, profileId: string) =>

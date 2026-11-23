@@ -1,5 +1,5 @@
 import { query, where } from 'firebase/firestore';
-import { docSource, firstSnapshot, querySource, type Subscribe } from './live.ts';
+import { docSource, firstSnapshot, querySource, type Subscribe } from './sources.ts';
 import { assignmentsCol, conceptRef, conceptsCol, pathRef, pathsCol } from './refs.ts';
 import type { PathRecord, WithId } from './types.ts';
 
@@ -28,7 +28,9 @@ export function watchAssignedPaths(
 	profileId: string
 ): Subscribe<WithId<PathRecord>[]> {
 	return (onData, onError) => {
-		let run = 0; // only the latest assignments snapshot may publish (no out-of-order results)
+		// Only the latest snapshot may publish: each snapshot (and the cleanup) bumps `run`,
+		// so a slower previous result, or one arriving after unsubscribe, is dropped.
+		let run = 0;
 		const stop = querySource(assignmentsCol(familyId, profileId))(async (assignments) => {
 			const current = ++run;
 			try {
@@ -42,7 +44,7 @@ export function watchAssignedPaths(
 			}
 		}, onError);
 		return () => {
-			run = Number.NaN; // never equal: late results are dropped
+			run++;
 			stop();
 		};
 	};

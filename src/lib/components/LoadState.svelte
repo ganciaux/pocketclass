@@ -5,21 +5,22 @@
 
 	/**
 	 * Renders the loading / missing / error states of a `live()` value, and `children` with the
-	 * (non-null) data once ready.
+	 * data once ready. `notFound` is only needed for documents (a list is never "missing").
 	 */
 	let {
 		source,
-		notFound,
 		failed,
+		notFound = '',
 		children
 	}: {
 		source: Live<T>;
-		notFound: string;
 		failed: string;
+		notFound?: string;
 		children: Snippet<[T]>;
 	} = $props();
 </script>
 
+<!-- `data !== null` is implied by 'ready'; the check narrows the type for the snippet. -->
 {#if source.status === 'ready' && source.data !== null}
 	{@render children(source.data)}
 {:else if source.status === 'missing'}

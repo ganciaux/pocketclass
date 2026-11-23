@@ -19,9 +19,10 @@ import {
 	type ConceptConflict,
 	type ExistingState,
 	type ImportPlan
-} from './importPlan.ts';
+} from '#lib/import/importPlan.ts';
 
-// Import is an online, parent-only action: reads here go to the server (getDoc / getDocs)
+// Executor of the pure import plan (import/importPlan.ts). Import is an online, parent-only
+// action: reads here deliberately go to the server (getDoc / getDocs, not cache-first)
 // so the plan is computed on up-to-date data.
 
 /** Firestore limit is 500 operations per batch; keep a margin. */

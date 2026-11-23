@@ -1,7 +1,7 @@
 import { addDoc, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { fr } from '#lib/i18n/fr.ts';
-import { getDocCacheFirst, querySource, type Subscribe } from './live.ts';
+import { getDocCacheFirst, querySource, type Subscribe } from './sources.ts';
 import { familyRef, profileRef, profilesCol, userRef } from './refs.ts';
 import type { Grade, Profile, UserIndex, WithId } from './types.ts';
 

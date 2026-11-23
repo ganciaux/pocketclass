@@ -10,22 +10,22 @@
 
 	const t = fr.concept;
 	const conceptId = $derived(page.params.id ?? '');
-	const concept = live(
+	const conceptLive = live(
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
 
 	/** Key point number (1-based) shown as a badge next to each section. */
 	const keyPointNumber = $derived(
-		new Map(concept.data?.keyPoints.map((kp, i) => [kp.id, i + 1]) ?? [])
+		new Map(conceptLive.data?.keyPoints.map((kp, i) => [kp.id, i + 1]) ?? [])
 	);
 </script>
 
 <svelte:head>
-	{#if concept.data}<title>{concept.data.title} · {fr.app.name}</title>{/if}
+	{#if conceptLive.data}<title>{conceptLive.data.title} · {fr.app.name}</title>{/if}
 </svelte:head>
 
 <main class="stack">
-	<LoadState source={concept} notFound={t.notFound} failed={t.loadFailed}>
+	<LoadState source={conceptLive} notFound={t.notFound} failed={t.loadFailed}>
 		{#snippet children(concept)}
 			<a href={resolve('/path/[id]', { id: concept.pathId })}>{t.backToMap}</a>
 			<h1>{@html renderInline(concept.title)}</h1>

@@ -1,4 +1,4 @@
-import type { Subscribe } from './live.ts';
+import type { Subscribe } from './sources.ts';
 
 /**
  * Reactive live data for components, on top of the `Subscribe` sources of the data layer.
@@ -17,14 +17,17 @@ export interface Live<T> {
 	readonly status: LoadStatus;
 }
 
+/** What `&&` chains return while an input is missing: `familyId && id && watchX(...)`. */
+type Falsy = null | undefined | false | '';
+
 /** `source` returns a falsy value while its inputs are not available (e.g. no family yet). */
-export function live<T>(
-	source: () => Subscribe<T | null> | null | undefined | false | ''
-): Live<T> {
+export function live<T>(source: () => Subscribe<T | null> | Falsy): Live<T> {
 	let data = $state<T | null>(null);
 	let status = $state<LoadStatus>('loading');
 
-	$effect(() => {
+	// `.pre`: runs before the DOM update, so a new source (e.g. /concept/a → /concept/b) never
+	// renders a frame with the previous source's data.
+	$effect.pre(() => {
 		const subscribe = source();
 		// Reset first: never show the previous source's data while the new one loads.
 		data = null;

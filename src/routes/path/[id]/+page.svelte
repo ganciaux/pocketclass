@@ -3,62 +3,63 @@
 	import LoadState from '#lib/components/LoadState.svelte';
 	import { watchConceptsOfPath, watchPath } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import type { PathRecord, WithId } from '#lib/data/types.ts';
+	import type { ConceptRecord, PathRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
 	const pathId = $derived(page.params.id ?? '');
-	const path = live(() => session.familyId && pathId && watchPath(session.familyId, pathId));
-	const concepts = live(
+	const pathLive = live(() => session.familyId && pathId && watchPath(session.familyId, pathId));
+	const conceptsLive = live(
 		() => session.familyId && pathId && watchConceptsOfPath(session.familyId, pathId)
 	);
 
-	function topicsOf(p: WithId<PathRecord>) {
-		return [...p.topics]
+	function topicsOf(path: WithId<PathRecord>, concepts: WithId<ConceptRecord>[]) {
+		return [...path.topics]
 			.sort((a, b) => a.order - b.order)
-			.map((topic) => ({
-				...topic,
-				concepts: (concepts.data ?? []).filter((c) => c.topicId === topic.id)
-			}));
+			.map((topic) => ({ ...topic, concepts: concepts.filter((c) => c.topicId === topic.id) }));
 	}
 </script>
 
 <svelte:head>
-	{#if path.data}<title>{path.data.title} · {fr.app.name}</title>{/if}
+	{#if pathLive.data}<title>{pathLive.data.title} · {fr.app.name}</title>{/if}
 </svelte:head>
 
 <main class="stack">
-	<LoadState source={path} notFound={fr.map.notFound} failed={fr.map.loadFailed}>
+	<LoadState source={pathLive} notFound={fr.map.notFound} failed={fr.map.loadFailed}>
 		{#snippet children(path)}
 			<header>
 				<h1>{path.title}</h1>
 				<p class="muted">{path.grade}</p>
 			</header>
 
-			{#each topicsOf(path) as topic (topic.id)}
-				<section class="topic">
-					<h2>{topic.title}</h2>
-					{#if topic.concepts.length === 0}
-						<p class="muted empty">{fr.common.emptyTopic}</p>
-					{:else}
-						<ol class="trail">
-							{#each topic.concepts as concept, i (concept.id)}
-								<li class="stop" class:right={i % 2 === 1}>
-									<a href={resolve('/concept/[id]', { id: concept.id })} class="node card-link">
-										<span class="dot" aria-hidden="true"></span>
-										<span class="label">
-											<strong>{@html renderInline(concept.title)}</strong>
-											<span class="status">{fr.map.todo}</span>
-										</span>
-									</a>
-								</li>
-							{/each}
-						</ol>
-					{/if}
-				</section>
-			{/each}
+			<LoadState source={conceptsLive} failed={fr.map.loadFailed}>
+				{#snippet children(concepts)}
+					{#each topicsOf(path, concepts) as topic (topic.id)}
+						<section class="topic">
+							<h2>{topic.title}</h2>
+							{#if topic.concepts.length === 0}
+								<p class="muted empty">{fr.common.emptyTopic}</p>
+							{:else}
+								<ol class="trail">
+									{#each topic.concepts as concept, i (concept.id)}
+										<li class="stop" class:right={i % 2 === 1}>
+											<a href={resolve('/concept/[id]', { id: concept.id })} class="node card-link">
+												<span class="dot" aria-hidden="true"></span>
+												<span class="label">
+													<strong>{@html renderInline(concept.title)}</strong>
+													<span class="status">{fr.map.todo}</span>
+												</span>
+											</a>
+										</li>
+									{/each}
+								</ol>
+							{/if}
+						</section>
+					{/each}
+				{/snippet}
+			</LoadState>
 		{/snippet}
 	</LoadState>
 </main>

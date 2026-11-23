@@ -6,7 +6,7 @@
 	import { live } from '#lib/data/live.svelte.ts';
 	import type { ImportSource } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
-	import { findConflicts, ImportConflictError, importPath } from '#lib/import/importPath.ts';
+	import { findConflicts, ImportConflictError, importPath } from '#lib/data/importPath.ts';
 	import {
 		importStats,
 		nextVersion,
@@ -42,20 +42,22 @@
 
 	const children = live(() => session.familyId && watchChildProfiles(session.familyId));
 	const childIds = $derived((children.data ?? []).map((c) => c.id));
-	const childKey = $derived(childIds.join(','));
+	const childrenReady = $derived(children.status === 'ready');
 	const existing = live(() => session.familyId && pathId && watchPath(session.familyId, pathId));
 	const existingVersion = $derived(existing.data?.version ?? null);
 
-	// Concept ids owned by other paths block the import (checked when the ids change).
+	// Concept ids owned by other paths block the import. Checked when the path id or the concept
+	// ids change (`conceptKey` is a primitive), not on every keystroke.
 	const conceptKey = $derived(path ? path.concepts.map((c) => c.id).join(',') : '');
 	let conflicts = $state<ConceptConflict[]>([]);
 	let conflictCheckFailed = $state(false);
 	$effect(() => {
 		const familyId = session.familyId;
-		const current = untrack(() => path);
+		const id = pathId;
+		const current = conceptKey ? untrack(() => path) : null;
 		conflicts = [];
 		conflictCheckFailed = false;
-		if (!familyId || !conceptKey || !current) return;
+		if (!familyId || !id || !current) return;
 		let cancelled = false;
 		findConflicts(familyId, current)
 			.then((found) => !cancelled && (conflicts = found))
@@ -69,12 +71,13 @@
 		!importing && connectivity.online && conflicts.length === 0 && !conflictCheckFailed
 	);
 
-	// Pre-tick the profiles that already have this path (cancelled if the path changes).
+	// Pre-tick the profiles that already have this path, once per path (cancelled if it changes).
+	// Children are read untracked: a child added meanwhile must not reset the parent's ticks.
 	$effect(() => {
 		const familyId = session.familyId;
 		const id = pathId;
-		const ids = childKey ? childKey.split(',') : [];
-		if (!familyId || !id) return;
+		if (!familyId || !id || !childrenReady) return;
+		const ids = untrack(() => childIds);
 		let cancelled = false;
 		profilesAssignedTo(familyId, id, ids)
 			.then((assigned) => !cancelled && (selected = assigned))
