@@ -1,0 +1,197 @@
+{
+	"format": "pocketclass/path@1",
+	"id": "maths-3e-brevet",
+	"subject": "Mathématiques",
+	"title": "Mission Brevet — Maths",
+	"grade": "3e",
+	"type": "brevet",
+	"version": 1,
+	"topics": [
+		{ "id": "numbers", "title": "Nombres et calculs" },
+		{ "id": "geometry", "title": "Géométrie" },
+		{ "id": "functions", "title": "Fonctions" }
+	],
+	"concepts": [
+		{
+			"id": "maths-3e-fractions",
+			"topic": "numbers",
+			"title": "Calculer avec des fractions",
+			"prerequisites": [],
+			"keyPoints": [
+				{ "id": "kp-simplify", "label": "Simplifier une fraction en divisant le numérateur et le dénominateur par un même nombre" },
+				{ "id": "kp-add", "label": "Additionner des fractions de même dénominateur" },
+				{ "id": "kp-multiply", "label": "Multiplier des fractions : numérateurs entre eux, dénominateurs entre eux" },
+				{ "id": "kp-divide", "label": "Diviser par une fraction, c'est multiplier par son inverse" },
+				{ "id": "kp-irreducible", "label": "Donner toujours le résultat sous forme irréductible" }
+			],
+			"sheet": {
+				"sections": [
+					{
+						"title": "Simplifier une fraction",
+						"text": "On divise le numérateur et le dénominateur par un **même nombre non nul**. La valeur de la fraction ne change pas :\n\n$$\\frac{a \\times k}{b \\times k} = \\frac{a}{b}$$\n\nUne fraction est **irréductible** quand on ne peut plus la simplifier : le seul diviseur commun du numérateur et du dénominateur est 1.",
+						"examples": [
+							{
+								"statement": "Simplifier $\\frac{12}{18}$.",
+								"solution": "12 et 18 sont tous les deux divisibles par 6 : $\\frac{12}{18} = \\frac{12 \\div 6}{18 \\div 6} = \\frac{2}{3}$. 2 et 3 n'ont pas d'autre diviseur commun que 1 : c'est irréductible."
+							},
+							{
+								"statement": "Simplifier $\\frac{45}{60}$.",
+								"solution": "On peut faire en deux étapes : $\\frac{45}{60} = \\frac{9}{12}$ (on divise par 5), puis $\\frac{9}{12} = \\frac{3}{4}$ (on divise par 3)."
+							}
+						],
+						"keyPoints": ["kp-simplify", "kp-irreducible"]
+					},
+					{
+						"title": "Additionner des fractions de même dénominateur",
+						"text": "On **additionne les numérateurs** et on **garde le dénominateur** :\n\n$$\\frac{a}{d} + \\frac{b}{d} = \\frac{a + b}{d}$$\n\nPense à simplifier le résultat.",
+						"examples": [
+							{
+								"statement": "Calculer $\\frac{2}{7} + \\frac{3}{7}$.",
+								"solution": "$\\frac{2}{7} + \\frac{3}{7} = \\frac{2 + 3}{7} = \\frac{5}{7}$."
+							},
+							{
+								"statement": "Calculer $\\frac{5}{12} + \\frac{1}{12}$.",
+								"solution": "$\\frac{5}{12} + \\frac{1}{12} = \\frac{6}{12} = \\frac{1}{2}$ : on n'oublie pas de simplifier."
+							}
+						],
+						"keyPoints": ["kp-add", "kp-irreducible"]
+					},
+					{
+						"title": "Multiplier des fractions",
+						"text": "On multiplie les **numérateurs entre eux** et les **dénominateurs entre eux** :\n\n$$\\frac{a}{b} \\times \\frac{c}{d} = \\frac{a \\times c}{b \\times d}$$\n\nAstuce : simplifie avant de multiplier, les nombres restent petits.",
+						"examples": [
+							{
+								"statement": "Calculer $\\frac{3}{4} \\times \\frac{2}{9}$.",
+								"solution": "$\\frac{3}{4} \\times \\frac{2}{9} = \\frac{3 \\times 2}{4 \\times 9} = \\frac{6}{36} = \\frac{1}{6}$."
+							}
+						],
+						"keyPoints": ["kp-multiply"]
+					},
+					{
+						"title": "Diviser par une fraction",
+						"text": "Diviser par une fraction, c'est **multiplier par son inverse**. L'inverse de $\\frac{c}{d}$ est $\\frac{d}{c}$ :\n\n$$\\frac{a}{b} \\div \\frac{c}{d} = \\frac{a}{b} \\times \\frac{d}{c}$$",
+						"examples": [
+							{
+								"statement": "Calculer $\\frac{3}{5} \\div \\frac{9}{10}$.",
+								"solution": "$\\frac{3}{5} \\div \\frac{9}{10} = \\frac{3}{5} \\times \\frac{10}{9} = \\frac{30}{45} = \\frac{2}{3}$."
+							}
+						],
+						"keyPoints": ["kp-divide"]
+					}
+				],
+				"pitfalls": [
+					"Toujours donner le résultat sous forme de fraction irréductible.",
+					"On n'additionne jamais les dénominateurs : $\\frac{1}{4} + \\frac{2}{4} = \\frac{3}{4}$, et non $\\frac{3}{8}$.",
+					"Diviser par $\\frac{a}{b}$, c'est multiplier par son inverse $\\frac{b}{a}$, pas par $\\frac{a}{b}$."
+				]
+			},
+			"summaryInstruction": "En 5 lignes maximum, explique comment simplifier, additionner, multiplier et diviser des fractions, avec un exemple pour chaque.",
+			"exercises": [
+				{ "id": "simplify-1", "usage": "practice", "keyPoint": "kp-simplify", "difficulty": 1, "type": "calculation", "statement": "Simplifie $\\frac{12}{18}$.", "answer": "2/3", "requireIrreducible": true },
+				{ "id": "simplify-2", "usage": "assessment", "keyPoint": "kp-simplify", "difficulty": 1, "type": "calculation", "statement": "Simplifie $\\frac{35}{49}$.", "answer": "5/7", "requireIrreducible": true },
+				{ "id": "simplify-3", "usage": "assessment", "keyPoint": "kp-simplify", "difficulty": 2, "type": "mcq", "question": "Quelle est la forme irréductible de $\\frac{24}{36}$ ?", "answer": "$\\frac{2}{3}$", "distractors": ["$\\frac{12}{18}$", "$\\frac{4}{6}$", "$\\frac{3}{2}$"] },
+				{ "id": "add-1", "usage": "practice", "keyPoint": "kp-add", "difficulty": 1, "type": "calculation", "statement": "Calcule $\\frac{2}{7} + \\frac{3}{7}$.", "answer": "5/7", "requireIrreducible": true },
+				{ "id": "add-2", "usage": "assessment", "keyPoint": "kp-add", "difficulty": 2, "type": "calculation", "statement": "Calcule $\\frac{5}{12} + \\frac{1}{12}$.", "answer": "1/2", "requireIrreducible": true },
+				{ "id": "add-3", "usage": "assessment", "keyPoint": "kp-add", "difficulty": 1, "type": "cloze", "text": "Pour additionner deux fractions de même dénominateur, on additionne les [[numérateurs]] et on garde le [[dénominateur]]." },
+				{ "id": "multiply-1", "usage": "practice", "keyPoint": "kp-multiply", "difficulty": 1, "type": "calculation", "statement": "Calcule $\\frac{2}{3} \\times \\frac{4}{5}$.", "answer": "8/15", "requireIrreducible": true },
+				{ "id": "multiply-2", "usage": "assessment", "keyPoint": "kp-multiply", "difficulty": 2, "type": "calculation", "statement": "Calcule $\\frac{3}{4} \\times \\frac{2}{9}$.", "answer": "1/6", "requireIrreducible": true },
+				{ "id": "multiply-3", "usage": "assessment", "keyPoint": "kp-multiply", "difficulty": 1, "type": "mcq", "question": "Pour multiplier deux fractions :", "answer": "on multiplie les numérateurs entre eux et les dénominateurs entre eux", "distractors": ["on les met au même dénominateur, puis on multiplie les numérateurs", "on additionne les numérateurs et on multiplie les dénominateurs", "on multiplie le numérateur de l'une par le dénominateur de l'autre"] },
+				{ "id": "divide-1", "usage": "practice", "keyPoint": "kp-divide", "difficulty": 2, "type": "calculation", "statement": "Calcule $\\frac{3}{5} \\div \\frac{9}{10}$.", "answer": "2/3", "requireIrreducible": true },
+				{ "id": "divide-2", "usage": "assessment", "keyPoint": "kp-divide", "difficulty": 2, "type": "calculation", "statement": "Calcule $\\frac{7}{8} \\div \\frac{7}{4}$.", "answer": "1/2", "requireIrreducible": true },
+				{ "id": "divide-3", "usage": "assessment", "keyPoint": "kp-divide", "difficulty": 1, "type": "cloze", "text": "Diviser par une fraction, c'est multiplier par son [[inverse]]. L'inverse de $\\frac{3}{4}$ est $\\frac{4}{3}$." },
+				{ "id": "irreducible-1", "usage": "practice", "keyPoint": "kp-irreducible", "difficulty": 1, "type": "mcq", "question": "Laquelle de ces fractions est irréductible ?", "answer": "$\\frac{9}{14}$", "distractors": ["$\\frac{6}{14}$", "$\\frac{9}{15}$", "$\\frac{10}{14}$"] },
+				{ "id": "irreducible-2", "usage": "assessment", "keyPoint": "kp-irreducible", "difficulty": 2, "type": "calculation", "statement": "Calcule et donne le résultat sous forme irréductible : $\\frac{1}{6} + \\frac{1}{6}$.", "answer": "1/3", "requireIrreducible": true },
+				{ "id": "irreducible-3", "usage": "assessment", "keyPoint": "kp-irreducible", "difficulty": 1, "type": "cloze", "text": "Une fraction est irréductible quand son numérateur et son dénominateur n'ont pas d'autre diviseur commun que [[1]]." },
+				{ "id": "problem-tank", "usage": "practice", "keyPoint": "kp-multiply", "difficulty": 3, "type": "paper", "instruction": "Un réservoir est rempli aux $\\frac{3}{4}$. On utilise les $\\frac{2}{5}$ de ce qu'il contient. Quelle fraction du réservoir reste remplie ? Rédige ta démarche sur ta feuille.", "answer": "9/20", "answerFormat": "fraction" }
+			],
+			"assessment": {
+				"type": "brevet",
+				"draw": { "perKeyPoint": 2 },
+				"paper": {
+					"instruction": "Une recette demande $\\frac{3}{4}$ de litre de lait pour 6 personnes. Quelle quantité de lait faut-il pour 4 personnes ? Rédige ta démarche et donne le résultat sous forme de fraction irréductible.",
+					"rubric": [
+						{ "keyPoint": "kp-multiply", "criterion": "Pose le bon calcul : $\\frac{3}{4} \\times \\frac{4}{6}$ (ou divise par 6 puis multiplie par 4)." },
+						{ "keyPoint": "kp-simplify", "criterion": "Simplifie correctement les calculs intermédiaires." },
+						{ "keyPoint": "kp-irreducible", "criterion": "Donne le résultat final sous forme irréductible : $\\frac{1}{2}$ litre." }
+					]
+				}
+			}
+		},
+		{
+			"id": "maths-3e-powers",
+			"topic": "numbers",
+			"title": "Les puissances",
+			"prerequisites": [],
+			"keyPoints": [
+				{ "id": "kp-definition", "label": "$a^n$ est le produit de n facteurs tous égaux à a" },
+				{ "id": "kp-product-rule", "label": "$a^m \\times a^n = a^{m+n}$" },
+				{ "id": "kp-negative", "label": "$10^{-n} = \\frac{1}{10^n}$" }
+			],
+			"sheet": {
+				"sections": [
+					{
+						"title": "Définition et puissances de 10",
+						"text": "Pour un entier $n \\geq 1$ : $a^n = a \\times a \\times \\dots \\times a$ (n facteurs).\n\nPour les puissances de 10 : $10^3 = 1\\,000$ et $10^{-3} = \\frac{1}{10^3} = 0{,}001$.",
+						"examples": [
+							{ "statement": "Calculer $2^5$.", "solution": "$2^5 = 2 \\times 2 \\times 2 \\times 2 \\times 2 = 32$." }
+						],
+						"keyPoints": ["kp-definition", "kp-negative"]
+					},
+					{
+						"title": "Produit de puissances d'un même nombre",
+						"text": "On **additionne les exposants** : $a^m \\times a^n = a^{m+n}$.",
+						"examples": [
+							{ "statement": "Écrire $3^2 \\times 3^4$ sous la forme d'une seule puissance.", "solution": "$3^2 \\times 3^4 = 3^{2+4} = 3^6$." }
+						],
+						"keyPoints": ["kp-product-rule"]
+					}
+				],
+				"pitfalls": ["$2^3$ ne vaut pas $2 \\times 3$ : $2^3 = 8$."]
+			},
+			"exercises": [
+				{ "id": "powers-1", "usage": "practice", "keyPoint": "kp-definition", "difficulty": 1, "type": "calculation", "statement": "Calcule $2^5$.", "answer": "32" },
+				{ "id": "powers-2", "usage": "assessment", "keyPoint": "kp-negative", "difficulty": 2, "type": "calculation", "statement": "Écris sous forme de fraction : $10^{-2}$.", "answer": "1/100", "requireIrreducible": true },
+				{ "id": "powers-3", "usage": "assessment", "keyPoint": "kp-product-rule", "difficulty": 1, "type": "mcq", "question": "$3^2 \\times 3^4$ est égal à :", "answer": "$3^6$", "distractors": ["$3^8$", "$9^6$", "$6^6$"] },
+				{ "id": "powers-4", "usage": "practice", "keyPoint": "kp-negative", "difficulty": 1, "type": "cloze", "text": "En écriture décimale, $10^{-3}$ s'écrit [[0,001]]." }
+			]
+		},
+		{
+			"id": "maths-3e-pythagoras",
+			"topic": "geometry",
+			"title": "Le théorème de Pythagore",
+			"prerequisites": ["maths-3e-powers"],
+			"keyPoints": [
+				{ "id": "kp-hypotenuse", "label": "L'hypoténuse est le côté opposé à l'angle droit : c'est le plus long" },
+				{ "id": "kp-theorem", "label": "Si ABC est rectangle en A, alors $BC^2 = AB^2 + AC^2$" },
+				{ "id": "kp-converse", "label": "Réciproque : si $BC^2 = AB^2 + AC^2$, alors ABC est rectangle en A" }
+			],
+			"sheet": {
+				"sections": [
+					{
+						"title": "Le théorème",
+						"text": "Dans un triangle **rectangle**, le carré de l'hypoténuse est égal à la somme des carrés des deux autres côtés.\n\nSi ABC est rectangle en A : $$BC^2 = AB^2 + AC^2$$",
+						"examples": [
+							{ "statement": "ABC est rectangle en A, AB = 3 cm et AC = 4 cm. Calculer BC.", "solution": "$BC^2 = 3^2 + 4^2 = 9 + 16 = 25$, donc $BC = \\sqrt{25} = 5$ cm." }
+						],
+						"keyPoints": ["kp-hypotenuse", "kp-theorem"]
+					},
+					{
+						"title": "La réciproque",
+						"text": "Pour **prouver** qu'un triangle est rectangle, on calcule séparément le carré du plus grand côté et la somme des carrés des deux autres. S'ils sont égaux, le triangle est rectangle.",
+						"examples": [
+							{ "statement": "Le triangle EFG a pour côtés EF = 5, FG = 12 et EG = 13. Est-il rectangle ?", "solution": "$EG^2 = 169$ et $EF^2 + FG^2 = 25 + 144 = 169$. Les deux sont égaux, donc EFG est rectangle en F." }
+						],
+						"keyPoints": ["kp-converse"]
+					}
+				],
+				"pitfalls": ["Repère d'abord l'hypoténuse : c'est toujours elle qui est seule de son côté de l'égalité."]
+			},
+			"exercises": [
+				{ "id": "pythagoras-1", "usage": "practice", "keyPoint": "kp-theorem", "difficulty": 1, "type": "calculation", "statement": "Le triangle ABC est rectangle en A avec AB = 6 cm et AC = 8 cm. Calcule BC en cm : $BC = \\sqrt{6^2 + 8^2}$.", "answer": "10" },
+				{ "id": "pythagoras-2", "usage": "assessment", "keyPoint": "kp-theorem", "difficulty": 2, "type": "calculation", "statement": "Le triangle DEF est rectangle en D avec EF = 13 cm et DE = 5 cm. Calcule DF en cm : $DF = \\sqrt{13^2 - 5^2}$.", "answer": "12" },
+				{ "id": "pythagoras-3", "usage": "assessment", "keyPoint": "kp-hypotenuse", "difficulty": 1, "type": "mcq", "question": "Dans le triangle MNP rectangle en N, l'hypoténuse est :", "answer": "[MP]", "distractors": ["[MN]", "[NP]", "On ne peut pas savoir"] },
+				{ "id": "pythagoras-4", "usage": "practice", "keyPoint": "kp-converse", "difficulty": 1, "type": "cloze", "text": "Si $BC^2 = AB^2 + AC^2$, alors le triangle ABC est [[rectangle]] en A : c'est la [[réciproque]] du théorème de Pythagore." }
+			]
+		}
+	]
+}

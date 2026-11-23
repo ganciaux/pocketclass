@@ -62,6 +62,12 @@ made.
   `lesson@1` build their unions from them with different common fields.
 - 2026-11-23 — `npm run schemas` runs `scripts/export-schemas.ts` directly with Node 24 (native
   type stripping, no `tsx`). JSON Schemas use `io: 'input'` (fields with defaults are optional).
+- 2026-11-23 — `src/lib/math/fraction.ts`: integer fractions; `parseFraction` keeps the written
+  form (for irreducibility checks), operations return simplified results.
+- 2026-11-23 — Sample `calculation` statements: the expression to compute is the **last `$…$`
+  formula** (right-hand side if it contains `=`). `mathsSample.test.ts` evaluates it (LaTeX
+  evaluator kept inside the test) and checks value + irreducibility. Keep this convention in
+  the AI prompts (phase 6) if we want generated content to be auto-checkable.
 
 ## Firestore model
 
