@@ -28,30 +28,32 @@
 	}
 </script>
 
-<form class="card stack" onsubmit={submit}>
-	<h2>{t.childTitle}</h2>
-	<p class="muted">{t.linkHelp}</p>
-	<label>
-		{t.linkCode}
-		<input
-			class="code-display code"
-			bind:value={input}
-			autocomplete="one-time-code"
-			autocapitalize="characters"
-			spellcheck="false"
-			maxlength={LINK_CODE_LENGTH + 2}
-			placeholder={t.linkCodePlaceholder}
-		/>
-	</label>
-	{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
-	{#if !connectivity.online}<p class="warning">{fr.common.needsOnline}</p>{/if}
-	<button class="primary" type="submit" disabled={session.linking || !connectivity.online}>
-		{session.linking ? t.linking : t.linkSubmit}
-	</button>
+<form class="card border-2 border-primary bg-base-100" onsubmit={submit}>
+	<div class="card-body gap-3">
+		<h2 class="card-title">{t.childTitle}</h2>
+		<p class="text-base-content/70">{t.linkHelp}</p>
+		<label class="fieldset">
+			<span class="fieldset-legend">{t.linkCode}</span>
+			<input
+				class="input input-lg code-display w-full"
+				bind:value={input}
+				autocomplete="one-time-code"
+				autocapitalize="characters"
+				spellcheck="false"
+				maxlength={LINK_CODE_LENGTH + 2}
+				placeholder={t.linkCodePlaceholder}
+			/>
+		</label>
+		{#if errorMessage}<p role="alert" class="alert alert-error alert-soft">{errorMessage}</p>{/if}
+		{#if !connectivity.online}
+			<p class="alert alert-warning alert-soft">{fr.common.needsOnline}</p>
+		{/if}
+		<button
+			class="btn btn-primary"
+			type="submit"
+			disabled={session.linking || !connectivity.online}
+		>
+			{session.linking ? t.linking : t.linkSubmit}
+		</button>
+	</div>
 </form>
-
-<style>
-	.code {
-		font-size: 1.4rem;
-	}
-</style>

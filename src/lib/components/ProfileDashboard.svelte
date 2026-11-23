@@ -23,33 +23,36 @@
 		<LoadState source={conceptsLive} failed={t.loadFailed}>
 			{#snippet children(concepts)}
 				{#each pathProgress(paths, concepts, readIds) as progress (progress.pathId)}
-					<article class="card stack-tight">
-						<a href={resolve('/path/[id]', { id: progress.pathId })}>
-							<strong>{progress.title}</strong>
-						</a>
-						<progress max={progress.total} value={progress.read}></progress>
-						<span class="muted small">{t.read(progress.read, progress.total)}</span>
-						{#if progress.next}
-							<a class="button primary" href={resolve('/concept/[id]', { id: progress.next.id })}>
-								{t.next}
-								{@html renderInline(progress.next.title)}
+					<article class="card card-border bg-base-100">
+						<div class="card-body gap-2">
+							<a
+								class="card-title hover:underline"
+								href={resolve('/path/[id]', { id: progress.pathId })}
+							>
+								{progress.title}
 							</a>
-						{:else if progress.total > 0}
-							<span class="pill success">{t.allRead}</span>
-						{/if}
+							<progress class="progress progress-primary" max={progress.total} value={progress.read}
+							></progress>
+							<span class="text-sm text-base-content/70">
+								{t.read(progress.read, progress.total)}
+							</span>
+							{#if progress.next}
+								<a
+									class="btn btn-primary"
+									href={resolve('/concept/[id]', { id: progress.next.id })}
+								>
+									{t.next}
+									{@html renderInline(progress.next.title)}
+								</a>
+							{:else if progress.total > 0}
+								<span class="badge badge-success">{t.allRead}</span>
+							{/if}
+						</div>
 					</article>
 				{:else}
-					<p class="muted">{t.empty}</p>
+					<p class="text-base-content/70">{t.empty}</p>
 				{/each}
 			{/snippet}
 		</LoadState>
 	{/snippet}
 </LoadState>
-
-<style>
-	progress {
-		width: 100%;
-		height: 0.6rem;
-		accent-color: var(--color-primary);
-	}
-</style>

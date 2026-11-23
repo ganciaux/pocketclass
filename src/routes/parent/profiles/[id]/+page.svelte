@@ -27,21 +27,22 @@
 	}
 </script>
 
-<main class="stack">
-	<a href={resolve('/parent/profiles')}>{t.back}</a>
+<main>
+	<a class="link link-hover self-start text-sm" href={resolve('/parent/profiles')}>{t.back}</a>
 	{#if session.familyId}
 		{@const familyId = session.familyId}
 		<LoadState source={childLive} notFound={t.notFound} failed={t.loadFailed}>
 			{#snippet children(child)}
-				<header class="row">
-					<Avatar profile={child} size={3} />
-					<h1>{displayName(child)} <span class="muted">{child.grade}</span></h1>
+				<header class="flex items-center gap-3">
+					<Avatar profile={child} size={3.5} />
+					<h1 class="flex-1">{displayName(child)}</h1>
+					<span class="badge badge-secondary">{child.grade}</span>
 				</header>
-				<section class="stack">
+				<section class="flex flex-col gap-2">
 					<h2>{fr.dashboard.title}</h2>
 					<ProfileDashboard {familyId} profileId={child.id} />
 				</section>
-				<section class="stack">
+				<section class="flex flex-col gap-2">
 					<h2>{fr.notes.parentTitle}</h2>
 					<ProfileNotes {familyId} profileId={child.id} mode="parent" />
 				</section>

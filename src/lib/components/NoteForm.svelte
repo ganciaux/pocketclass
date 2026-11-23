@@ -21,15 +21,19 @@
 	}
 </script>
 
-<form class="stack-tight" onsubmit={submit}>
-	<label for="note-text">{t.formHelp}</label>
-	<textarea
-		id="note-text"
-		bind:value={text}
-		oninput={() => (added = false)}
-		rows="3"
-		maxlength={NOTE_MAX}
-		placeholder={t.placeholder}></textarea>
-	{#if added}<p class="muted small" aria-live="polite">{t.added}</p>{/if}
-	<button type="submit" disabled={!text.trim()}>{t.add}</button>
+<form class="flex flex-col gap-2" onsubmit={submit}>
+	<label class="fieldset">
+		<span class="text-sm">{t.formHelp}</span>
+		<textarea
+			class="textarea w-full"
+			bind:value={text}
+			oninput={() => (added = false)}
+			rows="3"
+			maxlength={NOTE_MAX}
+			placeholder={t.placeholder}></textarea>
+	</label>
+	{#if added}<p class="text-sm text-success" aria-live="polite">{t.added}</p>{/if}
+	<button class="btn btn-secondary self-start" type="submit" disabled={!text.trim()}>
+		{t.add}
+	</button>
 </form>

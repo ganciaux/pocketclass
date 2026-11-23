@@ -43,49 +43,52 @@
 	}
 </script>
 
-<main class="stack">
+<main>
 	<h1>{t.title}</h1>
 
-	<section class="card stack">
+	<section class="flex flex-col gap-2">
 		<h2>{t.children}</h2>
 		<LoadState source={childProfilesLive} failed={t.loadFailed}>
 			{#snippet children(list)}
-				<ul class="list plain stack-tight">
+				<ul class="flex flex-col gap-2">
 					{#each list as child (child.id)}
 						<li>
 							<a
-								class="card card-link row"
+								class="card card-border bg-base-100 transition-colors hover:border-primary"
 								href={resolve('/parent/profiles/[id]', { id: child.id })}
 							>
-								<Avatar profile={child} size={2} />
-								<span>
-									<strong>{displayName(child)}</strong> <span class="muted">{child.grade}</span>
-								</span>
+								<div class="card-body flex-row items-center gap-3 py-3">
+									<Avatar profile={child} size={2.5} />
+									<strong class="flex-1">{displayName(child)}</strong>
+									<span class="badge badge-secondary badge-sm">{child.grade}</span>
+								</div>
 							</a>
 						</li>
 					{:else}
-						<li class="muted">{t.noChildren}</li>
+						<li class="text-base-content/70">{t.noChildren}</li>
 					{/each}
 				</ul>
 			{/snippet}
 		</LoadState>
 	</section>
 
-	<form class="card stack" onsubmit={addChild}>
-		<h2>{t.addChild}</h2>
-		<label>
-			{t.firstName}
-			<input bind:value={firstName} autocomplete="off" maxlength="40" />
-		</label>
-		<label>
-			{fr.common.grade}
-			<select bind:value={grade}>
-				{#each GRADES as g (g)}<option value={g}>{g}</option>{/each}
-			</select>
-		</label>
-		{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
-		<button class="primary" type="submit" disabled={saving}>
-			{saving ? t.creating : t.create}
-		</button>
+	<form class="card card-border bg-base-100" onsubmit={addChild}>
+		<div class="card-body gap-3">
+			<h2 class="card-title">{t.addChild}</h2>
+			<label class="fieldset">
+				<span class="fieldset-legend">{t.firstName}</span>
+				<input class="input w-full" bind:value={firstName} autocomplete="off" maxlength="40" />
+			</label>
+			<label class="fieldset">
+				<span class="fieldset-legend">{fr.common.grade}</span>
+				<select class="select w-full" bind:value={grade}>
+					{#each GRADES as g (g)}<option value={g}>{g}</option>{/each}
+				</select>
+			</label>
+			{#if errorMessage}<p role="alert" class="alert alert-error alert-soft">{errorMessage}</p>{/if}
+			<button class="btn btn-primary self-start" type="submit" disabled={saving}>
+				{saving ? t.creating : t.create}
+			</button>
+		</div>
 	</form>
 </main>

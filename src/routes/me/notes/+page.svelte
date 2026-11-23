@@ -6,7 +6,7 @@
 
 <svelte:head><title>{fr.notes.title} · {fr.app.name}</title></svelte:head>
 
-<main class="stack">
+<main>
 	<h1>{fr.notes.title}</h1>
 	{#if session.familyId && session.profileId}
 		<ProfileNotes familyId={session.familyId} profileId={session.profileId} mode="child" />

@@ -50,161 +50,117 @@
 	{#if conceptLive.data}<title>{conceptLive.data.title} · {fr.app.name}</title>{/if}
 </svelte:head>
 
-<main class="stack">
+<main>
 	<LoadState source={conceptLive} notFound={t.notFound} failed={t.loadFailed}>
 		{#snippet children(concept)}
-			<a href={resolve('/path/[id]', { id: concept.pathId })}>{t.backToMap}</a>
+			<a
+				class="link link-hover self-start text-sm"
+				href={resolve('/path/[id]', { id: concept.pathId })}
+			>
+				{t.backToMap}
+			</a>
 			<h1>{@html renderInline(concept.title)}</h1>
 
-			<section class="card stack">
-				<h2>{t.keyPoints}</h2>
-				<ol class="list">
-					{#each concept.keyPoints as kp (kp.id)}
-						<li>{@html renderInline(kp.label)}</li>
-					{/each}
-				</ol>
+			<!-- Key points are numbered: the sections below refer to them by number. -->
+			<section class="card border-l-4 border-primary bg-base-100">
+				<div class="card-body gap-2">
+					<h2 class="card-title">{t.keyPoints}</h2>
+					<ol class="flex flex-col gap-2">
+						{#each concept.keyPoints as kp, i (kp.id)}
+							<li class="flex gap-3">
+								<span class="badge badge-primary badge-sm mt-0.5 rounded-full font-bold">
+									{i + 1}
+								</span>
+								<span>{@html renderInline(kp.label)}</span>
+							</li>
+						{/each}
+					</ol>
+				</div>
 			</section>
 
 			{#each concept.sheet.sections as section, s (s)}
-				<section class="card stack sheet-section">
-					<header class="row between section-header">
-						<h2>{@html renderInline(section.title)}</h2>
-						<span class="badges">
-							{#each section.keyPoints as kp (kp)}
-								<span class="badge">{keyPointNumber.get(kp)}</span>
-							{/each}
-						</span>
-					</header>
-					<div class="prose">{@html renderMarkdown(section.text)}</div>
+				<section class="card card-border bg-base-100">
+					<div class="card-body gap-3">
+						<header class="flex items-start justify-between gap-2">
+							<h2 class="card-title">{@html renderInline(section.title)}</h2>
+							<span class="flex gap-1">
+								{#each section.keyPoints as kp (kp)}
+									<span class="badge badge-primary badge-sm rounded-full font-bold">
+										{keyPointNumber.get(kp)}
+									</span>
+								{/each}
+							</span>
+						</header>
+						<div class="prose">{@html renderMarkdown(section.text)}</div>
 
-					{#if section.examples.length > 0}
-						<div class="stack examples">
-							<h3>{t.examples}</h3>
-							{#each section.examples as example, e (e)}
-								<details class="example">
-									<summary>
-										<span class="prose">{@html renderInline(example.statement)}</span>
-										<span class="muted reveal">{t.showSolution}</span>
-									</summary>
-									<div class="prose solution">{@html renderMarkdown(example.solution)}</div>
-								</details>
-							{/each}
-						</div>
-					{/if}
+						{#if section.examples.length > 0}
+							<div class="flex flex-col gap-2">
+								<h3 class="text-base-content/70">{t.examples}</h3>
+								{#each section.examples as example, e (e)}
+									<details class="collapse-arrow collapse border border-base-300 bg-base-200/50">
+										<summary class="collapse-title prose">
+											{@html renderInline(example.statement)}
+											<span class="block text-sm text-secondary">{t.showSolution}</span>
+										</summary>
+										<div class="collapse-content prose border-t border-dashed border-base-300 pt-3">
+											{@html renderMarkdown(example.solution)}
+										</div>
+									</details>
+								{/each}
+							</div>
+						{/if}
+					</div>
 				</section>
 			{/each}
 
 			{#if concept.sheet.pitfalls.length > 0}
-				<section class="warning callout stack">
-					<h2>{t.pitfalls}</h2>
-					<ul class="list">
-						{#each concept.sheet.pitfalls as pitfall, p (p)}
-							<li>{@html renderInline(pitfall)}</li>
-						{/each}
-					</ul>
+				<section class="card border-l-4 border-warning bg-warning/15">
+					<div class="card-body gap-2">
+						<h2 class="card-title">{t.pitfalls}</h2>
+						<ul class="list-disc space-y-1 pl-5">
+							{#each concept.sheet.pitfalls as pitfall, p (p)}
+								<li>{@html renderInline(pitfall)}</li>
+							{/each}
+						</ul>
+					</div>
 				</section>
 			{/if}
 
 			{#if profileId}
-				<div class="stack-tight read-toggle">
+				<div class="flex flex-col items-center gap-1">
 					{#if isRead}
-						<span class="pill success">{t.isRead}</span>
-						<button class="link" onclick={() => markRead(concept, false)}>{t.markUnread}</button>
+						<span class="badge badge-success badge-lg">{t.isRead}</span>
+						<button class="btn btn-ghost btn-sm" onclick={() => markRead(concept, false)}>
+							{t.markUnread}
+						</button>
 					{:else}
-						<button class="primary" onclick={() => markRead(concept, true)}>{t.markRead}</button>
+						<button class="btn btn-primary btn-wide" onclick={() => markRead(concept, true)}>
+							{t.markRead}
+						</button>
 					{/if}
 				</div>
 			{/if}
 
 			{#if profileId && session.familyId}
-				<section class="card stack">
-					<h2>{fr.notes.formTitle}</h2>
-					<NoteForm
-						familyId={session.familyId}
-						{profileId}
-						target={{ conceptId: concept.id, pathId: concept.pathId }}
-					/>
-					{#if conceptNotes.length > 0}
-						<NoteList familyId={session.familyId} {profileId} notes={conceptNotes} mode="child" />
-					{/if}
+				<section class="card card-border bg-base-100">
+					<div class="card-body gap-3">
+						<h2 class="card-title">{fr.notes.formTitle}</h2>
+						<NoteForm
+							familyId={session.familyId}
+							{profileId}
+							target={{ conceptId: concept.id, pathId: concept.pathId }}
+						/>
+						{#if conceptNotes.length > 0}
+							<NoteList familyId={session.familyId} {profileId} notes={conceptNotes} mode="child" />
+						{/if}
+					</div>
 				</section>
 			{/if}
 
-			<div class="actions">
-				<button disabled>{t.practice} <small>({fr.app.soon})</small></button>
-				<button disabled>{t.assessment} <small>({fr.app.soon})</small></button>
+			<div class="grid grid-cols-2 gap-2">
+				<button class="btn" disabled>{t.practice} <small>({fr.app.soon})</small></button>
+				<button class="btn" disabled>{t.assessment} <small>({fr.app.soon})</small></button>
 			</div>
 		{/snippet}
 	</LoadState>
 </main>
-
-<style>
-	h2 {
-		margin: 0;
-		font-size: 1.15rem;
-	}
-
-	.section-header {
-		flex-wrap: nowrap;
-	}
-
-	.badges {
-		display: flex;
-		gap: var(--space-1);
-	}
-
-	.badge {
-		display: inline-grid;
-		place-items: center;
-		width: 1.5rem;
-		height: 1.5rem;
-		border-radius: 50%;
-		background: var(--color-primary);
-		color: var(--color-primary-contrast);
-		font-size: 0.75rem;
-		font-weight: 700;
-	}
-
-	h3 {
-		margin: 0;
-		font-size: 1rem;
-		color: var(--color-muted);
-	}
-
-	.example {
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius);
-		padding: var(--space-2) var(--space-3);
-	}
-
-	.example summary {
-		display: grid;
-		gap: var(--space-1);
-		cursor: pointer;
-	}
-
-	.reveal {
-		font-size: 0.85rem;
-	}
-
-	.example[open] .reveal {
-		display: none;
-	}
-
-	.solution {
-		margin-top: var(--space-2);
-		padding-top: var(--space-2);
-		border-top: 1px dashed var(--color-border);
-	}
-
-	.read-toggle {
-		align-items: center;
-		text-align: center;
-	}
-
-	.actions {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: var(--space-2);
-	}
-</style>

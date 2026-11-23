@@ -10,5 +10,5 @@
 {#if session.isAdmin}
 	{@render children()}
 {:else}
-	<main><p class="error">{fr.parent.adminOnly}</p></main>
+	<main><p role="alert" class="alert alert-error alert-soft">{fr.parent.adminOnly}</p></main>
 {/if}

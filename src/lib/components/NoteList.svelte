@@ -50,60 +50,72 @@
 	}
 </script>
 
-<ul class="list plain stack-tight">
+<ul class="flex flex-col gap-2">
 	{#each notes as note (note.id)}
-		<li class="card stack-tight note" class:done={note.status === 'resolved'}>
-			<header class="row between">
-				<span class="pill" class:success={note.status === 'resolved'}>{t.status[note.status]}</span>
-				{#if note.createdAt}<span class="muted small">
-						{t.on(formatDate(note.createdAt.toDate()))}
-					</span>{/if}
-			</header>
-			{#if titles}
-				{@const title = titles.get(note.conceptId)}
-				{#if title}
-					<a href={resolve('/concept/[id]', { id: note.conceptId })}>{@html renderInline(title)}</a>
-				{:else}
-					<span class="muted small">{t.archivedConcept}</span>
-				{/if}
-			{/if}
-
-			{#if editingId === note.id}
-				<form class="stack-tight" onsubmit={(e) => saveEdit(e, note.id)}>
-					<textarea bind:value={draft} rows="3" maxlength={NOTE_MAX}></textarea>
-					<div class="row">
-						<button class="primary" type="submit">{fr.common.save}</button>
-						<button type="button" onclick={() => (editingId = null)}>{fr.common.cancel}</button>
-					</div>
-				</form>
-			{:else}
-				<p class="text">{note.text}</p>
-				<div class="row">
-					{#if mode === 'child'}
-						<button class="link" onclick={() => startEdit(note)}>{t.edit}</button>
-						<button class="link" onclick={() => remove(note.id)}>{t.delete}</button>
-					{:else}
-						{#each reviewActions(note.status) as status (status)}
-							<button class="link" onclick={() => review(note.id, status)}>
-								{t.review[status]}
-							</button>
-						{/each}
+		<li class="card card-border card-sm bg-base-100">
+			<div class="card-body gap-2">
+				<header class="flex items-center justify-between gap-2">
+					<span
+						class="badge badge-sm"
+						class:badge-warning={note.status === 'open'}
+						class:badge-info={note.status === 'seen'}
+						class:badge-success={note.status === 'resolved'}
+					>
+						{t.status[note.status]}
+					</span>
+					{#if note.createdAt}
+						<span class="text-sm text-base-content/60">
+							{t.on(formatDate(note.createdAt.toDate()))}
+						</span>
 					{/if}
-				</div>
-			{/if}
+				</header>
+				{#if titles}
+					{@const title = titles.get(note.conceptId)}
+					{#if title}
+						<a
+							class="font-bold hover:underline"
+							href={resolve('/concept/[id]', { id: note.conceptId })}
+						>
+							{@html renderInline(title)}
+						</a>
+					{:else}
+						<span class="text-sm text-base-content/60">{t.archivedConcept}</span>
+					{/if}
+				{/if}
+
+				{#if editingId === note.id}
+					<form class="flex flex-col gap-2" onsubmit={(e) => saveEdit(e, note.id)}>
+						<textarea class="textarea w-full" bind:value={draft} rows="3" maxlength={NOTE_MAX}
+						></textarea>
+						<div class="flex gap-2">
+							<button class="btn btn-primary btn-sm" type="submit">{fr.common.save}</button>
+							<button class="btn btn-ghost btn-sm" type="button" onclick={() => (editingId = null)}>
+								{fr.common.cancel}
+							</button>
+						</div>
+					</form>
+				{:else}
+					<p class={['whitespace-pre-wrap', note.status === 'resolved' && 'text-base-content/60']}>
+						{note.text}
+					</p>
+					<div class="flex flex-wrap gap-1">
+						{#if mode === 'child'}
+							<button class="btn btn-ghost btn-xs" onclick={() => startEdit(note)}>{t.edit}</button>
+							<button class="btn btn-ghost btn-xs" onclick={() => remove(note.id)}>
+								{t.delete}
+							</button>
+						{:else}
+							{#each reviewActions(note.status) as status (status)}
+								<button class="btn btn-outline btn-xs" onclick={() => review(note.id, status)}>
+									{t.review[status]}
+								</button>
+							{/each}
+						{/if}
+					</div>
+				{/if}
+			</div>
 		</li>
 	{:else}
-		<li class="muted">{t.empty}</li>
+		<li class="text-base-content/70">{t.empty}</li>
 	{/each}
 </ul>
-
-<style>
-	.text {
-		margin: 0;
-		white-space: pre-wrap;
-	}
-
-	.done .text {
-		color: var(--color-muted);
-	}
-</style>

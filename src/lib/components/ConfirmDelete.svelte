@@ -21,7 +21,6 @@
 	} = $props();
 
 	const t = fr.common;
-	const inputId = $props.id();
 
 	let typed = $state('');
 	let running = $state(false);
@@ -44,26 +43,22 @@
 	}
 </script>
 
-<form class="card stack danger" onsubmit={submit}>
-	<h2>{title}</h2>
-	<p class="small">{help}</p>
-	<label for={inputId}>{t.confirmPrompt(t.confirmWord)}</label>
-	<input id={inputId} bind:value={typed} autocomplete="off" spellcheck="false" />
-	{#if failed}<p class="error">{t.deleteFailed}</p>{/if}
-	{#if !connectivity.online}<p class="warning">{t.needsOnline}</p>{/if}
-	<button class="danger" type="submit" disabled={!confirmed || running || !connectivity.online}>
-		{running ? t.deleting : action}
-	</button>
+<form class="card border-2 border-error/60 bg-base-100" onsubmit={submit}>
+	<div class="card-body gap-3">
+		<h2 class="card-title text-error">{title}</h2>
+		<p class="text-sm">{help}</p>
+		<label class="fieldset">
+			<span class="fieldset-legend">{t.confirmPrompt(t.confirmWord)}</span>
+			<input class="input w-full" bind:value={typed} autocomplete="off" spellcheck="false" />
+		</label>
+		{#if failed}<p role="alert" class="alert alert-error alert-soft">{t.deleteFailed}</p>{/if}
+		{#if !connectivity.online}<p class="alert alert-warning alert-soft">{t.needsOnline}</p>{/if}
+		<button
+			class="btn btn-error"
+			type="submit"
+			disabled={!confirmed || running || !connectivity.online}
+		>
+			{running ? t.deleting : action}
+		</button>
+	</div>
 </form>
-
-<style>
-	.danger {
-		border-color: var(--color-danger);
-	}
-
-	button.danger:not(:disabled) {
-		background: var(--color-danger);
-		border-color: var(--color-danger);
-		color: var(--color-surface);
-	}
-</style>

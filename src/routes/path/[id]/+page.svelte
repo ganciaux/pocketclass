@@ -26,30 +26,30 @@
 	{#if pathLive.data}<title>{pathLive.data.title} · {fr.app.name}</title>{/if}
 </svelte:head>
 
-<main class="stack">
+<main>
 	<LoadState source={pathLive} notFound={fr.map.notFound} failed={fr.map.loadFailed}>
 		{#snippet children(path)}
-			<header>
+			<header class="flex items-center justify-between gap-2">
 				<h1>{path.title}</h1>
-				<p class="muted">{path.grade}</p>
+				<span class="badge badge-secondary">{path.grade}</span>
 			</header>
 
 			<LoadState source={conceptsLive} failed={fr.map.loadFailed}>
 				{#snippet children(concepts)}
 					{#each topicsOf(path, concepts) as topic (topic.id)}
-						<section class="topic">
+						<section class="flex flex-col gap-2">
 							<h2>{topic.title}</h2>
 							{#if topic.concepts.length === 0}
-								<p class="muted empty">{fr.common.emptyTopic}</p>
+								<p class="ml-4 text-base-content/70">{fr.common.emptyTopic}</p>
 							{:else}
 								<ol class="trail">
 									{#each topic.concepts as concept, i (concept.id)}
 										<li class="stop" class:right={i % 2 === 1} class:read={readIds.has(concept.id)}>
-											<a href={resolve('/concept/[id]', { id: concept.id })} class="node card-link">
+											<a href={resolve('/concept/[id]', { id: concept.id })} class="node">
 												<span class="dot" aria-hidden="true"></span>
-												<span class="label">
+												<span class="node-text">
 													<strong>{@html renderInline(concept.title)}</strong>
-													<span class="status">
+													<span class="node-status">
 														{readIds.has(concept.id) ? fr.map.read : fr.map.todo}
 													</span>
 												</span>
@@ -67,22 +67,12 @@
 </main>
 
 <style>
-	.topic h2 {
-		margin-bottom: var(--space-2);
-	}
-
-	.empty {
-		margin-left: var(--space-3);
-	}
-
-	/* Vertical "mission map": a dashed trail with nodes alternating left and right. */
+	/* Vertical "mission map": a dashed chalk trail with nodes alternating left and right. */
 	.trail {
 		position: relative;
-		margin: 0;
-		padding: var(--space-2) 0;
-		list-style: none;
 		display: grid;
-		gap: var(--space-4);
+		gap: 1.5rem;
+		padding: 0.5rem 0;
 	}
 
 	.trail::before {
@@ -91,7 +81,7 @@
 		top: 0;
 		bottom: 0;
 		left: 50%;
-		border-left: 3px dashed var(--color-border);
+		border-left: 3px dashed var(--color-base-300);
 		transform: translateX(-50%);
 	}
 
@@ -112,8 +102,9 @@
 		display: flex;
 		flex-direction: row-reverse;
 		align-items: center;
-		gap: var(--space-2);
+		gap: 0.5rem;
 		text-align: right;
+		color: inherit;
 	}
 
 	.right .node {
@@ -126,9 +117,15 @@
 		width: 2.8rem;
 		height: 2.8rem;
 		border-radius: 50%;
-		background: var(--color-surface);
+		background: var(--color-base-100);
 		border: 4px solid var(--color-primary);
-		box-shadow: var(--shadow);
+		box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+		transition: transform 0.15s;
+	}
+
+	.node:hover .dot,
+	.node:focus-visible .dot {
+		transform: scale(1.08);
 	}
 
 	.read .dot {
@@ -136,17 +133,23 @@
 		border-color: var(--color-success);
 	}
 
-	.read .status {
-		color: var(--color-success);
-	}
-
-	.label {
+	.node-text {
 		display: grid;
 		max-width: 10rem;
 	}
 
-	.status {
+	.node-status {
 		font-size: 0.8rem;
-		color: var(--color-muted);
+		color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
+	}
+
+	.read .node-status {
+		color: var(--color-success);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.dot {
+			transition: none;
+		}
 	}
 </style>

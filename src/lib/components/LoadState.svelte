@@ -24,9 +24,9 @@
 {#if source.status === 'ready' && source.data !== null}
 	{@render children(source.data)}
 {:else if source.status === 'missing'}
-	<p class="error">{notFound}</p>
+	<p role="alert" class="alert alert-warning alert-soft">{notFound}</p>
 {:else if source.status === 'error'}
-	<p class="error">{failed}</p>
+	<p role="alert" class="alert alert-error alert-soft">{failed}</p>
 {:else}
-	<p class="muted">{fr.app.loading}</p>
+	<span class="loading loading-dots loading-md text-primary" aria-label={fr.app.loading}></span>
 {/if}

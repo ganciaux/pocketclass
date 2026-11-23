@@ -1,6 +1,6 @@
 import { defineConfig } from '@vite-pwa/assets-generator/config';
 
-// App icons from assets/icon.png (pencil-rocket cropped from the logo: scripts/make-icon.mjs).
+// App icons from assets/icon.png (pencil-rocket cropped from the logo: scripts/make-images.mjs).
 // Full-bleed artwork: no padding; dark background matching the logo.
 export default defineConfig({
 	headLinkOptions: { preset: '2023' },

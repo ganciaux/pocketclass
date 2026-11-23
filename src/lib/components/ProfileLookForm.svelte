@@ -48,33 +48,45 @@
 	}
 </script>
 
-<form class="card stack" onsubmit={save}>
-	<h2>{t.title}</h2>
-	<div class="row">
-		<Avatar profile={{ ...profile, nickname, avatar: avatar ?? undefined }} size={4} />
-		<div class="stack-tight">
-			<label class="button">
-				{t.chooseImage}
-				<input class="visually-hidden" type="file" accept="image/*" onchange={pickImage} />
-			</label>
-			{#if avatar}
-				<button type="button" class="link" onclick={() => ((avatar = null), (saved = false))}>
-					{t.removeImage}
-				</button>
-			{/if}
+<form class="card card-border bg-base-100" onsubmit={save}>
+	<div class="card-body gap-3">
+		<h2 class="card-title">{t.title}</h2>
+		<div class="flex items-center gap-4">
+			<Avatar profile={{ ...profile, nickname, avatar: avatar ?? undefined }} size={4} />
+			<div class="flex flex-col items-start gap-1">
+				<label class="fieldset">
+					<span class="fieldset-legend">{t.chooseImage}</span>
+					<input
+						class="file-input file-input-sm"
+						type="file"
+						accept="image/*"
+						onchange={pickImage}
+					/>
+				</label>
+				{#if avatar}
+					<button
+						type="button"
+						class="btn btn-ghost btn-xs"
+						onclick={() => ((avatar = null), (saved = false))}
+					>
+						{t.removeImage}
+					</button>
+				{/if}
+			</div>
 		</div>
+		<label class="fieldset">
+			<span class="fieldset-legend">{t.nickname}</span>
+			<input
+				class="input w-full"
+				bind:value={nickname}
+				oninput={() => (saved = false)}
+				maxlength={NICKNAME_MAX}
+				autocomplete="off"
+				placeholder={profile.firstName}
+			/>
+		</label>
+		{#if errorMessage}<p role="alert" class="alert alert-error alert-soft">{errorMessage}</p>{/if}
+		{#if saved}<p class="text-sm text-success" aria-live="polite">{t.saved}</p>{/if}
+		<button class="btn btn-primary self-start" type="submit">{fr.common.save}</button>
 	</div>
-	<label>
-		{t.nickname}
-		<input
-			bind:value={nickname}
-			oninput={() => (saved = false)}
-			maxlength={NICKNAME_MAX}
-			autocomplete="off"
-			placeholder={profile.firstName}
-		/>
-	</label>
-	{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
-	{#if saved}<p class="muted" aria-live="polite">{t.saved}</p>{/if}
-	<button class="primary" type="submit">{fr.common.save}</button>
 </form>

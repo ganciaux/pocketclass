@@ -129,31 +129,36 @@
 	}
 </script>
 
-<main class="stack">
+<main>
 	<h1>{t.title}</h1>
 
-	<section class="card stack">
-		<label for="import-json">{t.help}</label>
-		<textarea
-			id="import-json"
-			class="mono"
-			rows="8"
-			spellcheck="false"
-			placeholder={t.placeholder}
-			bind:value={input}
-			oninput={() => {
-				source = 'paste';
-				result = null;
-			}}></textarea>
-		<div class="row">
-			<button onclick={loadSample}>{t.loadSample}</button>
+	<section class="card card-border bg-base-100">
+		<div class="card-body gap-3">
+			<label class="fieldset">
+				<span class="text-sm">{t.help}</span>
+				<textarea
+					class="textarea w-full resize-y font-mono text-sm"
+					rows="8"
+					spellcheck="false"
+					placeholder={t.placeholder}
+					bind:value={input}
+					oninput={() => {
+						source = 'paste';
+						result = null;
+					}}></textarea>
+			</label>
+			<button class="btn self-start" onclick={loadSample}>{t.loadSample}</button>
 		</div>
 	</section>
 
 	{#if parsed && !parsed.success}
-		<section class="error stack" aria-live="polite">
+		<section
+			role="alert"
+			class="alert alert-error alert-soft flex-col items-start"
+			aria-live="polite"
+		>
 			<strong>{t.errorsTitle}</strong>
-			<ul class="list mono">
+			<ul class="list-disc space-y-1 pl-5 font-mono text-sm">
 				{#each parsed.errors as error, i (i)}<li>{error}</li>{/each}
 			</ul>
 		</section>
@@ -161,110 +166,108 @@
 
 	{#if path}
 		{@const version = nextVersion(path.version, existingVersion)}
-		<section class="card stack">
-			<h2>{t.preview(path.title)}</h2>
-			<dl class="meta">
-				<dt>{t.subject}</dt>
-				<dd>{path.subject}</dd>
-				<dt>{fr.common.grade}</dt>
-				<dd>{path.grade}</dd>
-				<dt>{t.type}</dt>
-				<dd>{t.types[path.type]}</dd>
-				<dt>{t.version}</dt>
-				<dd>
-					{existingVersion === null
-						? t.versionNew(version)
-						: t.versionUpdate(existingVersion, version)}
-				</dd>
-			</dl>
+		<section class="card card-border bg-base-100">
+			<div class="card-body gap-3">
+				<h2 class="card-title">{t.preview(path.title)}</h2>
+				<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+					<dt class="text-base-content/70">{t.subject}</dt>
+					<dd>{path.subject}</dd>
+					<dt class="text-base-content/70">{fr.common.grade}</dt>
+					<dd>{path.grade}</dd>
+					<dt class="text-base-content/70">{t.type}</dt>
+					<dd>{t.types[path.type]}</dd>
+					<dt class="text-base-content/70">{t.version}</dt>
+					<dd>
+						{existingVersion === null
+							? t.versionNew(version)
+							: t.versionUpdate(existingVersion, version)}
+					</dd>
+				</dl>
 
-			{#each path.topics as topic (topic.id)}
-				{@const concepts = path.concepts.filter((c) => c.topic === topic.id)}
-				<div>
-					<h3>{topic.title}</h3>
-					<ul class="list">
-						{#each concepts as concept (concept.id)}
-							{@const stats = importStats(concept)}
-							<li>
-								<strong>{concept.title}</strong>
-								<span class="muted small block">
-									{t.conceptLine(stats.keyPoints, stats.practice, stats.assessment)}
-								</span>
-							</li>
-						{:else}
-							<li class="muted">{fr.common.emptyTopic}</li>
-						{/each}
-					</ul>
-				</div>
-			{/each}
+				{#each path.topics as topic (topic.id)}
+					{@const concepts = path.concepts.filter((c) => c.topic === topic.id)}
+					<div class="flex flex-col gap-1">
+						<h3>{topic.title}</h3>
+						<ul class="list-disc space-y-1 pl-5">
+							{#each concepts as concept (concept.id)}
+								{@const stats = importStats(concept)}
+								<li>
+									<strong>{concept.title}</strong>
+									<span class="block text-sm text-base-content/70">
+										{t.conceptLine(stats.keyPoints, stats.practice, stats.assessment)}
+									</span>
+								</li>
+							{:else}
+								<li class="text-base-content/70">{fr.common.emptyTopic}</li>
+							{/each}
+						</ul>
+					</div>
+				{/each}
 
-			{#if path.warnings?.length}
-				<div class="warning">
-					<strong>{t.warningsTitle}</strong>
-					<ul class="list">
-						{#each path.warnings as warning, i (i)}<li>{warning}</li>{/each}
-					</ul>
-				</div>
-			{/if}
+				{#if path.warnings?.length}
+					<div class="alert alert-warning alert-soft flex-col items-start">
+						<strong>{t.warningsTitle}</strong>
+						<ul class="list-disc space-y-1 pl-5">
+							{#each path.warnings as warning, i (i)}<li>{warning}</li>{/each}
+						</ul>
+					</div>
+				{/if}
+			</div>
 		</section>
 
-		<section class="card stack">
-			<h2>{t.assignTo}</h2>
-			{#each childrenLive.data ?? [] as child (child.id)}
-				<label class="check">
-					<input type="checkbox" value={child.id} bind:group={selected} />
-					{child.firstName} <span class="muted">({child.grade})</span>
-				</label>
-			{:else}
-				<p class="muted">{t.noChildren}</p>
-			{/each}
-			{#if conflicts.length > 0 || conflictCheckFailed}
-				<ul class="list error" aria-live="polite">
-					{#each conflicts as c (c.conceptId)}<li>
-							{t.conflict(c.conceptId, c.ownerPathId)}
-						</li>{/each}
-					{#if conflictCheckFailed}<li>{t.conflictCheckFailed}</li>{/if}
-				</ul>
-			{/if}
-			{#if !connectivity.online}<p class="warning">{t.offline}</p>{/if}
-			<button class="primary" onclick={runImport} disabled={!canImport}>
-				{importing ? t.importing : t.submit}
-			</button>
+		<section class="card card-border bg-base-100">
+			<div class="card-body gap-3">
+				<h2 class="card-title">{t.assignTo}</h2>
+				{#each childrenLive.data ?? [] as child (child.id)}
+					<label class="flex cursor-pointer items-center gap-3">
+						<input
+							class="checkbox checkbox-primary"
+							type="checkbox"
+							value={child.id}
+							bind:group={selected}
+						/>
+						<span>{child.firstName}</span>
+						<span class="badge badge-ghost badge-sm">{child.grade}</span>
+					</label>
+				{:else}
+					<p class="text-base-content/70">{t.noChildren}</p>
+				{/each}
+				{#if conflicts.length > 0 || conflictCheckFailed}
+					<ul
+						role="alert"
+						class="alert alert-error alert-soft flex-col items-start"
+						aria-live="polite"
+					>
+						{#each conflicts as c (c.conceptId)}<li>
+								{t.conflict(c.conceptId, c.ownerPathId)}
+							</li>{/each}
+						{#if conflictCheckFailed}<li>{t.conflictCheckFailed}</li>{/if}
+					</ul>
+				{/if}
+				{#if !connectivity.online}<p class="alert alert-warning alert-soft">{t.offline}</p>{/if}
+				<button class="btn btn-primary self-start" onclick={runImport} disabled={!canImport}>
+					{importing ? t.importing : t.submit}
+				</button>
+			</div>
 		</section>
 	{/if}
 
-	{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
+	{#if errorMessage}<p role="alert" class="alert alert-error alert-soft">{errorMessage}</p>{/if}
 
 	{#if result}
 		{@const stats = result.plan.stats}
-		<section class="card stack" aria-live="polite">
-			<p>{t.done(stats.concepts, stats.exercises)}</p>
-			{#if stats.archivedConcepts || stats.archivedExercises}
-				<p class="muted">{t.archived(stats.archivedConcepts, stats.archivedExercises)}</p>
-			{/if}
-			<a class="button" href={resolve('/path/[id]', { id: result.pathId })}>{t.openPath}</a>
+		<section class="card border-l-4 border-success bg-base-100" aria-live="polite">
+			<div class="card-body gap-2">
+				<p>{t.done(stats.concepts, stats.exercises)}</p>
+				{#if stats.archivedConcepts || stats.archivedExercises}
+					<p class="text-base-content/70">
+						{t.archived(stats.archivedConcepts, stats.archivedExercises)}
+					</p>
+				{/if}
+				<a class="btn self-start" href={resolve('/path/[id]', { id: result.pathId })}>
+					{t.openPath}
+				</a>
+			</div>
 		</section>
 	{/if}
 </main>
-
-<style>
-	textarea {
-		font-size: 0.85rem;
-		resize: vertical;
-	}
-
-	.meta {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: var(--space-1) var(--space-3);
-		margin: 0;
-	}
-
-	.meta dt {
-		color: var(--color-muted);
-	}
-
-	.meta dd {
-		margin: 0;
-	}
-</style>

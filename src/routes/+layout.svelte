@@ -21,49 +21,29 @@
 	<title>{fr.app.name}</title>
 </svelte:head>
 
-<header class="app-header">
-	<a class="brand" href={resolve('/')}>{fr.app.name}</a>
-	<span class="row">
-		{#if !connectivity.online}<span class="pill warning" role="status">{fr.app.offline}</span>{/if}
-		{#if session.status === 'ready' && session.profile}
-			<a class="me" href={resolve('/me')} aria-label={fr.me.title} title={fr.me.title}>
-				<Avatar profile={session.profile} size={2} />
-			</a>
-		{/if}
-		<!-- Children never sign out (the anonymous account would be lost): see "Unlink" on /me. -->
-		{#if session.user && !session.isChild}
-			<button class="link" onclick={() => session.signOut()}>{fr.auth.signOut}</button>
-		{/if}
-	</span>
+<!-- Slate strip in both themes, lettered like the logo. -->
+<header
+	class="navbar sticky top-0 z-10 min-h-14 gap-2 bg-neutral px-4 pt-[max(0.5rem,env(safe-area-inset-top))] text-neutral-content"
+>
+	<a class="flex-1 font-display text-2xl leading-none" href={resolve('/')} aria-label={fr.app.name}>
+		Pocket<span class="text-primary">Class</span>
+	</a>
+	{#if !connectivity.online}
+		<span class="badge badge-warning badge-sm" role="status">{fr.app.offline}</span>
+	{/if}
+	{#if session.status === 'ready' && session.profile}
+		<a class="rounded-full" href={resolve('/me')} aria-label={fr.me.title} title={fr.me.title}>
+			<Avatar profile={session.profile} size={2} />
+		</a>
+	{/if}
+	<!-- Children (anonymous accounts) never sign out: the account would be lost. See /me. -->
+	{#if session.user && !session.user.isAnonymous}
+		<button class="btn btn-ghost btn-sm text-neutral-content" onclick={() => session.signOut()}>
+			{fr.auth.signOut}
+		</button>
+	{/if}
 </header>
 
 <SessionGate>
 	{@render children()}
 </SessionGate>
-
-<style>
-	.app-header {
-		position: sticky;
-		top: 0;
-		z-index: 10;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-2);
-		padding: var(--space-2) var(--space-3);
-		padding-top: calc(var(--space-2) + env(safe-area-inset-top));
-		background: var(--color-surface);
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	.me {
-		display: inline-flex;
-		border-radius: 50%;
-	}
-
-	.brand {
-		font-weight: 700;
-		color: var(--color-text);
-		text-decoration: none;
-	}
-</style>

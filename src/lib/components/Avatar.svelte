@@ -11,32 +11,17 @@
 	const name = $derived(displayName(profile));
 </script>
 
-<span class="avatar" style:--size="{size}rem" aria-hidden="true">
+<!-- Size in rem through a CSS variable: any size without one class per size. -->
+<span
+	class="inline-grid flex-none place-items-center overflow-hidden rounded-full bg-primary font-bold text-primary-content ring-2 ring-primary/40"
+	style:width="{size}rem"
+	style:height="{size}rem"
+	style:font-size="{size * 0.45}rem"
+	aria-hidden="true"
+>
 	{#if profile.avatar}
-		<img src={profile.avatar} alt="" />
+		<img src={profile.avatar} alt="" class="size-full object-cover" />
 	{:else}
 		{initialOf(name)}
 	{/if}
 </span>
-
-<style>
-	.avatar {
-		flex: none;
-		display: inline-grid;
-		place-items: center;
-		width: var(--size);
-		height: var(--size);
-		border-radius: 50%;
-		overflow: hidden;
-		background: var(--color-primary);
-		color: var(--color-primary-contrast);
-		font-weight: 700;
-		font-size: calc(var(--size) * 0.45);
-	}
-
-	img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-</style>
