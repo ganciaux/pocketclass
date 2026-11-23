@@ -37,7 +37,7 @@ beforeAll(async () => {
 	env = await initializeTestEnvironment({
 		// A demo project: never touches the dev emulator data (or a real project).
 		projectId: 'demo-pocketclass-rules',
-		firestore: { rules: readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: 8080 }
+		firestore: { rules: readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: 8180 }
 	});
 });
 

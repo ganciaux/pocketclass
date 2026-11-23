@@ -34,7 +34,7 @@ Les variables sont déclarées dans `src/env.ts` (SvelteKit 3) et importées dep
 Deux terminaux :
 
 ```sh
-# Terminal 1 : emulators Firebase (Auth 9099, Firestore 8080, Hosting 5000, UI http://127.0.0.1:4000)
+# Terminal 1 : emulators Firebase (Auth 9099, Firestore 8180, Hosting 5050, UI http://127.0.0.1:4000)
 npm run emulators
 
 # Terminal 2 : l'app (avec PUBLIC_USE_EMULATORS=true dans .env.local)

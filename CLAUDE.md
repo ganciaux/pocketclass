@@ -209,6 +209,11 @@ made.
   more; the package stays because it brings `sharp`). The current artworks were cut from a
   low-resolution sheet (large ≈ 284 px, upscaled to 512): to improve, replace
   `assets/icon-*.png` with HD squares and rerun the script.
+- 2026-11-23 — Emulator ports: Firestore **8180** (8080 is often taken, e.g. by Docker) and
+  Hosting **5050** (5000 = macOS AirPlay receiver). Set in `firebase.json`, repeated in
+  `src/lib/firebase.ts`, `tests/rules/firestore.rules.test.ts` and `scripts/test-rules.ts`.
+  `test:rules` reuses a running emulator only if the port answers like one (`Ok` on `/`),
+  otherwise it fails with a clear message instead of testing against another server.
 - 2026-11-23 — UI: Tailwind 4 + daisyUI 5 replace the hand-written CSS (the "no Tailwind"
   line of the brief is lifted). Visual identity from the logo: slate header strip lettered
   "Pocket" chalk / "Class" mustard in both themes, mustard primary, cobalt secondary, chalk

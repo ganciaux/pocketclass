@@ -1,25 +1,35 @@
 // Runs the Firestore rules tests (npm run test:rules).
-// Reuses the Firestore emulator if one already listens on 8080 (`npm run emulators`), otherwise
-// starts one just for the tests. The tests use the project `demo-pocketclass-rules`, so they
-// never touch the data of the dev emulators.
+// Reuses the Firestore emulator if it already runs (`npm run emulators`), otherwise starts one
+// just for the tests. The tests use the project `demo-pocketclass-rules`, so they never touch
+// the data of the dev emulators. Port: firebase.json (also in tests/rules and src/lib/firebase.ts).
 import { spawnSync } from 'node:child_process';
-import { connect } from 'node:net';
 
 const HOST = '127.0.0.1';
-const PORT = 8080;
+const PORT = 8180;
 
-function isListening(): Promise<boolean> {
-	return new Promise((resolve) => {
-		const socket = connect(PORT, HOST);
-		socket.once('connect', () => (socket.destroy(), resolve(true)));
-		socket.once('error', () => resolve(false));
-	});
+/** 'emulator': the Firestore emulator answers; 'other': another program holds the port. */
+async function probe(): Promise<'emulator' | 'other' | 'free'> {
+	try {
+		const response = await fetch(`http://${HOST}:${PORT}/`);
+		// The Firestore emulator answers "Ok" on its root.
+		return (await response.text()).trim() === 'Ok' ? 'emulator' : 'other';
+	} catch {
+		return 'free';
+	}
+}
+
+const state = await probe();
+if (state === 'other') {
+	console.error(
+		`Port ${PORT} is used by another program, not the Firestore emulator. ` +
+			`Free it or change the port in firebase.json (and the files listed in this script).`
+	);
+	process.exit(1);
 }
 
 const vitest = 'vitest --run --project rules';
-const command = (await isListening())
-	? vitest
-	: `firebase emulators:exec --only firestore "${vitest}"`;
+const command =
+	state === 'emulator' ? vitest : `firebase emulators:exec --only firestore "${vitest}"`;
 
 console.log(`> ${command}`);
 // Localhost must not go through a proxy (gRPC to the emulator).
