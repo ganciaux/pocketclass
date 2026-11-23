@@ -10,15 +10,15 @@ import type {
 import type { Exercise } from '#lib/schemas/common.ts';
 import type { ConceptDoc, PathDoc } from '#lib/schemas/path.ts';
 
-/** What already exists in Firestore for this path (read before planning). */
+/** What already exists in Firestore for this path (read before planning). Active items only. */
 export interface ExistingState {
 	subjectExists: boolean;
 	pathVersion: number | null;
-	/** Concepts currently attached to this path (archived or not). */
+	/** Active concepts attached to this path. */
 	conceptIds: string[];
-	/** Existing exercise ids, per concept id. */
+	/** Active exercise ids, per concept id. */
 	exerciseIds: Record<string, string[]>;
-	/** Assessments currently attached to this path. */
+	/** Active assessments attached to this path. */
 	assessmentIds: string[];
 }
 
@@ -26,8 +26,15 @@ export interface ExistingState {
 export type DocPath = [string, ...string[]];
 
 export type WriteOp =
-	| { kind: 'set'; path: DocPath; data: Record<string, unknown> }
+	/** `touch`: the executor adds a server `updatedAt` timestamp. */
+	| { kind: 'set'; path: DocPath; data: Record<string, unknown>; touch?: true }
 	| { kind: 'archive'; path: DocPath };
+
+/** A concept id of the new JSON already used by an active concept of another path. */
+export interface ConceptConflict {
+	conceptId: string;
+	ownerPathId: string;
+}
 
 export interface ImportPlan {
 	ops: WriteOp[];
@@ -62,8 +69,36 @@ function colorFor(id: string): string {
 }
 
 export function toExerciseRecord(exercise: Exercise): ExerciseRecord {
-	const { id: _id, usage, type, keyPoint, difficulty, ...content } = exercise;
-	return { usage, type, keyPoint, difficulty, content, archived: false };
+	const { id: _id, ...record } = exercise;
+	return { ...record, archived: false };
+}
+
+/** Stored version: never goes backwards, always increases on re-import. */
+export const nextVersion = (jsonVersion: number, existingVersion: number | null) =>
+	Math.max(jsonVersion, (existingVersion ?? 0) + 1);
+
+/** Counts shown in the import preview. */
+export function importStats(concept: ConceptDoc) {
+	const count = (usage: Exercise['usage']) =>
+		concept.exercises.filter((e) => e.usage === usage).length;
+	return {
+		keyPoints: concept.keyPoints.length,
+		practice: count('practice'),
+		assessment: count('assessment')
+	};
+}
+
+/**
+ * Concept ids are family-wide: an id owned by an active concept of ANOTHER path would be
+ * silently moved to this one. `owners` maps existing concept ids to their (active) path id.
+ */
+export function findConceptConflicts(
+	path: PathDoc,
+	owners: Record<string, string>
+): ConceptConflict[] {
+	return path.concepts
+		.filter((c) => owners[c.id] !== undefined && owners[c.id] !== path.id)
+		.map((c) => ({ conceptId: c.id, ownerPathId: owners[c.id] }));
 }
 
 function toConceptRecord(
@@ -89,7 +124,7 @@ function toConceptRecord(
 /**
  * Computes every write needed to upsert `path`: subject (if missing), path, concepts,
  * exercises and assessments. Items missing from the new JSON are archived, never deleted.
- * `updatedAt` is left to the caller (server timestamp).
+ * Conflicts (`findConceptConflicts`) must be checked by the caller before.
  */
 export function planImport(
 	path: PathDoc,
@@ -98,7 +133,7 @@ export function planImport(
 ): ImportPlan {
 	const ops: WriteOp[] = [];
 	const subjectId = slugify(path.subject);
-	const version = Math.max(path.version, (existing.pathVersion ?? 0) + 1);
+	const version = nextVersion(path.version, existing.pathVersion);
 	const archive = (p: DocPath) => ops.push({ kind: 'archive', path: p });
 	let exerciseCount = 0;
 	let archivedExercises = 0;
@@ -117,7 +152,12 @@ export function planImport(
 		source,
 		version
 	};
-	ops.push({ kind: 'set', path: [COLLECTIONS.paths, path.id], data: { ...pathRecord } });
+	ops.push({
+		kind: 'set',
+		path: [COLLECTIONS.paths, path.id],
+		data: { ...pathRecord },
+		touch: true
+	});
 
 	const newConceptIds = new Set(path.concepts.map((c) => c.id));
 	const assessedConceptIds = new Set<string>();

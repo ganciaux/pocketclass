@@ -1,27 +1,32 @@
 <script lang="ts">
-	import { getDoc } from 'firebase/firestore';
 	import { session } from '#lib/auth.svelte.ts';
 	import { profilesAssignedTo, setPathAssignments } from '#lib/data/assignments.ts';
-	import { listProfiles } from '#lib/data/family.ts';
-	import { pathRef } from '#lib/data/refs.ts';
-	import type { ImportSource, Profile, WithId } from '#lib/data/types.ts';
+	import { watchPath } from '#lib/data/catalog.ts';
+	import { watchChildProfiles } from '#lib/data/family.ts';
+	import { live } from '#lib/data/live.svelte.ts';
+	import type { ImportSource } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
-	import { importPath } from '#lib/import/importPath.ts';
-	import type { ImportPlan } from '#lib/import/importPlan.ts';
+	import { findConflicts, ImportConflictError, importPath } from '#lib/import/importPath.ts';
+	import {
+		importStats,
+		nextVersion,
+		type ConceptConflict,
+		type ImportPlan
+	} from '#lib/import/importPlan.ts';
+	import { connectivity } from '#lib/online.svelte.ts';
+	import { untrack } from 'svelte';
 	import { parseJsonLoose } from '#lib/import/parseJsonLoose.ts';
 	import { validate } from '#lib/schemas/errors.ts';
 	import { pathSchema } from '#lib/schemas/path.ts';
-	import { asset } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
 
 	const t = fr.import;
 
 	let input = $state('');
 	let source = $state<ImportSource>('paste');
-	let children = $state<WithId<Profile>[]>([]);
 	let selected = $state<string[]>([]);
-	let existingVersion = $state<number | null>(null);
 	let importing = $state(false);
-	let result = $state<ImportPlan | null>(null);
+	let result = $state<{ plan: ImportPlan; pathId: string } | null>(null);
 	let errorMessage = $state<string | null>(null);
 
 	/** Parse + validate on every change: cheap, and gives instant feedback. */
@@ -32,31 +37,50 @@
 		return validate(pathSchema, json.value);
 	});
 	const path = $derived(parsed?.success ? parsed.data : null);
-	// A primitive: effects depending on it only re-run when the path id really changes,
-	// not on every keystroke (which would reset the version and the ticked profiles).
+	// Primitives: what depends on them only reloads when the path really changes.
 	const pathId = $derived(path?.id ?? null);
 
-	$effect(() => {
-		if (!session.familyId || !session.isAdmin) return;
-		void listProfiles(session.familyId).then((all) => {
-			children = all.filter((p) => p.role === 'child');
-		});
-	});
+	const children = live(() => session.familyId && watchChildProfiles(session.familyId));
+	const childIds = $derived((children.data ?? []).map((c) => c.id));
+	const childKey = $derived(childIds.join(','));
+	const existing = live(() => session.familyId && pathId && watchPath(session.familyId, pathId));
+	const existingVersion = $derived(existing.data?.version ?? null);
 
-	// When a valid path is pasted: read its current version and current assignments.
+	// Concept ids owned by other paths block the import (checked when the ids change).
+	const conceptKey = $derived(path ? path.concepts.map((c) => c.id).join(',') : '');
+	let conflicts = $state<ConceptConflict[]>([]);
+	let conflictCheckFailed = $state(false);
+	$effect(() => {
+		const familyId = session.familyId;
+		const current = untrack(() => path);
+		conflicts = [];
+		conflictCheckFailed = false;
+		if (!familyId || !conceptKey || !current) return;
+		let cancelled = false;
+		findConflicts(familyId, current)
+			.then((found) => !cancelled && (conflicts = found))
+			.catch((error) => {
+				console.error('[import] conflict check', error);
+				if (!cancelled) conflictCheckFailed = true;
+			});
+		return () => (cancelled = true);
+	});
+	const canImport = $derived(
+		!importing && connectivity.online && conflicts.length === 0 && !conflictCheckFailed
+	);
+
+	// Pre-tick the profiles that already have this path (cancelled if the path changes).
 	$effect(() => {
 		const familyId = session.familyId;
 		const id = pathId;
-		const childIds = children.map((c) => c.id);
-		existingVersion = null;
+		const ids = childKey ? childKey.split(',') : [];
 		if (!familyId || !id) return;
-		void getDoc(pathRef(familyId, id)).then((snap) => {
-			existingVersion = snap.exists() ? snap.data().version : null;
-		});
-		void profilesAssignedTo(familyId, id, childIds).then((ids) => (selected = ids));
+		let cancelled = false;
+		profilesAssignedTo(familyId, id, ids)
+			.then((assigned) => !cancelled && (selected = assigned))
+			.catch((error) => console.error('[import] assignments', error));
+		return () => (cancelled = true);
 	});
-
-	const nextVersion = $derived(path ? Math.max(path.version, (existingVersion ?? 0) + 1) : 0);
 
 	async function loadSample() {
 		errorMessage = null;
@@ -73,161 +97,155 @@
 	}
 
 	async function runImport() {
-		if (!path || !session.familyId) return;
+		const familyId = session.familyId;
+		if (!path || !familyId) return;
 		importing = true;
 		errorMessage = null;
 		result = null;
 		try {
-			result = await importPath(session.familyId, path, source);
-			await setPathAssignments(
-				session.familyId,
-				path.id,
-				children.map((c) => c.id),
-				selected
-			);
-			existingVersion = result.version;
+			const plan = await importPath(familyId, path, source);
+			result = { plan, pathId: path.id };
+			// Two steps, two messages: a failed assignment must not look like a failed import
+			// (retrying the import would bump the version again).
+			try {
+				await setPathAssignments(familyId, path.id, childIds, selected);
+			} catch (error) {
+				console.error('[import] assignments failed', error);
+				errorMessage = t.assignFailed;
+			}
+			input = '';
 		} catch (error) {
 			console.error('[import] failed', error);
-			errorMessage = t.failed;
+			if (error instanceof ImportConflictError) conflicts = error.conflicts;
+			else errorMessage = t.failed;
 		} finally {
 			importing = false;
 		}
-	}
-
-	function countBy(exercises: { usage: string }[], usage: string) {
-		return exercises.filter((e) => e.usage === usage).length;
 	}
 </script>
 
 <main class="stack">
 	<h1>{t.title}</h1>
 
-	{#if !session.isAdmin}
-		<p class="error">{fr.parent.adminOnly}</p>
-	{:else}
+	<section class="card stack">
+		<label for="import-json">{t.help}</label>
+		<textarea
+			id="import-json"
+			class="mono"
+			rows="8"
+			spellcheck="false"
+			placeholder={t.placeholder}
+			bind:value={input}
+			oninput={() => {
+				source = 'paste';
+				result = null;
+			}}></textarea>
+		<div class="row">
+			<button onclick={loadSample}>{t.loadSample}</button>
+		</div>
+	</section>
+
+	{#if parsed && !parsed.success}
+		<section class="error stack" aria-live="polite">
+			<strong>{t.errorsTitle}</strong>
+			<ul class="list mono">
+				{#each parsed.errors as error, i (i)}<li>{error}</li>{/each}
+			</ul>
+		</section>
+	{/if}
+
+	{#if path}
+		{@const version = nextVersion(path.version, existingVersion)}
 		<section class="card stack">
-			<p class="muted">{t.help}</p>
-			<textarea
-				rows="8"
-				spellcheck="false"
-				placeholder={t.placeholder}
-				bind:value={input}
-				oninput={() => {
-					source = 'paste';
-					result = null;
-				}}></textarea>
-			<div class="row">
-				<button onclick={loadSample}>{t.loadSample}</button>
-			</div>
+			<h2>{t.preview(path.title)}</h2>
+			<dl class="meta">
+				<dt>{t.subject}</dt>
+				<dd>{path.subject}</dd>
+				<dt>{fr.common.grade}</dt>
+				<dd>{path.grade}</dd>
+				<dt>{t.type}</dt>
+				<dd>{t.types[path.type]}</dd>
+				<dt>{t.version}</dt>
+				<dd>
+					{existingVersion === null
+						? t.versionNew(version)
+						: t.versionUpdate(existingVersion, version)}
+				</dd>
+			</dl>
+
+			{#each path.topics as topic (topic.id)}
+				{@const concepts = path.concepts.filter((c) => c.topic === topic.id)}
+				<div>
+					<h3>{topic.title}</h3>
+					<ul class="list">
+						{#each concepts as concept (concept.id)}
+							{@const stats = importStats(concept)}
+							<li>
+								<strong>{concept.title}</strong>
+								<span class="muted small block">
+									{t.conceptLine(stats.keyPoints, stats.practice, stats.assessment)}
+								</span>
+							</li>
+						{:else}
+							<li class="muted">{fr.common.emptyTopic}</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
+
+			{#if path.warnings?.length}
+				<div class="warning">
+					<strong>{t.warningsTitle}</strong>
+					<ul class="list">
+						{#each path.warnings as warning, i (i)}<li>{warning}</li>{/each}
+					</ul>
+				</div>
+			{/if}
 		</section>
 
-		{#if parsed && !parsed.success}
-			<section class="error stack" aria-live="polite">
-				<strong>{t.errorsTitle}</strong>
-				<ul class="errors">
-					{#each parsed.errors as error, i (i)}<li>{error}</li>{/each}
+		<section class="card stack">
+			<h2>{t.assignTo}</h2>
+			{#each children.data ?? [] as child (child.id)}
+				<label class="check">
+					<input type="checkbox" value={child.id} bind:group={selected} />
+					{child.firstName} <span class="muted">({child.grade})</span>
+				</label>
+			{:else}
+				<p class="muted">{t.noChildren}</p>
+			{/each}
+			{#if conflicts.length > 0 || conflictCheckFailed}
+				<ul class="list error" aria-live="polite">
+					{#each conflicts as c (c.conceptId)}<li>
+							{t.conflict(c.conceptId, c.ownerPathId)}
+						</li>{/each}
+					{#if conflictCheckFailed}<li>{t.conflictCheckFailed}</li>{/if}
 				</ul>
-			</section>
-		{/if}
+			{/if}
+			{#if !connectivity.online}<p class="warning">{t.offline}</p>{/if}
+			<button class="primary" onclick={runImport} disabled={!canImport}>
+				{importing ? t.importing : t.submit}
+			</button>
+		</section>
+	{/if}
 
-		{#if path}
-			<section class="card stack">
-				<h2>{t.preview} : {path.title}</h2>
-				<dl class="meta">
-					<dt>{t.subject}</dt>
-					<dd>{path.subject}</dd>
-					<dt>{t.grade}</dt>
-					<dd>{path.grade}</dd>
-					<dt>{t.type}</dt>
-					<dd>{t.types[path.type]}</dd>
-					<dt>{t.version}</dt>
-					<dd>
-						{existingVersion === null
-							? t.versionNew(nextVersion)
-							: t.versionUpdate(existingVersion, nextVersion)}
-					</dd>
-				</dl>
+	{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
 
-				{#each path.topics as topic (topic.id)}
-					{@const concepts = path.concepts.filter((c) => c.topic === topic.id)}
-					<div>
-						<h3>{topic.title}</h3>
-						{#if concepts.length === 0}
-							<p class="muted">{t.topicEmpty}</p>
-						{:else}
-							<ul class="concepts">
-								{#each concepts as concept (concept.id)}
-									<li>
-										<strong>{concept.title}</strong>
-										<span class="muted">
-											{t.conceptLine(
-												concept.keyPoints.length,
-												countBy(concept.exercises, 'practice'),
-												countBy(concept.exercises, 'assessment')
-											)}
-										</span>
-									</li>
-								{/each}
-							</ul>
-						{/if}
-					</div>
-				{/each}
-
-				{#if path.warnings?.length}
-					<div class="warning">
-						<strong>{t.warningsTitle}</strong>
-						<ul>
-							{#each path.warnings as warning, i (i)}<li>{warning}</li>{/each}
-						</ul>
-					</div>
-				{/if}
-			</section>
-
-			<section class="card stack">
-				<h2>{t.assignTo}</h2>
-				{#if children.length === 0}
-					<p class="muted">{t.noChildren}</p>
-				{:else}
-					{#each children as child (child.id)}
-						<label class="check">
-							<input type="checkbox" value={child.id} bind:group={selected} />
-							{child.firstName} <span class="muted">({child.grade})</span>
-						</label>
-					{/each}
-				{/if}
-				<button class="primary" onclick={runImport} disabled={importing}>
-					{importing ? t.importing : t.submit}
-				</button>
-			</section>
-		{/if}
-
-		{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
-
-		{#if result}
-			<section class="card stack" aria-live="polite">
-				<p>{t.done(result.stats.concepts, result.stats.exercises)}</p>
-				{#if result.stats.archivedConcepts || result.stats.archivedExercises}
-					<p class="muted">
-						{t.archived(result.stats.archivedConcepts, result.stats.archivedExercises)}
-					</p>
-				{/if}
-			</section>
-		{/if}
+	{#if result}
+		{@const stats = result.plan.stats}
+		<section class="card stack" aria-live="polite">
+			<p>{t.done(stats.concepts, stats.exercises)}</p>
+			{#if stats.archivedConcepts || stats.archivedExercises}
+				<p class="muted">{t.archived(stats.archivedConcepts, stats.archivedExercises)}</p>
+			{/if}
+			<a class="button" href={resolve('/path/[id]', { id: result.pathId })}>{t.openPath}</a>
+		</section>
 	{/if}
 </main>
 
 <style>
 	textarea {
-		font-family: ui-monospace, monospace;
 		font-size: 0.85rem;
 		resize: vertical;
-	}
-
-	.errors {
-		margin: 0;
-		padding-left: 1.2rem;
-		font-family: ui-monospace, monospace;
-		font-size: 0.85rem;
 	}
 
 	.meta {
@@ -243,29 +261,5 @@
 
 	.meta dd {
 		margin: 0;
-	}
-
-	.concepts {
-		display: grid;
-		gap: var(--space-2);
-		margin: 0;
-		padding-left: 1.2rem;
-	}
-
-	.concepts li span {
-		display: block;
-		font-size: 0.9rem;
-	}
-
-	.check {
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
-		font-weight: 400;
-	}
-
-	.check input {
-		width: auto;
-		min-height: auto;
 	}
 </style>

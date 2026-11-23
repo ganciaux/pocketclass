@@ -3,14 +3,47 @@ import {
 	onSnapshot,
 	type DocumentReference,
 	type DocumentSnapshot,
-	type Query,
-	type QuerySnapshot
+	type Query
 } from 'firebase/firestore';
+import type { WithId } from './types.ts';
 
 /**
  * Cache-first reads. `onSnapshot` emits cached data immediately (then server updates), whereas
  * `getDoc` waits for the server and only falls back to the cache after a timeout when offline.
+ * Components consume `Subscribe` sources through `live()` (live.svelte.ts).
  */
+
+/** A live source: calls `onData` on every change, returns the unsubscribe function. */
+export type Subscribe<T> = (
+	onData: (value: T) => void,
+	onError: (error: Error) => void
+) => () => void;
+
+/** Live document; `select` may map it or return null to treat it as missing (e.g. archived). */
+export function docSource<T, R = WithId<T>>(
+	ref: DocumentReference<T>,
+	select: (doc: WithId<T>) => R | null = (doc) => doc as unknown as R
+): Subscribe<R | null> {
+	return (onData, onError) =>
+		onSnapshot(
+			ref,
+			(snap) => onData(snap.exists() ? select({ id: snap.id, ...snap.data() }) : null),
+			onError
+		);
+}
+
+/** Live query; `select` may filter, sort or map the documents. */
+export function querySource<T, R = WithId<T>[]>(
+	query: Query<T>,
+	select: (docs: WithId<T>[]) => R = (docs) => docs as unknown as R
+): Subscribe<R> {
+	return (onData, onError) =>
+		onSnapshot(
+			query,
+			(snap) => onData(select(snap.docs.map((d) => ({ id: d.id, ...d.data() })))),
+			onError
+		);
+}
 
 /** Resolves with the first snapshot (from the local cache if the document is cached). */
 export function firstSnapshot<T>(ref: DocumentReference<T>): Promise<DocumentSnapshot<T>> {
@@ -36,34 +69,4 @@ export async function getDocCacheFirst<T>(ref: DocumentReference<T>): Promise<T 
 	if (!first.metadata.fromCache) return null;
 	const server = await getDocFromServer(ref);
 	return server.exists() ? server.data() : null;
-}
-
-/** Live document: calls `onData` on every change. Returns the unsubscribe function. */
-export function watchDoc<T>(
-	ref: DocumentReference<T>,
-	onData: (data: (T & { id: string }) | null) => void,
-	onError: (error: Error) => void
-): () => void {
-	return onSnapshot(
-		ref,
-		(snap) => onData(snap.exists() ? { id: snap.id, ...snap.data() } : null),
-		onError
-	);
-}
-
-/** Live query: calls `onData` with every document on each change. */
-export function watchQuery<T>(
-	query: Query<T>,
-	onData: (docs: (T & { id: string })[], snap: QuerySnapshot<T>) => void,
-	onError: (error: Error) => void
-): () => void {
-	return onSnapshot(
-		query,
-		(snap) =>
-			onData(
-				snap.docs.map((d) => ({ id: d.id, ...d.data() })),
-				snap
-			),
-		onError
-	);
 }

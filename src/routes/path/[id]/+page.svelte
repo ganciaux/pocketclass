@@ -1,88 +1,66 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
-	import { activeConceptsInOrder, conceptsOfPathQuery } from '#lib/data/catalog.ts';
-	import { watchDoc, watchQuery } from '#lib/data/live.ts';
-	import { pathRef } from '#lib/data/refs.ts';
-	import type { ConceptRecord, PathRecord, WithId } from '#lib/data/types.ts';
+	import LoadState from '#lib/components/LoadState.svelte';
+	import { watchConceptsOfPath, watchPath } from '#lib/data/catalog.ts';
+	import { live } from '#lib/data/live.svelte.ts';
+	import type { PathRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
 	const pathId = $derived(page.params.id ?? '');
-
-	let path = $state<WithId<PathRecord> | null | undefined>(undefined);
-	let concepts = $state<WithId<ConceptRecord>[]>([]);
-	let failed = $state(false);
-
-	$effect(() => {
-		const familyId = session.familyId;
-		if (!familyId || !pathId) return;
-		path = undefined;
-		failed = false;
-		const onError = (error: Error) => {
-			console.error('[map]', error);
-			failed = true;
-		};
-		const stopPath = watchDoc(pathRef(familyId, pathId), (doc) => (path = doc), onError);
-		const stopConcepts = watchQuery(
-			conceptsOfPathQuery(familyId, pathId),
-			(docs) => (concepts = activeConceptsInOrder(docs)),
-			onError
-		);
-		return () => {
-			stopPath();
-			stopConcepts();
-		};
-	});
-
-	const topics = $derived(
-		[...(path?.topics ?? [])]
-			.sort((a, b) => a.order - b.order)
-			.map((topic) => ({ ...topic, concepts: concepts.filter((c) => c.topicId === topic.id) }))
+	const path = live(() => session.familyId && pathId && watchPath(session.familyId, pathId));
+	const concepts = live(
+		() => session.familyId && pathId && watchConceptsOfPath(session.familyId, pathId)
 	);
+
+	function topicsOf(p: WithId<PathRecord>) {
+		return [...p.topics]
+			.sort((a, b) => a.order - b.order)
+			.map((topic) => ({
+				...topic,
+				concepts: (concepts.data ?? []).filter((c) => c.topicId === topic.id)
+			}));
+	}
 </script>
 
 <svelte:head>
-	{#if path}<title>{path.title} · {fr.app.name}</title>{/if}
+	{#if path.data}<title>{path.data.title} · {fr.app.name}</title>{/if}
 </svelte:head>
 
 <main class="stack">
-	{#if failed}
-		<p class="error">{fr.map.loadFailed}</p>
-	{:else if path === undefined}
-		<p class="muted">{fr.app.loading}</p>
-	{:else if path === null}
-		<p class="error">{fr.map.notFound}</p>
-	{:else}
-		<header>
-			<h1>{path.title}</h1>
-			<p class="muted">{path.grade}</p>
-		</header>
+	<LoadState source={path} notFound={fr.map.notFound} failed={fr.map.loadFailed}>
+		{#snippet children(path)}
+			<header>
+				<h1>{path.title}</h1>
+				<p class="muted">{path.grade}</p>
+			</header>
 
-		{#each topics as topic (topic.id)}
-			<section class="topic">
-				<h2>{topic.title}</h2>
-				{#if topic.concepts.length === 0}
-					<p class="muted empty">{fr.map.emptyTopic}</p>
-				{:else}
-					<ol class="trail">
-						{#each topic.concepts as concept, i (concept.id)}
-							<li class="stop" class:right={i % 2 === 1}>
-								<a href={resolve('/concept/[id]', { id: concept.id })} class="node">
-									<span class="dot" aria-hidden="true"></span>
-									<span class="label">
-										<strong>{@html renderInline(concept.title)}</strong>
-										<span class="status">{fr.map.todo}</span>
-									</span>
-								</a>
-							</li>
-						{/each}
-					</ol>
-				{/if}
-			</section>
-		{/each}
-	{/if}
+			{#each topicsOf(path) as topic (topic.id)}
+				<section class="topic">
+					<h2>{topic.title}</h2>
+					{#if topic.concepts.length === 0}
+						<p class="muted empty">{fr.common.emptyTopic}</p>
+					{:else}
+						<ol class="trail">
+							{#each topic.concepts as concept, i (concept.id)}
+								<li class="stop" class:right={i % 2 === 1}>
+									<a href={resolve('/concept/[id]', { id: concept.id })} class="node card-link">
+										<span class="dot" aria-hidden="true"></span>
+										<span class="label">
+											<strong>{@html renderInline(concept.title)}</strong>
+											<span class="status">{fr.map.todo}</span>
+										</span>
+									</a>
+								</li>
+							{/each}
+						</ol>
+					{/if}
+				</section>
+			{/each}
+		{/snippet}
+	</LoadState>
 </main>
 
 <style>
@@ -132,8 +110,6 @@
 		flex-direction: row-reverse;
 		align-items: center;
 		gap: var(--space-2);
-		color: inherit;
-		text-decoration: none;
 		text-align: right;
 	}
 

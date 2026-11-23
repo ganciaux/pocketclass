@@ -1,21 +1,51 @@
-import {
-	doc,
-	getDoc,
-	getDocs,
-	query,
-	serverTimestamp,
-	where,
-	writeBatch
-} from 'firebase/firestore';
+import { getDoc, getDocs, query, serverTimestamp, where, writeBatch } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
-import { assessmentsCol, conceptsCol, exercisesCol, pathRef, subjectRef } from '#lib/data/refs.ts';
+import {
+	assessmentsCol,
+	conceptRef,
+	conceptsCol,
+	exercisesCol,
+	familyDoc,
+	pathRef,
+	subjectRef
+} from '#lib/data/refs.ts';
 import type { ImportSource } from '#lib/data/types.ts';
 import type { PathDoc } from '#lib/schemas/path.ts';
-import { COLLECTIONS } from '#lib/data/collections.ts';
-import { chunk, planImport, slugify, type ExistingState, type ImportPlan } from './importPlan.ts';
+import {
+	chunk,
+	findConceptConflicts,
+	planImport,
+	slugify,
+	type ConceptConflict,
+	type ExistingState,
+	type ImportPlan
+} from './importPlan.ts';
+
+// Import is an online, parent-only action: reads here go to the server (getDoc / getDocs)
+// so the plan is computed on up-to-date data.
 
 /** Firestore limit is 500 operations per batch; keep a margin. */
 const MAX_BATCH_OPS = 450;
+
+export class ImportConflictError extends Error {
+	constructor(readonly conflicts: ConceptConflict[]) {
+		super(`Concept ids already used by other paths: ${conflicts.map((c) => c.conceptId)}`);
+	}
+}
+
+const activeIds = (snap: { docs: { id: string; data(): { archived: boolean } }[] }) =>
+	snap.docs.filter((d) => !d.data().archived).map((d) => d.id);
+
+/** Concept ids of `path` already used by active concepts of other paths. */
+export async function findConflicts(familyId: string, path: PathDoc): Promise<ConceptConflict[]> {
+	const snaps = await Promise.all(path.concepts.map((c) => getDoc(conceptRef(familyId, c.id))));
+	const owners: Record<string, string> = {};
+	for (const snap of snaps) {
+		const concept = snap.data();
+		if (concept && !concept.archived) owners[snap.id] = concept.pathId;
+	}
+	return findConceptConflicts(path, owners);
+}
 
 export async function readExistingState(familyId: string, path: PathDoc): Promise<ExistingState> {
 	const [subjectSnap, pathSnap, conceptsSnap, assessmentsSnap] = await Promise.all([
@@ -24,10 +54,6 @@ export async function readExistingState(familyId: string, path: PathDoc): Promis
 		getDocs(query(conceptsCol(familyId), where('pathId', '==', path.id))),
 		getDocs(query(assessmentsCol(familyId), where('pathId', '==', path.id)))
 	]);
-
-	// Only active (non-archived) items: they are the ones that may need archiving.
-	const activeIds = (snap: { docs: { id: string; data(): { archived: boolean } }[] }) =>
-		snap.docs.filter((d) => !d.data().archived).map((d) => d.id);
 
 	// Exercises of the concepts present in the new JSON (archived concepts keep theirs as is).
 	const exerciseIds: Record<string, string[]> = {};
@@ -46,26 +72,28 @@ export async function readExistingState(familyId: string, path: PathDoc): Promis
 	};
 }
 
-/** Upserts a validated path into the family catalogue (batched, archives what disappeared). */
+/**
+ * Upserts a validated path into the family catalogue (batched, archives what disappeared).
+ * Throws `ImportConflictError` if a concept id belongs to another path.
+ * Above 450 operations the batches are not atomic: a failure leaves a partial import that a
+ * re-import repairs.
+ */
 export async function importPath(
 	familyId: string,
 	path: PathDoc,
 	source: ImportSource
 ): Promise<ImportPlan> {
-	const existing = await readExistingState(familyId, path);
-	const plan = planImport(path, existing, source);
+	const conflicts = await findConflicts(familyId, path);
+	if (conflicts.length > 0) throw new ImportConflictError(conflicts);
+
+	const plan = planImport(path, await readExistingState(familyId, path), source);
 
 	for (const ops of chunk(plan.ops, MAX_BATCH_OPS)) {
 		const batch = writeBatch(db);
 		for (const op of ops) {
-			const ref = doc(db, 'families', familyId, ...op.path);
-			if (op.kind === 'archive') {
-				batch.update(ref, { archived: true });
-			} else if (op.path[0] === COLLECTIONS.paths) {
-				batch.set(ref, { ...op.data, updatedAt: serverTimestamp() });
-			} else {
-				batch.set(ref, op.data);
-			}
+			const ref = familyDoc(familyId, ...op.path);
+			if (op.kind === 'archive') batch.update(ref, { archived: true });
+			else batch.set(ref, op.touch ? { ...op.data, updatedAt: serverTimestamp() } : op.data);
 		}
 		await batch.commit();
 	}

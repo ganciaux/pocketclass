@@ -1,7 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { pathSchema, type PathDoc } from '#lib/schemas/path.ts';
-import { chunk, planImport, slugify, type ExistingState, type WriteOp } from './importPlan.ts';
+import {
+	chunk,
+	findConceptConflicts,
+	importStats,
+	nextVersion,
+	planImport,
+	slugify,
+	type ExistingState,
+	type WriteOp
+} from './importPlan.ts';
 
 const sample: PathDoc = pathSchema.parse(
 	JSON.parse(readFileSync('static/samples/maths-3e-brevet.json', 'utf8'))
@@ -87,13 +96,15 @@ describe('planImport', () => {
 			type: 'calculation',
 			keyPoint: 'kp-add',
 			difficulty: 2,
-			content: {
-				statement: 'Calcule $\\frac{5}{12} + \\frac{1}{12}$.',
-				answer: '1/2',
-				requireIrreducible: true
-			},
+			statement: 'Calcule $\\frac{5}{12} + \\frac{1}{12}$.',
+			answer: '1/2',
+			requireIrreducible: true,
 			archived: false
 		});
+		// Flat storage: `{ id, ...record }` is the original exercise again (no mapper needed).
+		const original = sample.concepts[0].exercises.find((e) => e.id === 'add-2');
+		const { archived: _archived, ...record } = exercise?.kind === 'set' ? exercise.data : {};
+		expect({ id: 'add-2', ...record }).toEqual(original);
 
 		const assessment = find('assessments/maths-3e-fractions');
 		expect(assessment?.kind === 'set' && assessment.data).toMatchObject({
@@ -133,6 +144,40 @@ describe('planImport', () => {
 		expect(keys).toContain('archive concepts/maths-3e-fractions');
 		expect(keys).toContain('archive assessments/maths-3e-fractions');
 		expect(plan.stats.archivedConcepts).toBe(1);
+	});
+});
+
+describe('nextVersion', () => {
+	it('never goes backwards and always increases on re-import', () => {
+		expect(nextVersion(1, null)).toBe(1);
+		expect(nextVersion(3, null)).toBe(3);
+		expect(nextVersion(1, 1)).toBe(2);
+		expect(nextVersion(5, 2)).toBe(5);
+		expect(nextVersion(2, 7)).toBe(8);
+	});
+});
+
+describe('findConceptConflicts', () => {
+	it('reports concept ids owned by another path only', () => {
+		expect(
+			findConceptConflicts(sample, {
+				'maths-3e-fractions': 'maths-3e-brevet', // same path: re-import, fine
+				'maths-3e-powers': 'maths-4e-test' // another path: conflict
+			})
+		).toEqual([{ conceptId: 'maths-3e-powers', ownerPathId: 'maths-4e-test' }]);
+		expect(findConceptConflicts(sample, {})).toEqual([]);
+	});
+
+	it('marks the path write with touch (server updatedAt)', () => {
+		const plan = planImport(sample, empty, 'paste');
+		const touched = plan.ops.filter((op) => op.kind === 'set' && op.touch).map(key);
+		expect(touched).toEqual(['set paths/maths-3e-brevet']);
+	});
+});
+
+describe('importStats', () => {
+	it('counts key points and exercises by usage', () => {
+		expect(importStats(sample.concepts[0])).toEqual({ keyPoints: 5, practice: 6, assessment: 10 });
 	});
 });
 

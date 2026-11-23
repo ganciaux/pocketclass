@@ -1,8 +1,14 @@
 import type { Timestamp } from 'firebase/firestore';
 import type { Exercise } from '#lib/schemas/common.ts';
-import type { AssessmentDoc, KeyPoint, PATH_TYPES, SheetSection } from '#lib/schemas/path.ts';
+import type { AssessmentDoc, ConceptDoc, PathDoc } from '#lib/schemas/path.ts';
 
-export type PathType = (typeof PATH_TYPES)[number];
+// Storage shapes. Nested content types are derived from the Zod import schemas, so a schema
+// change flows here; only storage-specific fields (order, archived, ids...) are declared.
+
+export type PathType = PathDoc['type'];
+
+/** `Omit` applied to each member of a union (keeps the discriminated union intact). */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
 /** School grades, used as stable values (the label shown in the UI is the same string). */
 export const GRADES = ['6e', '5e', '4e', '3e'] as const;
@@ -49,7 +55,7 @@ export interface PathRecord {
 	title: string;
 	grade: string;
 	type: PathType;
-	topics: { id: string; title: string; order: number }[];
+	topics: (PathDoc['topics'][number] & { order: number })[];
 	source: ImportSource;
 	version: number;
 	updatedAt: Timestamp;
@@ -62,23 +68,19 @@ export interface ConceptRecord {
 	topicId: string;
 	title: string;
 	order: number;
-	prerequisites: string[];
-	keyPoints: KeyPoint[];
-	sheet: { sections: SheetSection[]; pitfalls: string[] };
-	summaryInstruction?: string;
+	prerequisites: ConceptDoc['prerequisites'];
+	keyPoints: ConceptDoc['keyPoints'];
+	sheet: ConceptDoc['sheet'];
+	summaryInstruction?: ConceptDoc['summaryInstruction'];
 	archived: boolean;
 }
 
-/** families/{familyId}/concepts/{conceptId}/exercises/{exerciseId} */
-export interface ExerciseRecord {
-	usage: Exercise['usage'];
-	type: Exercise['type'];
-	keyPoint: string;
-	difficulty: Exercise['difficulty'];
-	/** Type-specific fields (front/back, question/answer/distractors...). */
-	content: Record<string, unknown>;
-	archived: boolean;
-}
+/**
+ * families/{familyId}/concepts/{conceptId}/exercises/{exerciseId}
+ * Flat: the exercise as in the JSON (id = document id) + `archived`. Read back as an `Exercise`
+ * with `{ id, ...record }`, no mapper needed.
+ */
+export type ExerciseRecord = DistributiveOmit<Exercise, 'id'> & { archived: boolean };
 
 /** families/{familyId}/assessments/{assessmentId} (id = concept id in phase 1) */
 export interface AssessmentRecord extends AssessmentDoc {

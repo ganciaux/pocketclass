@@ -160,3 +160,90 @@ label {
 	background: var(--color-warning-bg);
 	color: var(--color-warning);
 }
+
+/* ---- Shared utilities (prefer these over per-page CSS) ---- */
+
+.stack-tight {
+	display: grid;
+	gap: var(--space-1);
+}
+
+.small {
+	font-size: 0.9rem;
+}
+
+.block {
+	display: block;
+}
+
+.mono {
+	font-family: ui-monospace, monospace;
+	font-size: 0.85rem;
+}
+
+/* Spaced list; `.plain` removes bullets and indentation. */
+.list {
+	display: grid;
+	gap: var(--space-2);
+	margin: 0;
+	padding-left: 1.2rem;
+}
+
+.list.plain {
+	padding-left: 0;
+	list-style: none;
+}
+
+/* A whole card (or element) acting as a link. */
+.card-link {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* Text-only button (e.g. "Se déconnecter"). */
+button.link {
+	min-height: auto;
+	padding: var(--space-1) var(--space-2);
+	border: none;
+	background: none;
+	color: var(--color-muted);
+	font-size: 0.9rem;
+}
+
+/* Small rounded badge; combine with .warning / .error for colours. */
+.pill {
+	padding: 0.1rem var(--space-2);
+	border-radius: 999px;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+/* Highlighted box with a coloured left border (pitfalls...). Combine with .warning. */
+.callout {
+	padding: var(--space-3);
+	border-left: 4px solid currentColor;
+}
+
+/* Checkbox / radio with its text on one line. */
+label.check {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	font-weight: 400;
+}
+
+label.check input {
+	width: auto;
+	min-height: auto;
+}
+
+/* Rendered Markdown + KaTeX (sheets now, exercises in phase 2). */
+.prose p {
+	margin: 0 0 var(--space-2);
+}
+
+.prose .katex-display {
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding: var(--space-1) 0;
+}

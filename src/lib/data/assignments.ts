@@ -1,14 +1,15 @@
-import { deleteDoc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore';
-import { assignmentRef, assignmentsCol } from './refs.ts';
+import { deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { firstSnapshot } from './live.ts';
+import { assignmentRef } from './refs.ts';
 
-/** Ids of the profiles (among `profileIds`) that already have `pathId` assigned. */
+/** Ids of the profiles (among `profileIds`) that already have `pathId` assigned (cache-first). */
 export async function profilesAssignedTo(
 	familyId: string,
 	pathId: string,
 	profileIds: string[]
 ): Promise<string[]> {
 	const snaps = await Promise.all(
-		profileIds.map((id) => getDoc(assignmentRef(familyId, id, pathId)))
+		profileIds.map((id) => firstSnapshot(assignmentRef(familyId, id, pathId)))
 	);
 	return profileIds.filter((_, i) => snaps[i].exists());
 }
@@ -32,9 +33,4 @@ export async function setPathAssignments(
 			}
 		})
 	);
-}
-
-export async function assignedPathIds(familyId: string, profileId: string): Promise<string[]> {
-	const snap = await getDocs(assignmentsCol(familyId, profileId));
-	return snap.docs.map((d) => d.id);
 }

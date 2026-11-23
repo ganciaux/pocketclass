@@ -45,8 +45,10 @@ service cloud.firestore {
     }
 
     match /families/{familyId} {
-      // A signed-in user may create a family only with themselves as sole admin.
-      allow create: if signedIn() && request.resource.data.admins == [request.auth.uid];
+      // A signed-in user may create only their own family (id = their uid), as sole admin.
+      allow create: if signedIn()
+        && familyId == request.auth.uid
+        && request.resource.data.admins == [request.auth.uid];
       allow read: if isMember(familyId);
       allow update, delete: if isAdmin(familyId);
 
