@@ -31,6 +31,8 @@ class Session {
 	/** True while a device is being linked: keeps the link form on screen meanwhile. */
 	linking = $state(false);
 
+	/** Primitive for `live()` sources (the profile object changes with every edit). */
+	profileId = $derived(this.profile?.id ?? null);
 	isAdmin = $derived(this.profile?.role === 'admin');
 	isChild = $derived(this.profile?.role === 'child');
 

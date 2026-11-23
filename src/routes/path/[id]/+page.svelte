@@ -20,8 +20,8 @@
 		() =>
 			session.isChild &&
 			session.familyId &&
-			session.profile &&
-			watchProgress(session.familyId, session.profile.id)
+			session.profileId &&
+			watchProgress(session.familyId, session.profileId)
 	);
 	const readIds = $derived(new Set((progressLive.data ?? []).map((p) => p.id)));
 </script>

@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import NoteForm from '#lib/components/NoteForm.svelte';
+	import NoteList from '#lib/components/NoteList.svelte';
+	import { watchNotes } from '#lib/data/notes.ts';
 	import { watchConcept } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { setConceptRead, watchConceptProgress } from '#lib/data/progress.ts';
@@ -15,7 +18,7 @@
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
 
-	const profileId = $derived(session.isChild ? (session.profile?.id ?? null) : null);
+	const profileId = $derived(session.isChild ? session.profileId : null);
 	const readLive = live(
 		() =>
 			session.familyId &&
@@ -24,6 +27,14 @@
 			watchConceptProgress(session.familyId, profileId, conceptId)
 	);
 	const isRead = $derived(readLive.status === 'ready');
+
+	// The profile's notes, filtered to this sheet (one listener, cached for "My notes" too).
+	const notesLive = live(
+		() => session.familyId && profileId && watchNotes(session.familyId, profileId)
+	);
+	const conceptNotes = $derived(
+		(notesLive.data ?? []).filter((n) => n.conceptId === conceptId && !n.exerciseId)
+	);
 
 	function markRead(concept: { id: string; pathId: string }, read: boolean) {
 		if (session.familyId && profileId) setConceptRead(session.familyId, profileId, concept, read);
@@ -103,6 +114,20 @@
 						<button class="primary" onclick={() => markRead(concept, true)}>{t.markRead}</button>
 					{/if}
 				</div>
+			{/if}
+
+			{#if profileId && session.familyId}
+				<section class="card stack">
+					<h2>{fr.notes.formTitle}</h2>
+					<NoteForm
+						familyId={session.familyId}
+						{profileId}
+						target={{ conceptId: concept.id, pathId: concept.pathId }}
+					/>
+					{#if conceptNotes.length > 0}
+						<NoteList familyId={session.familyId} {profileId} notes={conceptNotes} mode="child" />
+					{/if}
+				</section>
 			{/if}
 
 			<div class="actions">

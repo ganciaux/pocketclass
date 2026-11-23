@@ -109,6 +109,30 @@ export const fr = {
 		title: 'Mon profil',
 		open: 'Mon profil'
 	},
+	notes: {
+		title: 'Mes remarques',
+		parentTitle: 'Remarques',
+		link: (open: number) =>
+			open === 0 ? 'Mes remarques' : `Mes remarques · ${plural(open, 'à voir', 'à voir')}`,
+		formTitle: 'Une difficulté ?',
+		formHelp:
+			"Note ce que tu as trouvé difficile : tu le retrouveras dans « Mes remarques », et ton parent pourra t'aider.",
+		placeholder: "Ex. : je ne comprends pas pourquoi on change le signe de l'exposant.",
+		add: 'Enregistrer la remarque',
+		added: 'Remarque enregistrée.',
+		empty: 'Aucune remarque.',
+		loadFailed: 'Impossible de charger les remarques.',
+		edit: 'Modifier',
+		save: 'Enregistrer',
+		cancel: 'Annuler',
+		delete: 'Supprimer',
+		deleteConfirm: 'Supprimer cette remarque ?',
+		status: { open: 'À voir', seen: 'Vue par le parent', resolved: 'Réglée ✓' },
+		/** Parent buttons, by target status. */
+		review: { open: 'Rouvrir', seen: 'Vue', resolved: 'Réglée' },
+		archivedConcept: 'Notion archivée',
+		on: (date: string) => `le ${date}`
+	},
 	devices: {
 		title: 'Appareils reliés',
 		none: 'Aucun appareil relié.',
