@@ -18,7 +18,8 @@ export const fr = {
 		signInFailed: 'La connexion a échoué. Réessaie.',
 		loadFailed: 'Impossible de charger ta famille. Vérifie ta connexion, puis recharge la page.',
 		notLinked: "Cet appareil n'est relié à aucune famille.",
-		hello: (firstName: string) => `Bonjour ${firstName} !`
+		hello: (firstName: string) => `Bonjour ${firstName} !`,
+		defaultFamilyName: (firstName: string) => `Famille de ${firstName}`
 	},
 	home: {
 		parentSection: 'Espace parent',

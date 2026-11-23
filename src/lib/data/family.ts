@@ -1,4 +1,5 @@
 import { addDoc, doc, getDocs, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
+import { fr } from '#lib/i18n/fr.ts';
 import { getDocCacheFirst } from './live.ts';
 import { familiesCol, profilesCol, userRef } from './refs.ts';
 import type { Grade, Profile, UserIndex, WithId } from './types.ts';
@@ -17,7 +18,7 @@ export const getUserIndex = (uid: string): Promise<UserIndex | null> =>
  */
 export async function createFamilyForAdmin(uid: string, firstName: string): Promise<UserIndex> {
 	const familyDoc = await addDoc(familiesCol(), {
-		name: `Famille de ${firstName}`,
+		name: fr.auth.defaultFamilyName(firstName),
 		admins: [uid],
 		createdAt: serverTimestamp()
 	});
