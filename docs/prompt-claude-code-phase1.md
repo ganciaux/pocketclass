@@ -38,6 +38,7 @@ Le parent utilise son propre téléphone, chaque enfant aussi.
 - **Vitest** pour les tests.
 - **Firebase Emulator Suite** (Firestore et Auth) pour le développement local. L'app s'y connecte automatiquement en `dev` si `PUBLIC_USE_EMULATORS=true`.
 - CSS simple avec des variables CSS, mobile d'abord. Pas de Tailwind.
+  > Mis à jour (2026-11-23) : règle levée. Tailwind 4 + daisyUI 5, avec deux thèmes tirés du logo (voir `CLAUDE.md`).
 
 Utilise les dernières versions stables, et vérifie les API au moment de l'installation (notamment Zod 4, Svelte 5 et Firebase v11 ou plus).
 
