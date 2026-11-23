@@ -25,7 +25,27 @@ export const fr = {
 		importPath: 'Importer un parcours',
 		manageProfiles: 'Gérer les profils',
 		assignedPaths: 'Parcours affectés',
-		noAssignedPaths: 'Aucun parcours affecté pour le moment.'
+		familyPaths: 'Parcours de la famille',
+		noAssignedPaths: 'Aucun parcours affecté pour le moment.',
+		noFamilyPaths: 'Aucun parcours importé pour le moment.',
+		version: (v: number) => `version ${v}`
+	},
+	map: {
+		notFound: "Ce parcours n'existe pas (ou plus).",
+		loadFailed: 'Impossible de charger le parcours.',
+		todo: 'à faire',
+		emptyTopic: 'Rien pour le moment'
+	},
+	concept: {
+		notFound: "Cette notion n'existe pas (ou plus).",
+		loadFailed: 'Impossible de charger la fiche.',
+		keyPoints: "L'essentiel",
+		examples: 'Exemples',
+		showSolution: 'Voir la solution',
+		pitfalls: 'Pièges à éviter',
+		practice: "S'entraîner",
+		assessment: 'Contrôle',
+		backToMap: 'Retour à la carte'
 	},
 	profiles: {
 		title: 'Profils',

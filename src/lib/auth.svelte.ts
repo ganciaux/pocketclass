@@ -5,9 +5,9 @@ import {
 	signOut as firebaseSignOut,
 	type User
 } from 'firebase/auth';
-import { getDoc } from 'firebase/firestore';
 import { auth } from '#lib/firebase.ts';
 import { createFamilyForAdmin, getUserIndex } from '#lib/data/family.ts';
+import { getDocCacheFirst } from '#lib/data/live.ts';
 import { profileRef } from '#lib/data/refs.ts';
 import type { Profile, WithId } from '#lib/data/types.ts';
 
@@ -62,11 +62,11 @@ class Session {
 				return;
 			}
 
-			const snap = await getDoc(profileRef(index.familyId, index.profileId));
-			if (!snap.exists()) throw new Error(`Profile ${index.profileId} not found`);
+			const profile = await getDocCacheFirst(profileRef(index.familyId, index.profileId));
+			if (!profile) throw new Error(`Profile ${index.profileId} not found`);
 
 			this.familyId = index.familyId;
-			this.profile = { id: snap.id, ...snap.data() };
+			this.profile = { id: index.profileId, ...profile };
 			this.status = 'ready';
 		} catch (error) {
 			console.error('[session] failed to load the family', error);

@@ -32,6 +32,9 @@
 		return validate(pathSchema, json.value);
 	});
 	const path = $derived(parsed?.success ? parsed.data : null);
+	// A primitive: effects depending on it only re-run when the path id really changes,
+	// not on every keystroke (which would reset the version and the ticked profiles).
+	const pathId = $derived(path?.id ?? null);
 
 	$effect(() => {
 		if (!session.familyId || !session.isAdmin) return;
@@ -43,14 +46,14 @@
 	// When a valid path is pasted: read its current version and current assignments.
 	$effect(() => {
 		const familyId = session.familyId;
-		const pathId = path?.id;
+		const id = pathId;
 		const childIds = children.map((c) => c.id);
 		existingVersion = null;
-		if (!familyId || !pathId) return;
-		void getDoc(pathRef(familyId, pathId)).then((snap) => {
+		if (!familyId || !id) return;
+		void getDoc(pathRef(familyId, id)).then((snap) => {
 			existingVersion = snap.exists() ? snap.data().version : null;
 		});
-		void profilesAssignedTo(familyId, pathId, childIds).then((ids) => (selected = ids));
+		void profilesAssignedTo(familyId, id, childIds).then((ids) => (selected = ids));
 	});
 
 	const nextVersion = $derived(path ? Math.max(path.version, (existingVersion ?? 0) + 1) : 0);

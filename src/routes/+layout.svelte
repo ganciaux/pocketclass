@@ -9,6 +9,7 @@
 	let { children }: LayoutProps = $props();
 
 	let signInError = $state(false);
+	let online = $state(navigator.onLine);
 
 	session.start();
 
@@ -28,11 +29,16 @@
 	<title>{fr.app.name}</title>
 </svelte:head>
 
+<svelte:window ononline={() => (online = true)} onoffline={() => (online = false)} />
+
 <header class="app-header">
 	<a class="brand" href={resolve('/')}>{fr.app.name}</a>
-	{#if session.status === 'ready' || session.status === 'error'}
-		<button class="link" onclick={() => session.signOut()}>{fr.auth.signOut}</button>
-	{/if}
+	<span class="row">
+		{#if !online}<span class="offline" role="status">{fr.app.offline}</span>{/if}
+		{#if session.status === 'ready' || session.status === 'error'}
+			<button class="link" onclick={() => session.signOut()}>{fr.auth.signOut}</button>
+		{/if}
+	</span>
 </header>
 
 {#if session.status === 'loading'}
@@ -71,6 +77,15 @@
 		font-weight: 700;
 		color: var(--color-text);
 		text-decoration: none;
+	}
+
+	.offline {
+		padding: 0.1rem var(--space-2);
+		border-radius: 999px;
+		background: var(--color-warning-bg);
+		color: var(--color-warning);
+		font-size: 0.8rem;
+		font-weight: 600;
 	}
 
 	.link {

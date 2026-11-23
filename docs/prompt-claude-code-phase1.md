@@ -58,6 +58,9 @@ Versions installées : SvelteKit 3.4, Svelte 5.59, Vite 8, TypeScript 6, Vitest 
 - **`npm run schemas`** : Node 24 exécute directement `scripts/export-schemas.ts`. Les JSON Schema décrivent l'entrée (`io: 'input'`) : les champs qui ont une valeur par défaut sont facultatifs.
 - **Convention des énoncés `calculation`** (vérifiée par le test d'exactitude) : l'expression à calculer est la **dernière formule `$…$`** de l'énoncé (la partie droite si elle contient `=`), ex. « Calcule $\frac{2}{7} + \frac{3}{7}$. ». À reprendre dans les prompts IA pour que le contenu généré soit vérifiable.
 - **Import** : `planImport` (fonction pure, testée) calcule les écritures ; `importPath` lit l'état existant (éléments non archivés uniquement) puis exécute le plan par lots de 450. Version stockée = `max(version du JSON, version existante + 1)`. Id du subject = slug du nom (`mathematiques`). Id de l'assessment = id du concept, avec un champ `pathId` en plus. Les champs propres au type d'exercice sont rangés dans `content`.
+- **Lectures hors-ligne** : les pages lisent avec `onSnapshot` (le cache IndexedDB est servi tout de suite, alors que `getDoc` attend d'abord le serveur). Une absence de document lue depuis le cache est confirmée auprès du serveur avant toute création (jamais de seconde famille hors-ligne).
+- **Accueil** : le parent voit tous les parcours de la famille ; un enfant voit ses parcours affectés.
+- **Rendu des fiches** : les formules sont extraites avant marked, rendues par KaTeX, puis tout le HTML passe par DOMPurify (testé avec jsdom).
 - **En-têtes de cache Hosting** : deux règles disjointes (regex `no-cache` pour `index.html`, les routes SPA, le service worker et le manifest ; `immutable` pour `/_app/immutable/**`). L'emulator Hosting ignore les en-têtes personnalisés : à vérifier avec `curl -I` après le premier déploiement.
 
 ### Conventions

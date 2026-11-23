@@ -1,20 +1,14 @@
-import {
-	addDoc,
-	doc,
-	getDoc,
-	getDocs,
-	orderBy,
-	query,
-	serverTimestamp,
-	setDoc
-} from 'firebase/firestore';
+import { addDoc, doc, getDocs, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
+import { getDocCacheFirst } from './live.ts';
 import { familiesCol, profilesCol, userRef } from './refs.ts';
 import type { Grade, Profile, UserIndex, WithId } from './types.ts';
 
-export async function getUserIndex(uid: string): Promise<UserIndex | null> {
-	const snap = await getDoc(userRef(uid));
-	return snap.exists() ? snap.data() : null;
-}
+/**
+ * Cache-first (works offline), but "no index" is only returned when the server confirms it:
+ * a cache miss must never trigger the creation of a second family.
+ */
+export const getUserIndex = (uid: string): Promise<UserIndex | null> =>
+	getDocCacheFirst(userRef(uid));
 
 /**
  * First parent login: create the family, the admin profile, then the users/{uid} index.

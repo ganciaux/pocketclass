@@ -81,6 +81,20 @@ made.
   fields). Pure modules usable in tests must not import `#lib/firebase.ts` (it needs
   `$app/env`); collection names live in `data/collections.ts`.
 - 2026-11-23 — Static assets are typed in Kit 3: `asset('samples/x.json')` (no leading slash).
+- 2026-11-23 — **Cache-first reads** (`data/live.ts`): pages use `onSnapshot` (`watchDoc`,
+  `watchQuery`), which serves the IndexedDB cache immediately offline; `getDoc` would wait for
+  the server first. One-shot reads use `getDocCacheFirst`, which confirms a cache miss with the
+  server: the session never creates a family because a document is missing _from the cache_.
+- 2026-11-23 — `render/markdown.ts`: math is cut out before marked (placeholders), rendered by
+  KaTeX (`output: 'html'`), then the whole HTML goes through DOMPurify. Tests run in jsdom and
+  check the DOM (no `<script>`, no `on*` attributes, no `javascript:` links).
+- 2026-11-23 — Home: parents see every family path; children see their assigned paths.
+  Concepts of a path are filtered (archived) and sorted client-side: no composite index.
+- 2026-11-23 — Svelte effects that load data must depend on **primitives** (e.g. `pathId`), not
+  on derived objects that change on every keystroke.
+- 2026-11-23 — End-to-end check done with Playwright against the emulators (sign-in, family +
+  2 children, invalid JSON errors, import + assignment, re-import v2 with one exercise less →
+  archived, no duplicates, map, sheet with 24 KaTeX formulas, offline navigation).
 
 ## Firestore model
 
