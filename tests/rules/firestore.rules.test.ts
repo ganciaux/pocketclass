@@ -35,7 +35,8 @@ const at = (db: ReturnType<typeof as>, path: string) => doc(db, path);
 
 beforeAll(async () => {
 	env = await initializeTestEnvironment({
-		projectId: 'pocketclass-bd866',
+		// A demo project: never touches the dev emulator data (or a real project).
+		projectId: 'demo-pocketclass-rules',
 		firestore: { rules: readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: 8080 }
 	});
 });
