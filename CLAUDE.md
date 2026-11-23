@@ -36,6 +36,25 @@ pastes it into the app. **The app never calls an AI API.**
   KaTeX + marked + DOMPurify for sheets (**always sanitise before `{@html}`**). Vitest.
 - Plain CSS with variables (`src/app.css`), mobile first. No Tailwind.
 
+## Technical decisions log
+
+Keep this section, the brief in `docs/` and the README in sync whenever a technical decision is
+made.
+
+- 2026-11-23 — Node 24 (firebase 13 engines), SvelteKit 3 conventions (`#lib/*.ts`, `src/env.ts`,
+  config in `vite.config.ts`).
+- 2026-11-23 — Install scripts of `@firebase/util` and `protobufjs` denied (`allowScripts`).
+- 2026-11-23 — `.gitattributes` forces LF; `docs/` excluded from Prettier.
+- 2026-11-23 — Phase 1 work on branch `feat/phase-1`.
+- 2026-11-23 — First parent login writes family → admin profile → `users/{uid}` **sequentially**
+  (not a batch): rules check `admins` with `get()`, which only sees committed data.
+- 2026-11-23 — Firestore refs centralised in `src/lib/data/refs.ts` (typed `DocumentReference`s);
+  session state is a runes class in `src/lib/auth.svelte.ts` (`session.start()` in root layout).
+- 2026-11-23 — Hosting cache headers use two **non-overlapping** rules (regex `no-cache` for
+  index/SPA routes/SW/manifest, `immutable` for `/_app/immutable/**`). The Hosting emulator
+  ignores custom headers: verify with `curl -I` after a real deploy.
+- 2026-11-23 — Rules were checked against the emulators (two parents, 15 allow/deny cases).
+
 ## Firestore model
 
 ```

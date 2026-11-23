@@ -1,0 +1,91 @@
+rules_version = '2';
+
+// PocketClass security rules (phase 1).
+// Model: users/{uid} is an index pointing to the user's family. Everything else lives under
+// families/{familyId}. Family admins (parents) have full access to their family; members
+// (admins or linked devices, phase 5) can read the catalogue and their own profile.
+// Anything not explicitly allowed is denied.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function familyPath(familyId) {
+      return /databases/$(database)/documents/families/$(familyId);
+    }
+
+    // Parent with full access to the family.
+    function isAdmin(familyId) {
+      return signedIn() && request.auth.uid in get(familyPath(familyId)).data.admins;
+    }
+
+    // Device linked to the family (child phone, phase 5).
+    function isDevice(familyId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/families/$(familyId)/devices/$(request.auth.uid));
+    }
+
+    function isMember(familyId) {
+      return isAdmin(familyId) || isDevice(familyId);
+    }
+
+    // The profile a linked device acts as.
+    function deviceProfileId(familyId) {
+      return get(/databases/$(database)/documents/families/$(familyId)/devices/$(request.auth.uid)).data.profileId;
+    }
+
+    // Index document: a user reads and creates their own entry only.
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['familyId', 'profileId']);
+    }
+
+    match /families/{familyId} {
+      // A signed-in user may create a family only with themselves as sole admin.
+      allow create: if signedIn() && request.resource.data.admins == [request.auth.uid];
+      allow read: if isMember(familyId);
+      allow update, delete: if isAdmin(familyId);
+
+      // Admins: read and write everything under their family.
+      match /{document=**} {
+        allow read, write: if isAdmin(familyId);
+      }
+
+      // Members: read the catalogue.
+      match /subjects/{subjectId} {
+        allow read: if isMember(familyId);
+      }
+      match /paths/{pathId} {
+        allow read: if isMember(familyId);
+      }
+      match /concepts/{conceptId} {
+        allow read: if isMember(familyId);
+
+        match /exercises/{exerciseId} {
+          allow read: if isMember(familyId);
+        }
+      }
+      match /assessments/{assessmentId} {
+        allow read: if isMember(familyId);
+      }
+
+      // Linked devices: read their own device entry.
+      match /devices/{uid} {
+        allow read: if signedIn() && request.auth.uid == uid;
+      }
+
+      // Linked devices: read their own profile and its subcollections (assignments, progress...).
+      match /profiles/{profileId} {
+        allow read: if isDevice(familyId) && deviceProfileId(familyId) == profileId;
+
+        match /{document=**} {
+          allow read: if isDevice(familyId) && deviceProfileId(familyId) == profileId;
+        }
+      }
+    }
+  }
+}

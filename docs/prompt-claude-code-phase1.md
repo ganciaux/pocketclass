@@ -41,10 +41,25 @@ Le parent utilise son propre téléphone, chaque enfant aussi.
 
 Utilise les dernières versions stables, et vérifie les API au moment de l'installation (notamment Zod 4, Svelte 5 et Firebase v11 ou plus).
 
+### Décisions techniques prises à l'installation (23 nov. 2026)
+
+Versions installées : SvelteKit 3.4, Svelte 5.59, Vite 8, TypeScript 6, Vitest 5, Firebase 13.4, Zod 4.6, `@vite-pwa/sveltekit` 2.0.
+
+- **Node 24** (`.nvmrc`) : Firebase 13 exige Node ≥ 24.12. Lancer `nvm use 24` avant les commandes npm.
+- **Pas de `svelte.config.js`** : dans SvelteKit 3, la config de Kit (adapter, etc.) est passée à `sveltekit({...})` dans `vite.config.ts`.
+- **`$lib` est supprimé** dans SvelteKit 3. On utilise l'import de sous-chemin `#lib/*` **avec l'extension** : `import { fr } from '#lib/i18n/fr.ts'`.
+- **`$env/static/public` est déprécié** : les variables sont déclarées dans `src/env.ts` (`defineEnvVars`, `public: true, static: true`) et importées depuis `$app/env/public`. Le préfixe `PUBLIC_FIREBASE_*` est conservé. `dev` vient de `$app/env`.
+- **Scripts d'installation** refusés (`allowScripts` dans `package.json`) pour `@firebase/util` et `protobufjs` : inutiles ici.
+- **Fins de ligne** : `.gitattributes` force `eol=lf` (cohérent avec Prettier sous Windows). `docs/` est exclu de Prettier.
+- **Git** : le travail de la phase 1 se fait sur la branche `feat/phase-1`.
+- Id du projet Firebase : `pocketclass-bd866`.
+- **Premier login parent** : écritures séquentielles (famille → profil admin → `users/{uid}`) et non un `writeBatch`, car les règles vérifient `admins` avec `get()`, qui ne voit que les données déjà écrites.
+- **En-têtes de cache Hosting** : deux règles disjointes (regex `no-cache` pour `index.html`, les routes SPA, le service worker et le manifest ; `immutable` pour `/_app/immutable/**`). L'emulator Hosting ignore les en-têtes personnalisés : à vérifier avec `curl -I` après le premier déploiement.
+
 ### Conventions
 
 - Dans le code TypeScript, les champs sont en `camelCase`. Les valeurs d'énumération et les ids de contenu sont en `snake_case` ou en slug.
-- La config Firebase passe par des variables `PUBLIC_FIREBASE_*` (`$env/static/public`). Crée un `.env.example`, ajoute `.env.local` à `.gitignore` et documente-le dans le README.
+- La config Firebase passe par des variables `PUBLIC_FIREBASE_*` (déclarées dans `src/env.ts`, importées depuis `$app/env/public` : voir les décisions ci-dessus). Crée un `.env.example`, ajoute `.env.local` à `.gitignore` et documente-le dans le README.
 - Crée un **`CLAUDE.md`** à la racine qui résume ce document : produit, stack, règle de langue, modèle de données, commandes. C'est la mémoire du projet pour les sessions suivantes.
 
 ## 3. Modèle Firestore
