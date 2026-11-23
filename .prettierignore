@@ -10,3 +10,8 @@ bun.lockb
 
 # Docs written by hand
 /docs/
+
+# Local agent tooling (not part of the app)
+/.agents/
+/.claude/
+skills-lock.json

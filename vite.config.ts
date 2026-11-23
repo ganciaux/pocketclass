@@ -1,9 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { withPwa } from '@vite-pwa/sveltekit';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
 	plugins: [
+		tailwindcss(),
 		// withPwa wraps the sveltekit() plugin (first argument = SvelteKit options).
 		withPwa(
 			{
@@ -29,8 +31,8 @@ export default defineConfig({
 					scope: '/',
 					display: 'standalone',
 					orientation: 'portrait',
-					background_color: '#f6f7fb',
-					theme_color: '#4f46e5',
+					background_color: '#1c1d22',
+					theme_color: '#1c1d22',
 					icons: [
 						{ src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
 						{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
@@ -44,8 +46,8 @@ export default defineConfig({
 					]
 				},
 				generateSW: {
-					// App shell: JS, CSS, fonts (KaTeX), icons and the sample path.
-					globPatterns: ['client/**/*.{js,css,ico,png,svg,woff2,webmanifest,json}'],
+					// App shell: JS, CSS, fonts (KaTeX, Atkinson, Permanent Marker), icons, logo, sample path.
+					globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff2,webmanifest,json}'],
 					globIgnores: ['client/schemas/**'],
 					// The plugin always adds `prerendered/**`, which is empty in a pure SPA.
 					// The SPA fallback (index.html) is precached through `kit.spa`.
