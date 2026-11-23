@@ -1,9 +1,10 @@
 rules_version = '2';
 
-// PocketClass security rules (phase 1).
+// PocketClass security rules.
 // Model: users/{uid} is an index pointing to the user's family. Everything else lives under
-// families/{familyId}. Family admins (parents) have full access to their family; members
-// (admins or linked devices, phase 5) can read the catalogue and their own profile.
+// families/{familyId}. Family admins (parents, Google accounts) have full access to their
+// family. Linked devices (children: anonymous accounts linked with a code from the parent) read
+// the catalogue and their own profile, and write only their look, progress and notes.
 // Anything not explicitly allowed is denied.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -12,8 +13,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAnonymous() {
+      return request.auth.token.get('firebase', {}).get('sign_in_provider', '') == 'anonymous';
+    }
+
     function familyPath(familyId) {
       return /databases/$(database)/documents/families/$(familyId);
+    }
+
+    function devicePath(familyId, uid) {
+      return /databases/$(database)/documents/families/$(familyId)/devices/$(uid);
     }
 
     // Parent with full access to the family.
@@ -21,10 +30,9 @@ service cloud.firestore {
       return signedIn() && request.auth.uid in get(familyPath(familyId)).data.admins;
     }
 
-    // Device linked to the family (child phone, phase 5).
+    // Device linked to the family (child phone).
     function isDevice(familyId) {
-      return signedIn()
-        && exists(/databases/$(database)/documents/families/$(familyId)/devices/$(request.auth.uid));
+      return signedIn() && exists(devicePath(familyId, request.auth.uid));
     }
 
     function isMember(familyId) {
@@ -33,20 +41,57 @@ service cloud.firestore {
 
     // The profile a linked device acts as.
     function deviceProfileId(familyId) {
-      return get(/databases/$(database)/documents/families/$(familyId)/devices/$(request.auth.uid)).data.profileId;
+      return get(devicePath(familyId, request.auth.uid)).data.profileId;
     }
 
-    // Index document: a user reads and creates their own entry only.
+    // The request only changes these fields.
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // Optional string field: absent, or a string of at most `max` characters.
+    function optionalString(data, field, max) {
+      return !(field in data) || (data[field] is string && data[field].size() <= max);
+    }
+
+    // After the batch, this device is linked to the family and profile of the index entry.
+    function linkedAfter(index) {
+      return getAfter(devicePath(index.familyId, request.auth.uid)).data.profileId == index.profileId;
+    }
+
+    // Index document: a user reads their own entry. A parent creates { familyId: uid,
+    // profileId: uid }. A child device writes it in the link batch, once its device entry
+    // exists after the batch, and may rewrite it when linked again.
     match /users/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;
       allow create: if signedIn()
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['familyId', 'profileId']);
+        && request.resource.data.keys().hasOnly(['familyId', 'profileId'])
+        && ((request.resource.data.familyId == uid && request.resource.data.profileId == uid)
+          || linkedAfter(request.resource.data));
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['familyId', 'profileId'])
+        && linkedAfter(request.resource.data);
+    }
+
+    // Device link codes (parent → child). Read one by one only (no listing), while valid.
+    // Deleted by the admin, or by the device it linked (in the link batch).
+    match /linkCodes/{code} {
+      allow get: if signedIn() && (resource == null || request.time < resource.data.expiresAt);
+      allow create: if isAdmin(request.resource.data.familyId)
+        && request.resource.data.keys().hasOnly(['familyId', 'profileId', 'expiresAt'])
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt < request.time + duration.value(15, 'm');
+      allow delete: if isAdmin(resource.data.familyId)
+        || getAfter(devicePath(resource.data.familyId, request.auth.uid)).data.code == code;
     }
 
     match /families/{familyId} {
-      // A signed-in user may create only their own family (id = their uid), as sole admin.
+      // A parent (not an anonymous child account) may create only their own family
+      // (id = their uid), as sole admin.
       allow create: if signedIn()
+        && !isAnonymous()
         && familyId == request.auth.uid
         && request.resource.data.admins == [request.auth.uid];
       allow read: if isMember(familyId);
@@ -75,19 +120,73 @@ service cloud.firestore {
         allow read: if isMember(familyId);
       }
 
-      // Linked devices: read their own device entry.
+      // Devices: read and delete (unlink) their own entry; create it with a valid code for
+      // this family and profile (the code as it is before the link batch deletes it).
       match /devices/{uid} {
-        allow read: if signedIn() && request.auth.uid == uid;
+        allow read, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn()
+          && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['profileId', 'code', 'linkedAt'])
+          && validCode(familyId, request.resource.data.code, request.resource.data.profileId);
       }
 
-      // Linked devices: read their own profile and its subcollections (assignments, progress...).
+      // Linked devices: read their own profile and its subcollections (assignments,
+      // progress, notes...), and write only what the child owns.
       match /profiles/{profileId} {
-        allow read: if isDevice(familyId) && deviceProfileId(familyId) == profileId;
+        allow read: if isOwnDevice(familyId, profileId);
+        // Look only: nickname and a small avatar data URL.
+        allow update: if isOwnDevice(familyId, profileId)
+          && onlyChanges(['nickname', 'avatar'])
+          && optionalString(request.resource.data, 'nickname', 24)
+          && optionalString(request.resource.data, 'avatar', 60000)
+          && (!('avatar' in request.resource.data)
+            || request.resource.data.avatar.matches('^data:image/(webp|jpeg|png);base64,.*'));
 
         match /{document=**} {
-          allow read: if isDevice(familyId) && deviceProfileId(familyId) == profileId;
+          allow read: if isOwnDevice(familyId, profileId);
+        }
+
+        // "I read this sheet" (id = concept id).
+        match /progress/{conceptId} {
+          allow create, update: if isOwnDevice(familyId, profileId)
+            && request.resource.data.keys().hasOnly(['pathId', 'readAt'])
+            && request.resource.data.pathId is string;
+          allow delete: if isOwnDevice(familyId, profileId);
+        }
+
+        // What the child found difficult. Created open; editing the text reopens it; the
+        // parent (admin) sets seen / resolved.
+        match /notes/{noteId} {
+          allow create: if isOwnDevice(familyId, profileId)
+            && request.resource.data.keys().hasOnly(
+              ['conceptId', 'pathId', 'exerciseId', 'text', 'status', 'createdAt', 'updatedAt'])
+            && request.resource.data.conceptId is string
+            && request.resource.data.pathId is string
+            && validNoteText();
+          allow update: if isOwnDevice(familyId, profileId)
+            && onlyChanges(['text', 'status', 'updatedAt'])
+            && validNoteText();
+          allow delete: if isOwnDevice(familyId, profileId);
         }
       }
+    }
+
+    function validCode(familyId, code, profileId) {
+      let link = get(/databases/$(database)/documents/linkCodes/$(code)).data;
+      return link.familyId == familyId
+        && link.profileId == profileId
+        && request.time < link.expiresAt;
+    }
+
+    function isOwnDevice(familyId, profileId) {
+      return isDevice(familyId) && deviceProfileId(familyId) == profileId;
+    }
+
+    function validNoteText() {
+      return request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 1000
+        && request.resource.data.status == 'open';
     }
   }
 }

@@ -5,7 +5,12 @@ import {
 	type DocumentSnapshot,
 	type Query
 } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
 import type { WithId } from './types.ts';
+
+/** True for a rules rejection (e.g. a device unlinked by the parent). */
+export const isPermissionDenied = (error: unknown) =>
+	error instanceof FirebaseError && error.code === 'permission-denied';
 
 /**
  * Cache-first reads. `onSnapshot` emits cached data immediately (then server updates), whereas

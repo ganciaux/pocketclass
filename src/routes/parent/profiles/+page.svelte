@@ -5,6 +5,7 @@
 	import { live } from '#lib/data/live.svelte.ts';
 	import { GRADES, type Grade } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import { resolve } from '$app/paths';
 
 	const t = fr.profiles;
 	const childProfiles = live(() => session.familyId && watchChildProfiles(session.familyId));
@@ -47,9 +48,16 @@
 		<h2>{t.children}</h2>
 		<LoadState source={childProfiles} failed={t.loadFailed}>
 			{#snippet children(list)}
-				<ul class="list plain">
+				<ul class="list plain stack-tight">
 					{#each list as child (child.id)}
-						<li><strong>{child.firstName}</strong> <span class="muted">{child.grade}</span></li>
+						<li>
+							<a
+								class="card card-link block"
+								href={resolve('/parent/profiles/[id]', { id: child.id })}
+							>
+								<strong>{child.firstName}</strong> <span class="muted">{child.grade}</span>
+							</a>
+						</li>
 					{:else}
 						<li class="muted">{t.noChildren}</li>
 					{/each}

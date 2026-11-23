@@ -6,7 +6,18 @@ import {
 	initializeTestEnvironment,
 	type RulesTestEnvironment
 } from '@firebase/rules-unit-testing';
-import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+	collection,
+	deleteDoc,
+	doc,
+	getDoc,
+	getDocs,
+	serverTimestamp,
+	setDoc,
+	Timestamp,
+	updateDoc,
+	writeBatch
+} from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 
 let env: RulesTestEnvironment;
@@ -16,6 +27,10 @@ const FAMILY = 'alice';
 
 const as = (uid: string) => env.authenticatedContext(uid).firestore();
 const anonymous = () => env.unauthenticatedContext().firestore();
+/** A child phone: anonymous Firebase account. */
+const asAnonymous = (uid: string) =>
+	env.authenticatedContext(uid, { firebase: { sign_in_provider: 'anonymous' } }).firestore();
+const inMinutes = (minutes: number) => Timestamp.fromMillis(Date.now() + minutes * 60_000);
 const at = (db: ReturnType<typeof as>, path: string) => doc(db, path);
 
 beforeAll(async () => {
@@ -41,6 +56,17 @@ beforeEach(async () => {
 		await setDoc(doc(db, `families/${FAMILY}/subjects/maths`), { name: 'Maths' });
 		await setDoc(doc(db, `families/${FAMILY}/paths/p1`), { title: 'P' });
 		await setDoc(doc(db, `families/${FAMILY}/assessments/c1`), { type: 'brevet' });
+		// Link codes for tom: a valid one and an expired one.
+		const tomCode = { familyId: FAMILY, profileId: 'tom' };
+		await setDoc(doc(db, 'linkCodes/TOMOK2'), { ...tomCode, expiresAt: inMinutes(10) });
+		await setDoc(doc(db, 'linkCodes/TOMOLD'), { ...tomCode, expiresAt: inMinutes(-1) });
+		await setDoc(doc(db, `families/${FAMILY}/profiles/lea/notes/n1`), {
+			conceptId: 'c1',
+			pathId: 'p1',
+			exerciseId: null,
+			text: 'Dur',
+			status: 'open'
+		});
 		// A family created before "family id = uid" (auto id), still administered by alice.
 		await setDoc(doc(db, 'families/legacy123'), { name: 'Old', admins: ['alice'] });
 	});
@@ -140,5 +166,135 @@ describe('linked devices (phase 5)', () => {
 		await assertFails(getDoc(at(as('kid-phone'), `families/${FAMILY}/profiles/tom`)));
 		await assertSucceeds(getDoc(at(as('kid-phone'), `families/${FAMILY}/devices/kid-phone`)));
 		await assertFails(getDoc(at(as('kid-phone'), `families/${FAMILY}/devices/other`)));
+	});
+});
+
+/** The batch written by `linkDevice` (data/devices.ts). */
+function linkBatch(db: ReturnType<typeof as>, uid: string, code: string, profileId = 'tom') {
+	const batch = writeBatch(db);
+	batch.set(doc(db, `families/${FAMILY}/devices/${uid}`), {
+		profileId,
+		code,
+		linkedAt: serverTimestamp()
+	});
+	batch.set(doc(db, `users/${uid}`), { familyId: FAMILY, profileId });
+	batch.delete(doc(db, `linkCodes/${code}`));
+	return batch.commit();
+}
+
+describe('device linking', () => {
+	it('an anonymous account cannot create a family', async () => {
+		await assertFails(
+			setDoc(at(asAnonymous('kid2'), 'families/kid2'), { name: 'K', admins: ['kid2'] })
+		);
+	});
+
+	it('the parent creates short-lived codes for their own family only', async () => {
+		const code = { familyId: FAMILY, profileId: 'tom', expiresAt: inMinutes(10) };
+		await assertSucceeds(setDoc(at(as('alice'), 'linkCodes/NEW234'), code));
+		await assertFails(
+			setDoc(at(as('alice'), 'linkCodes/LONG23'), { ...code, expiresAt: inMinutes(60) })
+		);
+		await assertFails(setDoc(at(as('bob'), 'linkCodes/BOB234'), code));
+		await assertFails(setDoc(at(asAnonymous('kid2'), 'linkCodes/KID234'), code));
+	});
+
+	it('codes are read one by one while valid, never listed', async () => {
+		const kid = asAnonymous('kid2');
+		await assertSucceeds(getDoc(at(kid, 'linkCodes/TOMOK2')));
+		await assertSucceeds(getDoc(at(kid, 'linkCodes/NOPE22'))); // missing: "not found"
+		await assertFails(getDoc(at(kid, 'linkCodes/TOMOLD')));
+		await assertFails(getDocs(collection(kid, 'linkCodes')));
+		await assertFails(getDoc(at(anonymous(), 'linkCodes/TOMOK2')));
+	});
+
+	it('a valid code links the device: device entry, index and code deletion in one batch', async () => {
+		const kid = asAnonymous('kid2');
+		await assertSucceeds(linkBatch(kid, 'kid2', 'TOMOK2'));
+		await assertSucceeds(getDoc(at(kid, `families/${FAMILY}/profiles/tom`)));
+		await assertSucceeds(getDoc(at(kid, `families/${FAMILY}/concepts/c1`)));
+		await assertFails(getDoc(at(kid, `families/${FAMILY}/profiles/lea`)));
+	});
+
+	it('expired, wrong-profile or forged links are refused', async () => {
+		const kid = asAnonymous('kid2');
+		await assertFails(linkBatch(kid, 'kid2', 'TOMOLD'));
+		await assertFails(linkBatch(kid, 'kid2', 'TOMOK2', 'lea'));
+		await assertFails(linkBatch(kid, 'kid2', 'NOPE22'));
+		// The index alone cannot point to a family.
+		await assertFails(setDoc(at(kid, 'users/kid2'), { familyId: FAMILY, profileId: 'tom' }));
+		// Another device's code cannot be deleted.
+		await assertFails(deleteDoc(at(kid, 'linkCodes/TOMOK2')));
+	});
+
+	it('an unlinked device can be linked again (index rewritten)', async () => {
+		const kid = asAnonymous('kid2');
+		await assertSucceeds(linkBatch(kid, 'kid2', 'TOMOK2'));
+		await assertSucceeds(deleteDoc(at(kid, `families/${FAMILY}/devices/kid2`)));
+		await assertFails(getDoc(at(kid, `families/${FAMILY}/profiles/tom`)));
+		await env.withSecurityRulesDisabled((ctx) =>
+			setDoc(doc(ctx.firestore(), 'linkCodes/TOMNEW'), {
+				familyId: FAMILY,
+				profileId: 'tom',
+				expiresAt: inMinutes(10)
+			})
+		);
+		await assertSucceeds(linkBatch(kid, 'kid2', 'TOMNEW'));
+	});
+
+	it('the parent sees and unlinks devices', async () => {
+		await assertSucceeds(getDocs(collection(as('alice'), `families/${FAMILY}/devices`)));
+		await assertSucceeds(deleteDoc(at(as('alice'), `families/${FAMILY}/devices/kid-phone`)));
+		await assertFails(getDoc(at(as('kid-phone'), `families/${FAMILY}/profiles/lea`)));
+	});
+});
+
+describe('child writes', () => {
+	const lea = `families/${FAMILY}/profiles/lea`;
+
+	it('edit only their nickname and a small image avatar', async () => {
+		const kid = as('kid-phone');
+		await assertSucceeds(
+			updateDoc(at(kid, lea), { nickname: 'Lélé', avatar: 'data:image/webp;base64,AAAA' })
+		);
+		await assertFails(updateDoc(at(kid, lea), { firstName: 'X' }));
+		await assertFails(updateDoc(at(kid, lea), { points: 999 }));
+		await assertFails(updateDoc(at(kid, lea), { nickname: 'x'.repeat(25) }));
+		await assertFails(updateDoc(at(kid, lea), { avatar: 'https://evil.example/a.png' }));
+		await assertFails(
+			updateDoc(at(kid, lea), { avatar: `data:image/webp;base64,${'A'.repeat(60000)}` })
+		);
+		await assertFails(updateDoc(at(kid, `families/${FAMILY}/profiles/tom`), { nickname: 'T' }));
+	});
+
+	it('mark sheets as read on their own profile', async () => {
+		const kid = as('kid-phone');
+		const read = { pathId: 'p1', readAt: serverTimestamp() };
+		await assertSucceeds(setDoc(at(kid, `${lea}/progress/c1`), read));
+		await assertSucceeds(deleteDoc(at(kid, `${lea}/progress/c1`)));
+		await assertFails(setDoc(at(kid, `${lea}/progress/c1`), { ...read, score: 20 }));
+		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), read));
+	});
+
+	it('write open notes; only the parent sets seen / resolved', async () => {
+		const kid = as('kid-phone');
+		const note = {
+			conceptId: 'c1',
+			pathId: 'p1',
+			exerciseId: null,
+			text: 'Les fractions négatives',
+			status: 'open',
+			createdAt: serverTimestamp(),
+			updatedAt: serverTimestamp()
+		};
+		await assertSucceeds(setDoc(at(kid, `${lea}/notes/n2`), note));
+		await assertFails(setDoc(at(kid, `${lea}/notes/n3`), { ...note, status: 'resolved' }));
+		await assertFails(setDoc(at(kid, `${lea}/notes/n3`), { ...note, text: '' }));
+		await assertSucceeds(updateDoc(at(kid, `${lea}/notes/n1`), { text: 'Très dur' }));
+		await assertFails(updateDoc(at(kid, `${lea}/notes/n1`), { status: 'resolved' }));
+		await assertFails(updateDoc(at(kid, `${lea}/notes/n1`), { conceptId: 'c2' }));
+		await assertSucceeds(deleteDoc(at(kid, `${lea}/notes/n2`)));
+		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/notes/n4`), note));
+		await assertSucceeds(updateDoc(at(as('alice'), `${lea}/notes/n1`), { status: 'resolved' }));
 	});
 });

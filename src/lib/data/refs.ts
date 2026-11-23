@@ -11,17 +11,21 @@ import type {
 	AssessmentRecord,
 	Assignment,
 	ConceptRecord,
+	Device,
 	ExerciseRecord,
 	Family,
+	LinkCode,
+	Note,
 	PathRecord,
 	Profile,
+	ProgressRecord,
 	Subject,
 	UserIndex
 } from './types.ts';
 
 // Typed references to Firestore locations. The only place that builds Firestore paths.
 
-const { families: FAMILIES, users: USERS } = ROOT;
+const { families: FAMILIES, users: USERS, linkCodes: LINK_CODES } = ROOT;
 
 // The SDK types documents as DocumentData; these helpers state the stored type once.
 const typedDoc = <T = DocumentData>(familyId: string, ...segments: string[]) =>
@@ -35,6 +39,12 @@ export const familyDoc = (familyId: string, ...segments: string[]) =>
 
 export const userRef = (uid: string) => doc(db, USERS, uid) as DocumentReference<UserIndex>;
 export const familyRef = (familyId: string) => typedDoc<Family>(familyId);
+export const linkCodeRef = (code: string) =>
+	doc(db, LINK_CODES, code) as DocumentReference<LinkCode>;
+
+export const devicesCol = (familyId: string) => familyCol<Device>(familyId, COLLECTIONS.devices);
+export const deviceRef = (familyId: string, uid: string) =>
+	typedDoc<Device>(familyId, COLLECTIONS.devices, uid);
 
 export const profilesCol = (familyId: string) => familyCol<Profile>(familyId, COLLECTIONS.profiles);
 export const profileRef = (familyId: string, profileId: string) =>
@@ -44,6 +54,22 @@ export const assignmentsCol = (familyId: string, profileId: string) =>
 	familyCol<Assignment>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.assignments);
 export const assignmentRef = (familyId: string, profileId: string, pathId: string) =>
 	typedDoc<Assignment>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.assignments, pathId);
+
+export const progressCol = (familyId: string, profileId: string) =>
+	familyCol<ProgressRecord>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.progress);
+export const progressRef = (familyId: string, profileId: string, conceptId: string) =>
+	typedDoc<ProgressRecord>(
+		familyId,
+		COLLECTIONS.profiles,
+		profileId,
+		COLLECTIONS.progress,
+		conceptId
+	);
+
+export const notesCol = (familyId: string, profileId: string) =>
+	familyCol<Note>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.notes);
+export const noteRef = (familyId: string, profileId: string, noteId: string) =>
+	typedDoc<Note>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.notes, noteId);
 
 export const subjectRef = (familyId: string, subjectId: string) =>
 	typedDoc<Subject>(familyId, COLLECTIONS.subjects, subjectId);

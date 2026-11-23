@@ -8,6 +8,10 @@ export function plural(count: number, one: string, many = `${one}s`): string {
 	return `${count} ${count < 2 ? one : many}`;
 }
 
+/** "23 novembre" (Firestore timestamps: `ts.toDate()`). */
+export const formatDate = (date: Date) =>
+	date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+
 export const fr = {
 	app: {
 		name: 'PocketClass',
@@ -26,8 +30,17 @@ export const fr = {
 		signInFailed: 'La connexion a échoué. Réessaie.',
 		loadFailed: 'Impossible de charger ta famille. Vérifie ta connexion.',
 		retry: 'Réessayer',
-		notLinked: "Cet appareil n'est relié à aucune famille.",
-		hello: (firstName: string) => `Bonjour ${firstName} !`,
+		notLinked: "Cet appareil n'est plus relié à ta famille. Demande un nouveau code à ton parent.",
+		parentTitle: 'Je suis un parent',
+		childTitle: 'Je suis un enfant',
+		linkHelp: 'Demande à ton parent un code de liaison, puis saisis-le ici.',
+		linkCode: 'Code de liaison',
+		linkSubmit: 'Relier cet appareil',
+		linking: 'Liaison…',
+		linkCodeFormat: 'Le code fait 6 caractères (lettres et chiffres).',
+		linkInvalid: 'Code invalide ou expiré. Demande un nouveau code à ton parent.',
+		linkFailed: 'La liaison a échoué. Vérifie ta connexion et réessaie.',
+		hello: (name: string) => `Bonjour ${name} !`,
 		defaultAdminName: 'Parent',
 		defaultFamilyName: (firstName: string) => `Famille de ${firstName}`
 	},
@@ -68,7 +81,28 @@ export const fr = {
 		create: 'Créer le profil',
 		creating: 'Création…',
 		createFailed: "Le profil n'a pas pu être créé.",
-		firstNameRequired: 'Indique un prénom.'
+		firstNameRequired: 'Indique un prénom.',
+		back: '← Profils',
+		notFound: "Ce profil n'existe pas (ou plus)."
+	},
+	devices: {
+		title: 'Appareils reliés',
+		none: 'Aucun appareil relié.',
+		loadFailed: 'Impossible de charger les appareils.',
+		linkedOn: (date: string) => `Appareil relié le ${date}`,
+		unlink: 'Délier',
+		unlinkFailed: "L'appareil n'a pas pu être délié. Vérifie ta connexion.",
+		createCode: 'Lier un appareil',
+		creatingCode: 'Création du code…',
+		codeHelp: (minutes: number) =>
+			`Sur le téléphone de l'enfant, ouvre PocketClass, choisis « Je suis un enfant » et saisis ce code. Il est valable ${minutes} minutes et ne sert qu'une fois.`,
+		codeFailed: "Le code n'a pas pu être créé. Vérifie ta connexion.",
+		offline: 'Nécessite une connexion internet.',
+		unlinkThis: 'Délier cet appareil',
+		unlinkThisHelp:
+			'Pour revenir, il faudra un nouveau code de ton parent. Ta progression et tes remarques sont conservées.',
+		unlinkThisConfirm: 'Délier cet appareil ? Il faudra un nouveau code pour revenir.',
+		unlinkThisFailed: "L'appareil n'a pas pu être délié. Vérifie ta connexion."
 	},
 	parent: {
 		adminOnly: 'Cette page est réservée aux parents.'

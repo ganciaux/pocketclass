@@ -29,12 +29,56 @@ export interface Family {
 	createdAt: Timestamp;
 }
 
+/** linkCodes/{code}: short-lived code to link a child device (top level: the child has no family yet). */
+export interface LinkCode {
+	familyId: string;
+	profileId: string;
+	expiresAt: Timestamp;
+}
+
+/** families/{familyId}/devices/{uid}: a child device (anonymous account) acting as a profile. */
+export interface Device {
+	profileId: string;
+	linkedAt: Timestamp;
+	/** The link code used (checked by the rules when the device is created). */
+	code: string;
+}
+
 /** families/{familyId}/profiles/{profileId} */
 export interface Profile {
 	firstName: string;
 	role: ProfileRole;
 	grade: Grade | null;
 	points: number;
+	/** Chosen by the child; shown instead of the first name. */
+	nickname?: string;
+	/** Small square image as a data URL (resized in the browser, see profile/avatar.ts). */
+	avatar?: string;
+}
+
+/** The profile fields a child may edit (the rules allow only these). */
+export type ProfileLook = Pick<Profile, 'nickname' | 'avatar'>;
+
+/** families/{familyId}/profiles/{profileId}/progress/{conceptId}: the sheet was read. */
+export interface ProgressRecord {
+	pathId: string;
+	readAt: Timestamp;
+}
+
+export const NOTE_STATUSES = ['open', 'seen', 'resolved'] as const;
+export type NoteStatus = (typeof NOTE_STATUSES)[number];
+
+/** families/{familyId}/profiles/{profileId}/notes/{noteId}: what the child found difficult. */
+export interface Note {
+	conceptId: string;
+	pathId: string;
+	/** Set when the note is about an exercise (phase 2). */
+	exerciseId: string | null;
+	text: string;
+	status: NoteStatus;
+	/** Null while the write is pending (server timestamp). */
+	createdAt: Timestamp | null;
+	updatedAt: Timestamp | null;
 }
 
 /** families/{familyId}/profiles/{profileId}/assignments/{pathId} */

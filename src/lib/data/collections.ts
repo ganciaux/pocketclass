@@ -3,16 +3,20 @@
 /** Top-level collections. */
 export const ROOT = {
 	users: 'users',
-	families: 'families'
+	families: 'families',
+	linkCodes: 'linkCodes'
 } as const;
 
 /** Collections under families/{familyId}. */
 export const COLLECTIONS = {
+	devices: 'devices',
 	profiles: 'profiles',
 	subjects: 'subjects',
 	paths: 'paths',
 	concepts: 'concepts',
 	exercises: 'exercises',
 	assessments: 'assessments',
-	assignments: 'assignments'
+	assignments: 'assignments',
+	progress: 'progress',
+	notes: 'notes'
 } as const;

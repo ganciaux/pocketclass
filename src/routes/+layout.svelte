@@ -24,7 +24,8 @@
 	<a class="brand" href={resolve('/')}>{fr.app.name}</a>
 	<span class="row">
 		{#if !connectivity.online}<span class="pill warning" role="status">{fr.app.offline}</span>{/if}
-		{#if session.user}
+		<!-- Children never sign out (the anonymous account would be lost): see "Unlink" on /me. -->
+		{#if session.user && !session.isChild}
 			<button class="link" onclick={() => session.signOut()}>{fr.auth.signOut}</button>
 		{/if}
 	</span>

@@ -1,9 +1,18 @@
-import { addDoc, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import {
+	addDoc,
+	deleteField,
+	query,
+	serverTimestamp,
+	setDoc,
+	updateDoc,
+	where
+} from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { fr } from '#lib/i18n/fr.ts';
-import { getDocCacheFirst, querySource, type Subscribe } from './sources.ts';
+import { docSource, getDocCacheFirst, querySource, type Subscribe } from './sources.ts';
+import { inBackground } from './writes.ts';
 import { familyRef, profileRef, profilesCol, userRef } from './refs.ts';
-import type { Grade, Profile, UserIndex, WithId } from './types.ts';
+import type { Grade, Profile, ProfileLook, UserIndex, WithId } from './types.ts';
 
 /**
  * Finds the family of a signed-in user, creating it on the first parent login.
@@ -46,6 +55,20 @@ async function createFamilyForAdmin(uid: string, firstName: string): Promise<Use
 
 export const getProfile = (familyId: string, profileId: string) =>
 	getDocCacheFirst(profileRef(familyId, profileId));
+
+export const watchProfile = (familyId: string, profileId: string) =>
+	docSource(profileRef(familyId, profileId));
+
+/** Nickname and avatar (child or parent). Empty values remove the field. Works offline. */
+export function updateProfileLook(familyId: string, profileId: string, look: ProfileLook): void {
+	inBackground(
+		updateDoc(profileRef(familyId, profileId), {
+			nickname: look.nickname?.trim() || deleteField(),
+			avatar: look.avatar || deleteField()
+		}),
+		'profile look'
+	);
+}
 
 /** Live child profiles, sorted by first name (client-side: no composite index). */
 export const watchChildProfiles = (familyId: string): Subscribe<WithId<Profile>[]> =>
