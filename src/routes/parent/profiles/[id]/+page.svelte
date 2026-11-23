@@ -2,14 +2,16 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import ChildDevices from '#lib/components/ChildDevices.svelte';
+	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import ProfileDashboard from '#lib/components/ProfileDashboard.svelte';
 	import ProfileLookForm from '#lib/components/ProfileLookForm.svelte';
 	import ProfileNotes from '#lib/components/ProfileNotes.svelte';
-	import { watchProfile } from '#lib/data/family.ts';
+	import { deleteChildProfile, watchProfile } from '#lib/data/family.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { displayName } from '#lib/profile/display.ts';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
@@ -18,6 +20,11 @@
 	const childLive = live(
 		() => session.familyId && profileId && watchProfile(session.familyId, profileId)
 	);
+
+	async function deleteChild(familyId: string, childId: string) {
+		await deleteChildProfile(familyId, childId);
+		await goto(resolve('/parent/profiles'), { replaceState: true });
+	}
 </script>
 
 <main class="stack">
@@ -40,6 +47,12 @@
 				</section>
 				<ProfileLookForm {familyId} profile={child} />
 				<ChildDevices {familyId} profileId={child.id} />
+				<ConfirmDelete
+					title={t.deleteTitle}
+					help={t.deleteHelp(displayName(child))}
+					action={t.delete}
+					onconfirm={() => deleteChild(familyId, child.id)}
+				/>
 			{/snippet}
 		</LoadState>
 	{/if}

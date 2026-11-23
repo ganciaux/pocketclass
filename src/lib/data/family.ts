@@ -1,6 +1,7 @@
 import {
 	addDoc,
 	deleteField,
+	getDocs,
 	query,
 	serverTimestamp,
 	setDoc,
@@ -11,7 +12,17 @@ import type { User } from 'firebase/auth';
 import { fr } from '#lib/i18n/fr.ts';
 import { docSource, getDocCacheFirst, querySource, type Subscribe } from './sources.ts';
 import { inBackground } from './writes.ts';
-import { familyRef, profileRef, profilesCol, userRef } from './refs.ts';
+import { deleteInBatches } from './batches.ts';
+import {
+	assignmentsCol,
+	devicesCol,
+	familyRef,
+	notesCol,
+	profileRef,
+	profilesCol,
+	progressCol,
+	userRef
+} from './refs.ts';
 import type { Grade, Profile, ProfileLook, UserIndex, WithId } from './types.ts';
 
 /**
@@ -84,4 +95,23 @@ export async function createChildProfile(
 	const profile: Profile = { firstName, role: 'child', grade, points: 0 };
 	const ref = await addDoc(profilesCol(familyId), profile);
 	return ref.id;
+}
+
+/**
+ * Parent action (online): deletes a child profile for good. Its devices go first (they lose
+ * access at once), then its assignments, progress and notes, then the profile itself.
+ * Reads from the server (getDocs) so nothing written elsewhere is left behind.
+ */
+export async function deleteChildProfile(familyId: string, profileId: string): Promise<void> {
+	const [devices, ...owned] = await Promise.all([
+		getDocs(query(devicesCol(familyId), where('profileId', '==', profileId))),
+		getDocs(assignmentsCol(familyId, profileId)),
+		getDocs(progressCol(familyId, profileId)),
+		getDocs(notesCol(familyId, profileId))
+	]);
+	await deleteInBatches([
+		...devices.docs.map((d) => d.ref),
+		...owned.flatMap((snap) => snap.docs.map((d) => d.ref)),
+		profileRef(familyId, profileId)
+	]);
 }

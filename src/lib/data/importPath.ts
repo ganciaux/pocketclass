@@ -1,5 +1,6 @@
 import { getDoc, getDocs, query, serverTimestamp, where, writeBatch } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
+import { MAX_BATCH_OPS } from '#lib/data/batches.ts';
 import {
 	assessmentsCol,
 	conceptRef,
@@ -24,9 +25,6 @@ import {
 // Executor of the pure import plan (import/importPlan.ts). Import is an online, parent-only
 // action: reads here deliberately go to the server (getDoc / getDocs, not cache-first)
 // so the plan is computed on up-to-date data.
-
-/** Firestore limit is 500 operations per batch; keep a margin. */
-const MAX_BATCH_OPS = 450;
 
 export class ImportConflictError extends Error {
 	constructor(readonly conflicts: ConceptConflict[]) {

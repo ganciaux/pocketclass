@@ -175,9 +175,11 @@ service cloud.firestore {
 
     function validCode(familyId, code, profileId) {
       let link = get(/databases/$(database)/documents/linkCodes/$(code)).data;
+      // The profile must still exist (it may be deleted while a code is pending) and be a child.
       return link.familyId == familyId
         && link.profileId == profileId
-        && request.time < link.expiresAt;
+        && request.time < link.expiresAt
+        && get(/databases/$(database)/documents/families/$(familyId)/profiles/$(profileId)).data.role == 'child';
     }
 
     function isOwnDevice(familyId, profileId) {

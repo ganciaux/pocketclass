@@ -54,7 +54,8 @@ enfant : ouvrir son profil → **Lier un appareil** affiche un code (6 caractèr
 usage unique) ; sur le téléphone de l'enfant, ouvrir l'app → « Je suis un enfant » → saisir le
 code. L'enfant reste connecté (compte anonyme Firebase) ; s'il perd la session (données
 effacées, nouveau téléphone), il suffit d'un nouveau code : sa progression est rattachée à son
-profil. Le parent peut délier un appareil à tout moment. En local, tester avec une deuxième
+profil. Le parent peut délier un appareil à tout moment. Pour supprimer un profil enfant (avec sa progression et ses remarques) : en bas de
+sa page, taper SUPPRIMER puis confirmer. En local, tester avec une deuxième
 fenêtre de navigation privée pour l'enfant.
 
 ## Tester la PWA (service worker, hors-ligne)

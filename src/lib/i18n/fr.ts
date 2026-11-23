@@ -28,7 +28,12 @@ export const fr = {
 		emptyTopic: 'Rien pour le moment',
 		save: 'Enregistrer',
 		cancel: 'Annuler',
-		needsOnline: 'Nécessite une connexion internet.'
+		needsOnline: 'Nécessite une connexion internet.',
+		/** Word to type before an irreversible deletion. */
+		confirmWord: 'SUPPRIMER',
+		confirmPrompt: (word: string) => `Pour confirmer, tape ${word} :`,
+		deleting: 'Suppression…',
+		deleteFailed: 'La suppression a échoué. Vérifie ta connexion et réessaie.'
 	},
 	auth: {
 		signInWithGoogle: 'Se connecter avec Google',
@@ -92,7 +97,11 @@ export const fr = {
 		createFailed: "Le profil n'a pas pu être créé.",
 		firstNameRequired: 'Indique un prénom.',
 		back: '← Profils',
-		notFound: "Ce profil n'existe pas (ou plus)."
+		notFound: "Ce profil n'existe pas (ou plus).",
+		deleteTitle: 'Supprimer ce profil',
+		deleteHelp: (name: string) =>
+			`Supprime définitivement le profil de ${name} : sa progression, ses remarques et ses affectations. Ses appareils reliés sont déliés. Les parcours de la famille ne sont pas touchés. Impossible à annuler.`,
+		delete: 'Supprimer définitivement'
 	},
 	dashboard: {
 		title: "Où j'en suis",

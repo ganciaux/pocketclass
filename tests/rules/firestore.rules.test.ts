@@ -243,6 +243,39 @@ describe('device linking', () => {
 		await assertFails(getDoc(at(kid, `families/${FAMILY}/profiles/lea`)));
 	});
 
+	it('a pending code of a deleted (or non-child) profile links nothing', async () => {
+		const parent = as('alice');
+		await assertSucceeds(deleteDoc(at(parent, `families/${FAMILY}/profiles/tom`)));
+		await assertFails(linkBatch(asAnonymous('kid2'), 'kid2', 'TOMOK2'));
+		await env.withSecurityRulesDisabled((ctx) =>
+			setDoc(doc(ctx.firestore(), 'linkCodes/ADMIN2'), {
+				familyId: FAMILY,
+				profileId: 'alice',
+				expiresAt: inMinutes(10)
+			})
+		);
+		await env.withSecurityRulesDisabled((ctx) =>
+			setDoc(doc(ctx.firestore(), `families/${FAMILY}/profiles/alice`), { role: 'admin' })
+		);
+		await assertFails(linkBatch(asAnonymous('kid2'), 'kid2', 'ADMIN2', 'alice'));
+	});
+
+	it('the parent deletes a child profile with its data; its device loses access', async () => {
+		const parent = as('alice');
+		const lea = `families/${FAMILY}/profiles/lea`;
+		const batch = writeBatch(parent);
+		for (const path of [
+			`families/${FAMILY}/devices/kid-phone`,
+			`${lea}/assignments/p1`,
+			`${lea}/notes/n1`,
+			lea
+		]) {
+			batch.delete(doc(parent, path));
+		}
+		await assertSucceeds(batch.commit());
+		await assertFails(getDoc(at(as('kid-phone'), `${lea}/notes/n1`)));
+	});
+
 	it('only the parent deletes an unused code', async () => {
 		await assertFails(deleteDoc(at(as('bob'), 'linkCodes/TOMOK2')));
 		await assertSucceeds(deleteDoc(at(as('alice'), 'linkCodes/TOMOK2')));
