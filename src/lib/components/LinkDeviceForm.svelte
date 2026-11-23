@@ -34,17 +34,17 @@
 	<label>
 		{t.linkCode}
 		<input
-			class="mono code"
+			class="code-display code"
 			bind:value={input}
 			autocomplete="one-time-code"
 			autocapitalize="characters"
 			spellcheck="false"
 			maxlength={LINK_CODE_LENGTH + 2}
-			placeholder="ABC 234"
+			placeholder={t.linkCodePlaceholder}
 		/>
 	</label>
 	{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
-	{#if !connectivity.online}<p class="warning">{fr.devices.offline}</p>{/if}
+	{#if !connectivity.online}<p class="warning">{fr.common.needsOnline}</p>{/if}
 	<button class="primary" type="submit" disabled={session.linking || !connectivity.online}>
 		{session.linking ? t.linking : t.linkSubmit}
 	</button>
@@ -53,8 +53,5 @@
 <style>
 	.code {
 		font-size: 1.4rem;
-		letter-spacing: 0.2em;
-		text-align: center;
-		text-transform: uppercase;
 	}
 </style>

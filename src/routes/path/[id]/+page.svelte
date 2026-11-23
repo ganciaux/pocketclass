@@ -17,11 +17,7 @@
 	);
 	// Children only: parents do not track their own reading.
 	const progressLive = live(
-		() =>
-			session.isChild &&
-			session.familyId &&
-			session.profileId &&
-			watchProgress(session.familyId, session.profileId)
+		() => session.familyId && session.childId && watchProgress(session.familyId, session.childId)
 	);
 	const readIds = $derived(new Set((progressLive.data ?? []).map((p) => p.id)));
 </script>

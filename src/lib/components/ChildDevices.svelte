@@ -46,7 +46,7 @@
 		{#snippet children(devices)}
 			<ul class="list plain">
 				{#each devices as device (device.id)}
-					<li class="row device">
+					<li class="row between">
 						<span>{t.linkedOn(device.linkedAt ? formatDate(device.linkedAt.toDate()) : '…')}</span>
 						<button class="link" onclick={() => unlink(device.id)}>{t.unlink}</button>
 					</li>
@@ -60,27 +60,20 @@
 	<!-- Hidden once a device used it (single use). -->
 	{#if code && !devicesLive.data?.some((d) => d.code === code)}
 		<div class="callout stack-tight">
-			<p class="mono code" aria-live="polite">{formatLinkCode(code)}</p>
+			<p class="code-display code" aria-live="polite">{formatLinkCode(code)}</p>
 			<p class="small">{t.codeHelp(LINK_CODE_TTL_MS / 60_000)}</p>
 		</div>
 	{/if}
 	{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
-	{#if !connectivity.online}<p class="warning">{t.offline}</p>{/if}
+	{#if !connectivity.online}<p class="warning">{fr.common.needsOnline}</p>{/if}
 	<button onclick={newCode} disabled={creating || !connectivity.online}>
 		{creating ? t.creatingCode : t.createCode}
 	</button>
 </section>
 
 <style>
-	.device {
-		justify-content: space-between;
-	}
-
 	.code {
 		margin: 0;
 		font-size: 2rem;
-		font-weight: 700;
-		letter-spacing: 0.15em;
-		text-align: center;
 	}
 </style>

@@ -45,14 +45,15 @@
 		if (confirm(t.deleteConfirm)) deleteNote(familyId, profileId, noteId);
 	}
 
-	const review = (noteId: string, status: NoteStatus) =>
+	function review(noteId: string, status: NoteStatus) {
 		setNoteStatus(familyId, profileId, noteId, status);
+	}
 </script>
 
 <ul class="list plain stack-tight">
 	{#each notes as note (note.id)}
 		<li class="card stack-tight note" class:done={note.status === 'resolved'}>
-			<header class="row meta">
+			<header class="row between">
 				<span class="pill" class:success={note.status === 'resolved'}>{t.status[note.status]}</span>
 				{#if note.createdAt}<span class="muted small">
 						{t.on(formatDate(note.createdAt.toDate()))}
@@ -71,8 +72,8 @@
 				<form class="stack-tight" onsubmit={(e) => saveEdit(e, note.id)}>
 					<textarea bind:value={draft} rows="3" maxlength={NOTE_MAX}></textarea>
 					<div class="row">
-						<button class="primary" type="submit">{t.save}</button>
-						<button type="button" onclick={() => (editingId = null)}>{t.cancel}</button>
+						<button class="primary" type="submit">{fr.common.save}</button>
+						<button type="button" onclick={() => (editingId = null)}>{fr.common.cancel}</button>
 					</div>
 				</form>
 			{:else}
@@ -97,10 +98,6 @@
 </ul>
 
 <style>
-	.meta {
-		justify-content: space-between;
-	}
-
 	.text {
 		margin: 0;
 		white-space: pre-wrap;

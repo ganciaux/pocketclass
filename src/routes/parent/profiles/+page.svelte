@@ -10,7 +10,7 @@
 	import { resolve } from '$app/paths';
 
 	const t = fr.profiles;
-	const childProfiles = live(() => session.familyId && watchChildProfiles(session.familyId));
+	const childProfilesLive = live(() => session.familyId && watchChildProfiles(session.familyId));
 
 	let firstName = $state('');
 	let grade = $state<Grade>('6e');
@@ -48,7 +48,7 @@
 
 	<section class="card stack">
 		<h2>{t.children}</h2>
-		<LoadState source={childProfiles} failed={t.loadFailed}>
+		<LoadState source={childProfilesLive} failed={t.loadFailed}>
 			{#snippet children(list)}
 				<ul class="list plain stack-tight">
 					{#each list as child (child.id)}

@@ -18,11 +18,17 @@ export const fr = {
 		tagline: 'Tes fiches de révision, dans la poche.',
 		offline: 'Hors-ligne',
 		loading: 'Chargement…',
-		soon: 'bientôt'
+		soon: 'bientôt',
+		notFound: "Cette page n'existe pas.",
+		error: "Quelque chose s'est mal passé. Recharge la page.",
+		home: "← Retour à l'accueil"
 	},
 	common: {
 		grade: 'Niveau',
-		emptyTopic: 'Rien pour le moment'
+		emptyTopic: 'Rien pour le moment',
+		save: 'Enregistrer',
+		cancel: 'Annuler',
+		needsOnline: 'Nécessite une connexion internet.'
 	},
 	auth: {
 		signInWithGoogle: 'Se connecter avec Google',
@@ -35,6 +41,7 @@ export const fr = {
 		childTitle: 'Je suis un enfant',
 		linkHelp: 'Demande à ton parent un code de liaison, puis saisis-le ici.',
 		linkCode: 'Code de liaison',
+		linkCodePlaceholder: 'ABC 234',
 		linkSubmit: 'Relier cet appareil',
 		linking: 'Liaison…',
 		linkCodeFormat: 'Le code fait 6 caractères (lettres et chiffres).',
@@ -102,18 +109,15 @@ export const fr = {
 		removeImage: "Retirer l'image",
 		imageFailed: "Cette image n'a pas pu être lue. Essaie une autre image.",
 		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
-		save: 'Enregistrer',
 		saved: 'Enregistré.'
 	},
 	me: {
-		title: 'Mon profil',
-		open: 'Mon profil'
+		title: 'Mon profil'
 	},
 	notes: {
 		title: 'Mes remarques',
 		parentTitle: 'Remarques',
-		link: (open: number) =>
-			open === 0 ? 'Mes remarques' : `Mes remarques · ${plural(open, 'à voir', 'à voir')}`,
+		link: (open: number) => (open === 0 ? 'Mes remarques' : `Mes remarques · ${open} à voir`),
 		formTitle: 'Une difficulté ?',
 		formHelp:
 			"Note ce que tu as trouvé difficile : tu le retrouveras dans « Mes remarques », et ton parent pourra t'aider.",
@@ -123,8 +127,6 @@ export const fr = {
 		empty: 'Aucune remarque.',
 		loadFailed: 'Impossible de charger les remarques.',
 		edit: 'Modifier',
-		save: 'Enregistrer',
-		cancel: 'Annuler',
 		delete: 'Supprimer',
 		deleteConfirm: 'Supprimer cette remarque ?',
 		status: { open: 'À voir', seen: 'Vue par le parent', resolved: 'Réglée ✓' },
@@ -145,12 +147,10 @@ export const fr = {
 		codeHelp: (minutes: number) =>
 			`Sur le téléphone de l'enfant, ouvre PocketClass, choisis « Je suis un enfant » et saisis ce code. Il est valable ${minutes} minutes et ne sert qu'une fois.`,
 		codeFailed: "Le code n'a pas pu être créé. Vérifie ta connexion.",
-		offline: 'Nécessite une connexion internet.',
 		unlinkThis: 'Délier cet appareil',
 		unlinkThisHelp:
 			'Pour revenir, il faudra un nouveau code de ton parent. Ta progression et tes remarques sont conservées.',
-		unlinkThisConfirm: 'Délier cet appareil ? Il faudra un nouveau code pour revenir.',
-		unlinkThisFailed: "L'appareil n'a pas pu être délié. Vérifie ta connexion."
+		unlinkThisConfirm: 'Délier cet appareil ? Il faudra un nouveau code pour revenir.'
 	},
 	parent: {
 		adminOnly: 'Cette page est réservée aux parents.'

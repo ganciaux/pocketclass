@@ -76,15 +76,5 @@
 	</label>
 	{#if errorMessage}<p class="error">{errorMessage}</p>{/if}
 	{#if saved}<p class="muted" aria-live="polite">{t.saved}</p>{/if}
-	<button class="primary" type="submit">{t.save}</button>
+	<button class="primary" type="submit">{fr.common.save}</button>
 </form>
-
-<style>
-	.visually-hidden {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		opacity: 0;
-		pointer-events: none;
-	}
-</style>

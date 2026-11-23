@@ -26,7 +26,7 @@
 	<span class="row">
 		{#if !connectivity.online}<span class="pill warning" role="status">{fr.app.offline}</span>{/if}
 		{#if session.status === 'ready' && session.profile}
-			<a class="me" href={resolve('/me')} aria-label={fr.me.open} title={fr.me.open}>
+			<a class="me" href={resolve('/me')} aria-label={fr.me.title} title={fr.me.title}>
 				<Avatar profile={session.profile} size={2} />
 			</a>
 		{/if}

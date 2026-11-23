@@ -35,8 +35,8 @@
 		<section class="card stack">
 			<h2>{t.unlinkThis}</h2>
 			<p class="muted small">{t.unlinkThisHelp}</p>
-			{#if unlinkError}<p class="error">{t.unlinkThisFailed}</p>{/if}
-			{#if !connectivity.online}<p class="warning">{t.offline}</p>{/if}
+			{#if unlinkError}<p class="error">{t.unlinkFailed}</p>{/if}
+			{#if !connectivity.online}<p class="warning">{fr.common.needsOnline}</p>{/if}
 			<button onclick={unlink} disabled={unlinking || !connectivity.online}>{t.unlinkThis}</button>
 		</section>
 	{/if}

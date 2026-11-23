@@ -35,6 +35,8 @@ class Session {
 	profileId = $derived(this.profile?.id ?? null);
 	isAdmin = $derived(this.profile?.role === 'admin');
 	isChild = $derived(this.profile?.role === 'child');
+	/** The profile id when a child is signed in (progress and notes are children-only). */
+	childId = $derived(this.isChild ? this.profileId : null);
 
 	#started = false;
 	/** Incremented on each load: a slower previous load must not overwrite a newer one. */

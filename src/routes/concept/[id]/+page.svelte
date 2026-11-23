@@ -18,7 +18,7 @@
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
 
-	const profileId = $derived(session.isChild ? session.profileId : null);
+	const profileId = $derived(session.childId);
 	const readLive = live(
 		() =>
 			session.familyId &&
@@ -67,7 +67,7 @@
 
 			{#each concept.sheet.sections as section, s (s)}
 				<section class="card stack sheet-section">
-					<header class="row section-header">
+					<header class="row between section-header">
 						<h2>{@html renderInline(section.title)}</h2>
 						<span class="badges">
 							{#each section.keyPoints as kp (kp)}
@@ -145,7 +145,6 @@
 	}
 
 	.section-header {
-		justify-content: space-between;
 		flex-wrap: nowrap;
 	}
 

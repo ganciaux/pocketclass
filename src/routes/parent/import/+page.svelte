@@ -40,11 +40,13 @@
 	// Primitives: what depends on them only reloads when the path really changes.
 	const pathId = $derived(path?.id ?? null);
 
-	const children = live(() => session.familyId && watchChildProfiles(session.familyId));
-	const childIds = $derived((children.data ?? []).map((c) => c.id));
-	const childrenReady = $derived(children.status === 'ready');
-	const existing = live(() => session.familyId && pathId && watchPath(session.familyId, pathId));
-	const existingVersion = $derived(existing.data?.version ?? null);
+	const childrenLive = live(() => session.familyId && watchChildProfiles(session.familyId));
+	const childIds = $derived((childrenLive.data ?? []).map((c) => c.id));
+	const childrenReady = $derived(childrenLive.status === 'ready');
+	const existingLive = live(
+		() => session.familyId && pathId && watchPath(session.familyId, pathId)
+	);
+	const existingVersion = $derived(existingLive.data?.version ?? null);
 
 	// Concept ids owned by other paths block the import. Checked when the path id or the concept
 	// ids change (`conceptKey` is a primitive), not on every keystroke.
@@ -208,7 +210,7 @@
 
 		<section class="card stack">
 			<h2>{t.assignTo}</h2>
-			{#each children.data ?? [] as child (child.id)}
+			{#each childrenLive.data ?? [] as child (child.id)}
 				<label class="check">
 					<input type="checkbox" value={child.id} bind:group={selected} />
 					{child.firstName} <span class="muted">({child.grade})</span>

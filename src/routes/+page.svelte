@@ -15,11 +15,7 @@
 		() => session.isAdmin && session.familyId && watchFamilyPaths(session.familyId)
 	);
 	const notesLive = live(
-		() =>
-			session.isChild &&
-			session.familyId &&
-			session.profileId &&
-			watchNotes(session.familyId, session.profileId)
+		() => session.familyId && session.childId && watchNotes(session.familyId, session.childId)
 	);
 </script>
 

@@ -43,8 +43,8 @@ Layers, from the outside in. A layer only imports from layers below it.
 | Layer      | Where                                                                                             | Rules                                                                                                                                                                                                                                                                                                                                                                                        |
 | ---------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Routes     | `src/routes/**`                                                                                   | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                                                                                                                                                                     |
-| Components | `src/lib/components/`                                                                             | Reusable UI: `LoadState`, `SessionGate` (+ `LinkDeviceForm`), `Avatar`, `ProfileLookForm`, `ProfileDashboard`, `NoteForm` / `NoteList`, `ChildDevices`. Components shared by the child and parent views take `familyId` / `profileId` props.                                                                                                                                                 |
-| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`)                                 | Runes singletons. `session.profile` is live; use `session.profileId` (primitive) in `live()` sources; `isAdmin` / `isChild`.                                                                                                                                                                                                                                                                 |
+| Components | `src/lib/components/`                                                                             | Reusable UI: `LoadState`, `SessionGate` (+ `LinkDeviceForm`), `Avatar`, `ProfileLookForm`, `ProfileDashboard`, `NoteForm` / `NoteList` / `ProfileNotes`, `ChildDevices`. Components shared by the child and parent views take `familyId` / `profileId` props.                                                                                                                                |
+| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`)                                 | Runes singletons. `session.profile` is live; use `session.profileId` / `session.childId` (primitives) in `live()` sources; `isAdmin` / `isChild`.                                                                                                                                                                                                                                            |
 | Data       | `src/lib/data/`                                                                                   | The only code touching Firestore. `refs.ts` builds every path (names in `collections.ts`). `sources.ts`: `Subscribe` sources (`docSource`, `querySource`) and cache-first one-shot reads (`firstSnapshot`, `getDocCacheFirst`). Domain sources are named `watchX` (`catalog.ts`, `family.ts`, `devices.ts`, `progress.ts`, `notes.ts`). Executors of pure plans live here (`importPath.ts`). |
 | Pure logic | `schemas/`, `import/`, `math/`, `render/`, `i18n/`, `linking/`, `profile/`, `progress/`, `notes/` | No **runtime** Firebase import: unit-tested with Vitest. May import types from `data/types.ts` and names from `data/collections.ts` (both pure). Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                                                                |
 
@@ -63,7 +63,8 @@ Layers, from the outside in. A layer only imports from layers below it.
 - **UI text** only in `fr.ts`; counts with `plural()`. **CSS**: reuse the utilities at the end of
   `app.css` before adding page CSS: layout `.stack`, `.stack-tight`, `.row`, `.card`; text
   `.muted`, `.small`, `.block`, `.mono`; lists `.list`, `.list.plain`; states `.error`,
-  `.warning`, `.callout`, `.pill`; `.card-link`, `button.link`, `label.check`, `.prose`.
+  `.warning`, `.callout`, `.pill`, `.success`; `.row.between`, `.visually-hidden`, `.code-display`;
+  `.card-link`, `button.link`, `label.check`, `.prose`.
 - **Child writes** (progress, notes, profile look) go through `inBackground()` (`data/writes.ts`):
   not awaited, so they work offline (local cache first, live sources update at once).
   Parent actions that need the server (import, link code, unlink) are awaited and disabled
@@ -184,6 +185,10 @@ made.
 - 2026-11-23 — Notes: `notes/{id}` written by the child (open), reviewed by the parent
   (seen / resolved); editing the text reopens it. Concept titles are resolved from the live
   catalogue (not copied into the note).
+- 2026-11-23 — Review follow-up: the link batch must delete the code (`!existsAfter`), so a
+  code links one device only. Rules tests use the project id `demo-pocketclass-rules`: they
+  can run next to `npm run emulators` without wiping its data. Kit 3 wraps pages in a
+  `<svelte:boundary>`: `src/routes/+error.svelte` shows a French error instead of a blank page.
 
 ## Firestore model
 
