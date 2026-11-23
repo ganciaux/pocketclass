@@ -27,3 +27,6 @@ vite.config.ts.timestamp-*
 *-debug.log
 firebase-export-*
 /.playwright-mcp/
+
+# /court skill trials
+.court/
