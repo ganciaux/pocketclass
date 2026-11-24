@@ -62,13 +62,15 @@ export type ProfileLook = Pick<Profile, 'nickname' | 'avatar'>;
 /**
  * families/{familyId}/profiles/{profileId}/progress/{conceptId}: the child opened the sheet
  * (`openedAt`, updated on every visit) and may have marked it as read. Timestamps are null
- * while the write is pending (server timestamp).
+ * while the write is pending (server timestamp). `acquiredAt` is the parent's « Acquise » stamp;
+ * a stamp on a sheet never opened creates the document without `openedAt`.
  */
 export interface ProgressRecord {
 	subjectId: string;
 	chapterId: string;
-	openedAt: Timestamp | null;
+	openedAt?: Timestamp | null;
 	readAt?: Timestamp | null;
+	acquiredAt?: Timestamp | null;
 }
 
 export const NOTE_STATUSES = ['open', 'seen', 'resolved'] as const;

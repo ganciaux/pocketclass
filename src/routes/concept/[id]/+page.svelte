@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { isAcquired } from '#lib/binder/binder.ts';
+	import AcquiredStamp from '#lib/components/AcquiredStamp.svelte';
+	import AcquiredStamps from '#lib/components/AcquiredStamps.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
@@ -11,7 +14,12 @@
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import { watchChapter, watchConcept, watchSubject } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import { markOpened, setConceptRead, watchConceptProgress } from '#lib/data/progress.ts';
+	import {
+		markOpened,
+		setAcquired,
+		setConceptRead,
+		watchConceptProgress
+	} from '#lib/data/progress.ts';
 	import type { ConceptRecord, SubjectColor, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { renderInline, renderMarkdown } from '#lib/render/markdown.ts';
@@ -34,6 +42,8 @@
 			watchConceptProgress(session.familyId, profileId, conceptId)
 	);
 	const isRead = $derived(readLive.data?.readAt !== undefined);
+	// The parent's « Acquise » stamp (a parent testing as a child stamps their own profile).
+	const acquired = $derived(isAcquired(readLive.data ?? undefined));
 
 	// Opening the sheet clears its "new" / "updated" badge (again if it is re-imported while open).
 	$effect(() => {
@@ -62,6 +72,10 @@
 
 	function markRead(concept: WithId<ConceptRecord>, read: boolean) {
 		if (session.familyId && profileId) setConceptRead(session.familyId, profileId, concept, read);
+	}
+
+	function stampTest(concept: WithId<ConceptRecord>) {
+		if (session.familyId && profileId) setAcquired(session.familyId, profileId, concept, !acquired);
 	}
 
 	/** Key point number (1-based) shown as a badge next to each section. */
@@ -130,6 +144,16 @@
 							</li>
 						{/each}
 					</ul>
+				{/if}
+				{#if profileId && (acquired || session.childView?.testing)}
+					<div class="flex flex-wrap items-center gap-3 pt-1">
+						{#if acquired}<AcquiredStamp {color} />{/if}
+						{#if session.childView?.testing}
+							<button class="btn btn-ghost btn-xs" onclick={() => stampTest(concept)}>
+								{acquired ? fr.stamp.testClear : fr.stamp.testSet}
+							</button>
+						{/if}
+					</div>
 				{/if}
 			</header>
 
@@ -277,6 +301,11 @@
 						{/if}
 					</div>
 				</section>
+			{/if}
+
+			<!-- Parent: stamp the sheet « Acquise » for each child, after checking with them. -->
+			{#if session.isAdmin && !session.childView && session.familyId}
+				<AcquiredStamps familyId={session.familyId} sheet={concept} />
 			{/if}
 
 			<div class="grid grid-cols-2 gap-2">

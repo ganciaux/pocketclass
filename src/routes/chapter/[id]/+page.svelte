@@ -2,6 +2,7 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import {
 		activeOnly,
+		isAcquired,
 		progressById,
 		sheetState,
 		tally,
@@ -41,13 +42,15 @@
 	);
 	const color = $derived<SubjectColor>(subjectLive.data?.color ?? 'amber');
 
-	/** Step marker of the sheet path: a check once read, its number otherwise. */
-	const stepStyle = (state: SheetState | null) =>
-		state === 'read'
-			? 'bg-success text-success-content'
-			: state === 'opened'
-				? ['border-2 border-current bg-base-100', SUBJECT_TEXT[color]]
-				: SUBJECT_TILE[color];
+	/** Step marker of the sheet path: a star once acquired, a check once read, else its number. */
+	const stepStyle = (state: SheetState | null, acquired: boolean) =>
+		acquired
+			? ['border-4 border-double border-current bg-base-100', SUBJECT_TEXT[color]]
+			: state === 'read'
+				? 'bg-success text-success-content'
+				: state === 'opened'
+					? ['border-2 border-current bg-base-100', SUBJECT_TEXT[color]]
+					: SUBJECT_TILE[color];
 </script>
 
 <svelte:head>
@@ -93,6 +96,7 @@
 					<ol class="flex flex-col">
 						{#each sheets as sheet, i (sheet.id)}
 							{@const state = asChild ? sheetState(sheet, progress.get(sheet.id)) : null}
+							{@const acquired = asChild && isAcquired(progress.get(sheet.id))}
 							<li class="relative flex gap-3 pb-3 last:pb-0">
 								{#if i < sheets.length - 1}
 									<span
@@ -103,11 +107,13 @@
 								<span
 									class={[
 										'relative grid size-11 shrink-0 place-items-center rounded-full font-bold',
-										stepStyle(state)
+										stepStyle(state, acquired)
 									]}
 									aria-hidden="true"
 								>
-									{#if state === 'read'}<Icon paths={UI_ICONS.check} />{:else}{i + 1}{/if}
+									{#if acquired}<Icon paths={UI_ICONS.star} />
+									{:else if state === 'read'}<Icon paths={UI_ICONS.check} />
+									{:else}{i + 1}{/if}
 								</span>
 								<a
 									class="card subject-card card-border min-w-0 flex-1 bg-base-100"
@@ -115,6 +121,11 @@
 								>
 									<div class="card-body flex-row items-center gap-3 py-3">
 										<span class="min-w-0 flex-1 font-bold">{@html renderInline(sheet.title)}</span>
+										{#if acquired}
+											<span class={['badge badge-sm shrink-0 badge-outline', SUBJECT_TEXT[color]]}>
+												{fr.stamp.label}
+											</span>
+										{/if}
 										{#if state}<SheetStateBadge {state} />{/if}
 									</div>
 								</a>

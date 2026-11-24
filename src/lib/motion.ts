@@ -28,3 +28,13 @@ export function toast(node: Element, { exit = false }: { exit?: boolean } = {}) 
 	if (reduced()) return fade(node, { duration: 120 });
 	return fly(node, { y: 24, duration: exit ? 180 : 280, easing: quintOut });
 }
+
+/** The « Acquise » stamp pressed onto the sheet: it lands from above, larger, then settles. */
+export function stamp(node: Element) {
+	if (reduced()) return fade(node, { duration: 120 });
+	return {
+		duration: 260,
+		easing: quintOut,
+		css: (t: number, u: number) => `scale: ${1 + 0.6 * u}; opacity: ${t}`
+	};
+}

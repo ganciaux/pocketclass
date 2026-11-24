@@ -79,6 +79,7 @@ export const fr = {
 		sheets: (count: number) => plural(count, 'fiche'),
 		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
 		fresh: (count: number) => plural(count, 'nouveauté'),
+		acquired: (count: number) => plural(count, 'acquise'),
 		state: { new: 'Nouveau', updated: 'Mis à jour', read: 'Lue ✓', opened: 'Commencée' },
 		next: 'Continuer',
 		allRead: 'Toutes les fiches sont lues !',
@@ -146,6 +147,18 @@ export const fr = {
 		empty: "Tu n'as encore ouvert aucune fiche.",
 		noMatch: 'Aucune fiche ne correspond.',
 		loadFailed: 'Impossible de charger tes fiches.'
+	},
+	stamp: {
+		label: 'Acquise',
+		/** Parent card on a sheet. */
+		title: 'Notion acquise',
+		help: "Tamponne la fiche quand tu as vérifié avec l'enfant qu'il a compris.",
+		noChildren: "Aucun profil enfant pour l'instant.",
+		toggle: (name: string, acquired: boolean) =>
+			acquired ? `${name} : acquise, retirer le tampon` : `${name} : tamponner « Acquise »`,
+		/** Test mode: the parent stamps their own test profile. */
+		testSet: 'Tamponner (test)',
+		testClear: 'Retirer le tampon (test)'
 	},
 	testMode: {
 		start: (name: string) => `Tester comme ${name}`,

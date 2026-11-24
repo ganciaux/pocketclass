@@ -23,6 +23,10 @@ Mis à jour le 24 novembre 2026. Le détail de chaque choix technique est dans
 - **Mot de passe parent** : rattaché au compte Google (même famille), connexion par e-mail et
   mot de passe, « mot de passe oublié ». À confirmer sur la vraie app (l'emulator bloque le
   rattachement).
+- **Tampon « acquise »** : le parent tamponne une fiche pour un enfant après avoir vérifié
+  avec lui ; l'enfant voit le tampon sur la fiche, une étoile dans le chapitre et « n
+  acquises » dans ses compteurs. « Continuer » ne propose plus une fiche acquise. Plus tard
+  (phase 3), un contrôle réussi pourra le poser tout seul.
 - **Mode test enfant** : le parent utilise l'app comme un enfant choisi (son classeur), avec
   ses propres données de test, remises à zéro quand il veut.
 - **Remarques** : l'enfant écrit une remarque sur une fiche ; le parent les voit toutes
@@ -69,7 +73,6 @@ existe déjà ou signale ce qu'il faudra trancher.
 | Idée | À savoir |
 | --- | --- |
 | Des cartes mentales simples, sur une page, avec un lien pour tester la notion sur 3 à 5 exemples. | Prévoir une dizaine d'exemples par notion et en tirer 3 à 5 sans retomber sur les mêmes ; quand tous sont sortis, on recommence (tirage sans remise). Il faut mémoriser par enfant ce qui est déjà sorti. Proche de l'entraînement de la phase 2. |
-| Un tampon « notion acquise » sur une fiche. | À trancher : qui le pose (l'enfant, le parent, ou automatiquement après un contrôle réussi) ? |
 
 ### Points et historique (phase 3)
 

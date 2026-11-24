@@ -4,7 +4,8 @@ import { progressCol, progressRef } from './refs.ts';
 import type { ConceptRecord, WithId } from './types.ts';
 import { inBackground } from './writes.ts';
 
-// Progress of a profile on each sheet: opened (for "new" / "updated") and read.
+// Progress of a profile on each sheet: opened (for "new" / "updated"), read, and the parent's
+// « Acquise » stamp.
 // Phase 2 adds exercise results.
 
 type SheetRef = Pick<WithId<ConceptRecord>, 'id' | 'subjectId' | 'chapterId'>;
@@ -41,4 +42,15 @@ export function setConceptRead(
 ): void {
 	const readAt = read ? serverTimestamp() : deleteField();
 	writeProgress(familyId, profileId, sheet, { readAt }, 'sheet read');
+}
+
+/** The parent stamps (or unstamps) a sheet as acquired for a profile. Works offline. */
+export function setAcquired(
+	familyId: string,
+	profileId: string,
+	sheet: SheetRef,
+	acquired: boolean
+): void {
+	const acquiredAt = acquired ? serverTimestamp() : deleteField();
+	writeProgress(familyId, profileId, sheet, { acquiredAt }, 'sheet acquired');
 }
