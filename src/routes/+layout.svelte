@@ -8,6 +8,7 @@
 	import { fr } from '#lib/i18n/fr.ts';
 	import { connectivity } from '#lib/online.svelte.ts';
 	import { appUpdate } from '#lib/update.svelte.ts';
+	import { onNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import type { LayoutProps } from './$types';
 
@@ -16,6 +17,19 @@
 	session.start();
 	// Service worker (app shell cache); new versions are offered by <UpdateToast>.
 	appUpdate.start();
+
+	// Page transitions (animation in app.css). Skipped where the API is missing, and within a
+	// page (query or hash changes).
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+		if (navigation.from?.url.pathname === navigation.to?.url.pathname) return;
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 </script>
 
 <svelte:head>

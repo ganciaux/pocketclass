@@ -1,7 +1,8 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import { freeColor, moveItem, nextOrder } from '#lib/binder/binder.ts';
-	import { SUBJECT_SWATCH } from '#lib/binder/colors.ts';
+	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import OrderActions from '#lib/components/OrderActions.svelte';
 	import { watchSubjects } from '#lib/data/catalog.ts';
@@ -9,6 +10,7 @@
 	import { live } from '#lib/data/live.svelte.ts';
 	import { GRADES, type Grade, type Subject, type WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import { reorder, row } from '#lib/motion.ts';
 	import { resolve } from '$app/paths';
 
 	const t = fr.manage;
@@ -19,6 +21,11 @@
 	let nameMissing = $state(false);
 
 	const ofGrade = (subjects: WithId<Subject>[], g: Grade) => subjects.filter((s) => s.grade === g);
+	/** One list per grade, then the subjects without a known grade (old path import). */
+	const sections = (subjects: WithId<Subject>[]) => [
+		...GRADES.map((g) => ({ heading: g as string, list: ofGrade(subjects, g) })),
+		{ heading: t.otherSubjects, list: subjects.filter((s) => !GRADES.includes(s.grade)) }
+	];
 
 	function create(event: SubmitEvent, subjects: WithId<Subject>[]) {
 		event.preventDefault();
@@ -41,26 +48,29 @@
 </script>
 
 <main>
-	<a class="link link-hover self-start text-sm" href={resolve('/')}>{fr.app.home}</a>
+	<BackLink href={resolve('/')} label={fr.app.home} />
 	<h1>{t.title}</h1>
 	<p class="text-base-content/70">{t.help}</p>
 
 	<LoadState source={subjectsLive} failed={fr.binder.loadFailed}>
 		{#snippet children(subjects)}
-			{#each GRADES as g (g)}
-				{@const list = ofGrade(subjects, g)}
+			{#each sections(subjects) as { heading, list } (heading)}
 				{#if list.length > 0}
 					<section class="card card-border bg-base-100">
 						<div class="card-body gap-2">
-							<h2 class="card-title">{g}</h2>
+							<h2 class="card-title">{heading}</h2>
 							<ul class="flex flex-col divide-y divide-base-300">
 								{#each list as subject, i (subject.id)}
-									<li class="flex items-center gap-3 py-2">
-										<span class={['size-3 shrink-0 rounded-full', SUBJECT_SWATCH[subject.color]]}
-										></span>
+									<li
+										class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2"
+										in:row
+										out:row={{ exit: true }}
+										animate:reorder
+									>
+										<SubjectBadge {subject} size={2.5} />
 										<a
 											class={[
-												'flex-1 font-bold hover:underline',
+												'min-w-0 flex-1 basis-20 font-bold hover:underline',
 												subject.archived && 'text-base-content/50'
 											]}
 											href={resolve('/parent/subjects/[id]', { id: subject.id })}

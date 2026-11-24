@@ -1,4 +1,6 @@
 <script lang="ts">
+	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import {
 		activeOnly,
@@ -8,7 +10,6 @@
 		reachableSheets,
 		tallyBy
 	} from '#lib/binder/binder.ts';
-	import { SUBJECT_BORDER } from '#lib/binder/colors.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import TallyLine from '#lib/components/TallyLine.svelte';
 	import { watchSubject, watchSubjectContent } from '#lib/data/catalog.ts';
@@ -36,10 +37,11 @@
 </svelte:head>
 
 <main>
-	<a class="link link-hover self-start text-sm" href={resolve('/')}>{t.backToBinder}</a>
+	<BackLink href={resolve('/')} label={fr.app.home} />
 	<LoadState source={subjectLive} notFound={t.subjectNotFound} failed={t.loadFailed}>
 		{#snippet children(subject)}
-			<header class={['flex items-center gap-3 border-l-8 pl-3', SUBJECT_BORDER[subject.color]]}>
+			<header class="flex items-center gap-3">
+				<SubjectBadge {subject} />
 				<h1 class="flex-1">{subject.name}</h1>
 				<span class="badge badge-ghost">{subject.grade}</span>
 				{#if session.isAdmin}

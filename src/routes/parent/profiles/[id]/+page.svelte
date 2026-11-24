@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import ChildDevices from '#lib/components/ChildDevices.svelte';
@@ -29,7 +30,7 @@
 </script>
 
 <main>
-	<a class="link link-hover self-start text-sm" href={resolve('/parent/profiles')}>{t.back}</a>
+	<BackLink href={resolve('/parent/profiles')} label={t.back} />
 	{#if session.familyId}
 		{@const familyId = session.familyId}
 		<LoadState source={childLive} notFound={t.notFound} failed={t.loadFailed}>

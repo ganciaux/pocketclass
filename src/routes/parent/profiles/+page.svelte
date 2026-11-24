@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
@@ -44,6 +45,7 @@
 </script>
 
 <main>
+	<BackLink href={resolve('/')} label={fr.app.home} />
 	<h1>{t.title}</h1>
 
 	<section class="flex flex-col gap-2">

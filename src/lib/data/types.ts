@@ -100,6 +100,25 @@ export const SUBJECT_COLORS = [
 ] as const;
 export type SubjectColor = (typeof SUBJECT_COLORS)[number];
 
+/** Subject icons (drawn in `binder/icons.ts`). */
+export const SUBJECT_ICONS = [
+	'calculator',
+	'pi',
+	'book',
+	'languages',
+	'landmark',
+	'globe',
+	'flask',
+	'atom',
+	'leaf',
+	'laptop',
+	'music',
+	'palette',
+	'dumbbell',
+	'star'
+] as const;
+export type SubjectIcon = (typeof SUBJECT_ICONS)[number];
+
 /** families/{familyId}/subjects/{subjectId}: one subject of one grade (e.g. Maths 3e). */
 export interface Subject {
 	name: string;
@@ -107,6 +126,10 @@ export interface Subject {
 	color: SubjectColor;
 	order: number;
 	archived: boolean;
+	/** Chosen icon; absent: suggested from the name (`subjectIcon()`). */
+	icon?: SubjectIcon;
+	/** Picture or logo chosen by the parent (small data URL, like a profile avatar); wins over the icon. */
+	image?: string;
 }
 
 /** families/{familyId}/chapters/{chapterId}: a folder of sheets inside a subject. */

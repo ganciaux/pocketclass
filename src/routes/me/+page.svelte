@@ -1,4 +1,6 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
+	import { resolve } from '$app/paths';
 	import { session } from '#lib/auth.svelte.ts';
 	import ProfileLookForm from '#lib/components/ProfileLookForm.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
@@ -26,6 +28,7 @@
 <svelte:head><title>{fr.me.title} · {fr.app.name}</title></svelte:head>
 
 <main>
+	<BackLink href={resolve('/')} label={fr.app.home} />
 	<h1>{fr.me.title}</h1>
 	{#if session.familyId && session.profile}
 		<ProfileLookForm familyId={session.familyId} profile={session.profile} />

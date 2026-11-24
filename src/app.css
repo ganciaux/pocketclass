@@ -85,6 +85,39 @@
 	--font-sans: 'Atkinson Hyperlegible', system-ui, sans-serif;
 	/* Marker lettering: the app name and page titles only. */
 	--font-display: 'Permanent Marker', 'Comic Sans MS', cursive;
+	/* Motion (also `src/lib/motion.ts`): strong curves, the built-in ones are too weak. */
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Page changes: View Transitions API, started in the root layout (`onNavigate`). The old page
+   fades out quickly, the new one rises in; the header strip stays still. Browsers without the
+   API change pages instantly. Reduced motion: the browser's default crossfade only. */
+header.navbar {
+	view-transition-name: app-header;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	::view-transition-old(root) {
+		animation: 120ms var(--ease-out) both page-out;
+	}
+
+	::view-transition-new(root) {
+		animation: 220ms var(--ease-out) both page-in;
+	}
+}
+
+@keyframes page-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes page-in {
+	from {
+		opacity: 0;
+		transform: translateY(0.5rem);
+	}
 }
 
 @layer base {
@@ -161,6 +194,40 @@
 			overflow-x: auto;
 			overflow-y: hidden;
 			padding: 0.25rem 0;
+		}
+	}
+
+	/* Subject card of the binder: sinks slightly under the finger, lifts under a mouse. */
+	.subject-card {
+		transition:
+			transform 160ms var(--ease-out),
+			box-shadow 200ms ease;
+
+		&:active {
+			transform: scale(0.98);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			&:hover {
+				box-shadow: var(--shadow-md);
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			&:active {
+				transform: none;
+			}
+		}
+	}
+
+	/* <BackLink>: the chevron leans back under a mouse (on touch, the button press is enough). */
+	.back-link svg {
+		transition: transform 160ms var(--ease-out);
+	}
+
+	@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+		.back-link:hover svg {
+			transform: translateX(-3px);
 		}
 	}
 

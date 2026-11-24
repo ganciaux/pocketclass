@@ -1,7 +1,11 @@
 <script lang="ts">
+	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import { groupNames, moveItem, nextOrder } from '#lib/binder/binder.ts';
 	import ChapterForm from '#lib/components/ChapterForm.svelte';
+	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
+	import ConfirmDeleteDialog from '#lib/components/ConfirmDeleteDialog.svelte';
 	import ImportPreview from '#lib/components/ImportPreview.svelte';
 	import ImportResult from '#lib/components/ImportResult.svelte';
 	import JsonPaste from '#lib/components/JsonPaste.svelte';
@@ -10,14 +14,17 @@
 	import PromptCopy from '#lib/components/PromptCopy.svelte';
 	import SubjectForm from '#lib/components/SubjectForm.svelte';
 	import { watchChaptersOf, watchSheetsOfSubject, watchSubject } from '#lib/data/catalog.ts';
+	import { deleteChapter, deleteSubject } from '#lib/data/catalogDelete.ts';
 	import { createChapter, saveOrder, setArchived } from '#lib/data/catalogEdit.ts';
 	import { importChapter } from '#lib/data/importSheets.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import type { Chapter, Subject, WithId } from '#lib/data/types.ts';
+	import { GRADES, type Chapter, type Subject, type WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import { reorder, row } from '#lib/motion.ts';
 	import type { ImportPlan } from '#lib/import/sheetPlan.ts';
 	import { chapterPrompt } from '#lib/prompts/sheetPrompt.ts';
 	import { chapterSchema, type ChapterImport } from '#lib/schemas/chapter.ts';
+	import { goto } from '$app/navigation';
 	import { asset, resolve } from '$app/paths';
 	import { page } from '$app/state';
 
@@ -55,6 +62,16 @@
 
 	function move(chapters: WithId<Chapter>[], id: string, step: -1 | 1) {
 		if (session.familyId) saveOrder(session.familyId, 'chapters', moveItem(chapters, id, step));
+	}
+
+	// Deletions.
+	let chapterToDelete = $state<WithId<Chapter> | null>(null);
+	const sheetCount = (chapterId: string) =>
+		(sheetsLive.data ?? []).filter((s) => s.chapterId === chapterId).length;
+
+	async function removeSubject(familyId: string) {
+		await deleteSubject(familyId, subjectId);
+		await goto(resolve('/parent/subjects'), { replaceState: true });
 	}
 
 	// Whole chapter import (prompt + JSON).
@@ -97,7 +114,7 @@
 </script>
 
 <main>
-	<a class="link link-hover self-start text-sm" href={resolve('/parent/subjects')}>{t.back}</a>
+	<BackLink href={resolve('/parent/subjects')} label={t.back} />
 	{#if session.familyId}
 		{@const familyId = session.familyId}
 		<LoadState
@@ -107,6 +124,7 @@
 		>
 			{#snippet children(subject)}
 				<header class="flex flex-wrap items-center gap-3">
+					<SubjectBadge {subject} />
 					<h1 class="flex-1">{subject.name}</h1>
 					<span class="badge badge-ghost">{subject.grade}</span>
 					{#if subject.archived}<span class="badge badge-ghost">{t.hidden}</span>{/if}
@@ -128,10 +146,15 @@
 							{#snippet children(chapters)}
 								<ul class="flex flex-col divide-y divide-base-300">
 									{#each chapters as chapter, i (chapter.id)}
-										<li class="flex items-center gap-3 py-2">
+										<li
+											class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2"
+											in:row
+											out:row={{ exit: true }}
+											animate:reorder
+										>
 											<a
 												class={[
-													'flex flex-1 flex-col hover:underline',
+													'flex min-w-0 flex-1 basis-48 flex-col hover:underline',
 													chapter.archived && 'text-base-content/50'
 												]}
 												href={resolve('/parent/chapters/[id]', { id: chapter.id })}
@@ -151,12 +174,23 @@
 												onmove={(step) => move(chapters, chapter.id, step)}
 												onarchive={(archived) =>
 													setArchived(familyId, 'chapters', chapter.id, archived)}
+												ondelete={() => (chapterToDelete = chapter)}
 											/>
 										</li>
 									{:else}
 										<li class="py-2 text-base-content/70">{fr.binder.noChapters}</li>
 									{/each}
 								</ul>
+								{#if chapterToDelete}
+									{@const chapter = chapterToDelete}
+									<ConfirmDeleteDialog
+										title={t.deleteNamed(chapter.title)}
+										help={t.deleteChapterHelp(sheetCount(chapter.id))}
+										action={t.delete}
+										onconfirm={() => deleteChapter(familyId, chapter.id)}
+										onclose={() => (chapterToDelete = null)}
+									/>
+								{/if}
 
 								<form class="flex flex-col gap-3" onsubmit={(e) => create(e, chapters)}>
 									<h3 class="font-bold">{t.newChapter}</h3>
@@ -171,59 +205,72 @@
 					</div>
 				</section>
 
-				<section class="card card-border bg-base-100">
-					<div class="card-body gap-3">
-						<h2 class="card-title">{ti.importChapter}</h2>
-						<p class="text-sm text-base-content/70">{ti.importChapterHelp}</p>
-						<ChapterForm
-							id="import-chapter"
-							bind:title={importTitle}
-							bind:group={importGroup}
-							{groups}
-						/>
-						<label class="fieldset">
-							<span class="fieldset-legend">{ti.chapterRequest}</span>
-							<textarea
-								class="textarea w-full"
-								rows="2"
-								bind:value={request}
-								placeholder={ti.chapterRequestPlaceholder}></textarea>
-						</label>
-						<PromptCopy prompt={promptFor(subject)} />
-						<JsonPaste schema={chapterSchema} bind:value={json} placeholder={ti.chapterPlaceholder}>
-							{#snippet children(chapter)}
-								<h3 class="font-bold">
-									{chapter.group ? `${chapter.group} · ` : ''}{chapter.title}
-								</h3>
-								<ImportPreview
-									{familyId}
-									sheets={chapter.sheets}
-									chapterId={null}
-									submitLabel={ti.submitChapter}
-									onimport={() => runImport(chapter)}
-								/>
-							{/snippet}
-						</JsonPaste>
-						<button class="btn btn-ghost btn-sm self-start" onclick={loadSample}>
-							{ti.loadSample}
-						</button>
-						{#if sampleFailed}<p role="alert" class="alert alert-error alert-soft">
-								{ti.sampleFailed}
-							</p>{/if}
-						{#if result}
-							<ImportResult plan={result.plan}>
-								<a
-									class="btn btn-sm"
-									href={resolve('/parent/chapters/[id]', { id: result.chapterId })}
-								>
-									{ti.openChapter}
-								</a>
-							</ImportResult>
-						{/if}
-					</div>
-				</section>
+				<!-- A subject left by the old path import has no grade: no prompt, only deletion. -->
+				{#if GRADES.includes(subject.grade)}
+					<section class="card card-border bg-base-100">
+						<div class="card-body gap-3">
+							<h2 class="card-title">{ti.importChapter}</h2>
+							<p class="text-sm text-base-content/70">{ti.importChapterHelp}</p>
+							<ChapterForm
+								id="import-chapter"
+								bind:title={importTitle}
+								bind:group={importGroup}
+								{groups}
+							/>
+							<label class="fieldset">
+								<span class="fieldset-legend">{ti.chapterRequest}</span>
+								<textarea
+									class="textarea w-full"
+									rows="2"
+									bind:value={request}
+									placeholder={ti.chapterRequestPlaceholder}></textarea>
+							</label>
+							<PromptCopy prompt={promptFor(subject)} />
+							<JsonPaste
+								schema={chapterSchema}
+								bind:value={json}
+								placeholder={ti.chapterPlaceholder}
+							>
+								{#snippet children(chapter)}
+									<h3 class="font-bold">
+										{chapter.group ? `${chapter.group} · ` : ''}{chapter.title}
+									</h3>
+									<ImportPreview
+										{familyId}
+										sheets={chapter.sheets}
+										chapterId={null}
+										submitLabel={ti.submitChapter}
+										onimport={() => runImport(chapter)}
+									/>
+								{/snippet}
+							</JsonPaste>
+							<button class="btn btn-ghost btn-sm self-start" onclick={loadSample}>
+								{ti.loadSample}
+							</button>
+							{#if sampleFailed}<p role="alert" class="alert alert-error alert-soft">
+									{ti.sampleFailed}
+								</p>{/if}
+							{#if result}
+								<ImportResult plan={result.plan}>
+									<a
+										class="btn btn-sm"
+										href={resolve('/parent/chapters/[id]', { id: result.chapterId })}
+									>
+										{ti.openChapter}
+									</a>
+								</ImportResult>
+							{/if}
+						</div>
+					</section>
+				{/if}
 
 				{#key subject.id}<SubjectForm {familyId} {subject} />{/key}
+				<ConfirmDelete
+					title={t.deleteSubjectTitle}
+					help={t.deleteSubjectHelp(chaptersLive.data?.length ?? 0, sheetsLive.data?.length ?? 0)}
+					action={t.delete}
+					onconfirm={() => removeSubject(familyId)}
+				/>
 			{/snippet}
 		</LoadState>
 	{/if}

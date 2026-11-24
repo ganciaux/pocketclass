@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import NoteForm from '#lib/components/NoteForm.svelte';
@@ -66,12 +67,10 @@
 <main>
 	<LoadState source={conceptLive} notFound={t.notFound} failed={t.loadFailed}>
 		{#snippet children(concept)}
-			<a
-				class="link link-hover self-start text-sm"
+			<BackLink
 				href={resolve('/chapter/[id]', { id: concept.chapterId })}
-			>
-				{chapterLive.data ? fr.binder.back(chapterLive.data.title) : fr.binder.backToBinder}
-			</a>
+				label={chapterLive.data?.title ?? fr.binder.chapter}
+			/>
 			<h1>{@html renderInline(concept.title)}</h1>
 
 			<!-- Key points are numbered: the sections below refer to them by number. -->

@@ -21,7 +21,7 @@ export const fr = {
 		soon: 'bientôt',
 		notFound: "Cette page n'existe pas.",
 		error: "Quelque chose s'est mal passé. Recharge la page.",
-		home: "← Retour à l'accueil"
+		home: 'Accueil'
 	},
 	update: {
 		available: 'Une nouvelle version de PocketClass est prête.',
@@ -62,29 +62,30 @@ export const fr = {
 	},
 	home: {
 		parentSection: 'Espace parent',
-		manageBinder: 'Gérer le classeur',
+		manageBinder: 'Gérer les classeurs',
 		manageProfiles: 'Gérer les profils',
 		childrenNotes: 'Remarques des enfants',
 		myBinder: 'Mon classeur',
-		familyBinder: 'Le classeur de la famille'
+		familyBinder: 'Classeurs'
 	},
 	binder: {
 		loadFailed: 'Impossible de charger le classeur.',
 		noSubjects: 'Aucune matière pour le moment.',
-		noSubjectsParent: 'Aucune matière : crée-les dans « Gérer le classeur ».',
+		noSubjectsParent: 'Aucune matière : crée-les dans « Gérer les classeurs ».',
 		noChapters: 'Aucun chapitre pour le moment.',
 		noSheets: 'Aucune fiche pour le moment.',
 		subjectNotFound: "Cette matière n'existe pas (ou plus).",
 		chapterNotFound: "Ce chapitre n'existe pas (ou plus).",
-		backToBinder: '← Classeur',
-		back: (title: string) => `← ${title}`,
 		sheets: (count: number) => plural(count, 'fiche'),
 		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
 		fresh: (count: number) => plural(count, 'nouveauté'),
 		state: { new: 'Nouveau', updated: 'Mis à jour', read: 'Lue ✓', opened: 'Commencée' },
 		next: 'Continuer :',
 		allRead: 'Toutes les fiches sont lues ✓',
-		manage: 'Gérer'
+		manage: 'Gérer',
+		/** Back link label while the subject / chapter name loads. */
+		subject: 'Matière',
+		chapter: 'Chapitre'
 	},
 	concept: {
 		notFound: "Cette fiche n'existe pas (ou plus).",
@@ -110,11 +111,11 @@ export const fr = {
 		creating: 'Création…',
 		createFailed: "Le profil n'a pas pu être créé.",
 		firstNameRequired: 'Indique un prénom.',
-		back: '← Profils',
+		back: 'Profils',
 		notFound: "Ce profil n'existe pas (ou plus).",
 		deleteTitle: 'Supprimer ce profil',
 		deleteHelp: (name: string) =>
-			`Supprime définitivement le profil de ${name} : sa progression et ses remarques. Ses appareils reliés sont déliés. Le classeur de la famille n'est pas touché. Impossible à annuler.`,
+			`Supprime définitivement le profil de ${name} : sa progression et ses remarques. Ses appareils reliés sont déliés. Les classeurs ne sont pas touchés. Impossible à annuler.`,
 		extraSubjects: 'Matières en plus',
 		extraHelp: (grade: string) =>
 			`En plus des matières de ${grade}, cet enfant voit les matières cochées :`,
@@ -181,10 +182,9 @@ export const fr = {
 		adminOnly: 'Cette page est réservée aux parents.'
 	},
 	manage: {
-		title: 'Gérer le classeur',
+		title: 'Gérer les classeurs',
 		help: "Une matière par niveau (ex. Maths 3e). Chaque enfant voit les matières de son niveau ; tu peux lui en ajouter d'autres depuis son profil.",
-		back: '← Gérer le classeur',
-		backTo: (title: string) => `← ${title}`,
+		back: 'Gérer les classeurs',
 		view: "Voir comme l'enfant",
 		newSubject: 'Nouvelle matière',
 		subjectName: 'Nom',
@@ -200,6 +200,26 @@ export const fr = {
 			orange: 'Orange',
 			lime: 'Citron vert'
 		},
+		icon: 'Icône',
+		iconHidden: "L'image choisie remplace l'icône.",
+		icons: {
+			calculator: 'Calculatrice',
+			pi: 'Pi',
+			book: 'Livre',
+			languages: 'Langues',
+			landmark: 'Monument',
+			globe: 'Globe',
+			flask: 'Fiole',
+			atom: 'Atome',
+			leaf: 'Feuille',
+			laptop: 'Ordinateur',
+			music: 'Musique',
+			palette: 'Palette',
+			dumbbell: 'Haltère',
+			star: 'Étoile'
+		},
+		image: 'Image ou logo (facultatif)',
+		imageHelp: "Recadrée en carré au centre. Elle remplace l'icône.",
 		create: 'Créer',
 		nameRequired: 'Indique un nom.',
 		subjectSettings: 'Réglages de la matière',
@@ -218,7 +238,19 @@ export const fr = {
 		hide: 'Masquer',
 		show: 'Réafficher',
 		hidden: 'Masqué aux enfants',
-		noSubjects: 'Aucune matière. Crée la première ci-dessous.'
+		noSubjects: 'Aucune matière. Crée la première ci-dessous.',
+		/** Subjects without a known grade (left by the old path import). */
+		otherSubjects: 'Sans niveau (ancien import)',
+		delete: 'Supprimer',
+		deleteSubjectTitle: 'Supprimer la matière',
+		deleteSubjectHelp: (chapters: number, sheets: number) =>
+			`Supprime définitivement la matière, ${plural(chapters, 'chapitre')} et ${plural(sheets, 'fiche')}, avec la progression et les remarques des enfants sur ces fiches. Pour la retirer sans rien perdre, masque-la plutôt.`,
+		deleteChapterTitle: 'Supprimer le chapitre',
+		deleteChapterHelp: (sheets: number) =>
+			`Supprime définitivement le chapitre et ${plural(sheets, 'fiche')}, avec la progression et les remarques des enfants sur ces fiches. Pour le retirer sans rien perdre, masque-le plutôt.`,
+		deleteNamed: (title: string) => `Supprimer « ${title} »`,
+		deleteSheetHelp:
+			'Supprime définitivement la fiche, ses exercices, la progression et les remarques des enfants. Pour la retirer sans rien perdre, masque-la plutôt.'
 	},
 	import: {
 		addSheet: 'Ajouter une fiche',

@@ -1,4 +1,4 @@
-import { doc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { deleteField, doc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
 import { COLLECTIONS } from './collections.ts';
 import { chaptersCol, familyDoc, subjectsCol } from './refs.ts';
@@ -18,13 +18,15 @@ export function createSubject(familyId: string, subject: Omit<Subject, 'archived
 	return ref.id;
 }
 
+/** Name, colour, icon and image of a subject. `image: null` removes the image. */
 export function updateSubject(
 	familyId: string,
 	subjectId: string,
-	patch: Partial<Pick<Subject, 'name' | 'color'>>
+	{ image, ...patch }: Partial<Pick<Subject, 'name' | 'color' | 'icon'>> & { image?: string | null }
 ): void {
 	const ref = familyDoc(familyId, COLLECTIONS.subjects, subjectId);
-	inBackground(updateDoc(ref, patch), 'update subject');
+	const imageField = image === undefined ? {} : { image: image ?? deleteField() };
+	inBackground(updateDoc(ref, { ...patch, ...imageField }), 'update subject');
 }
 
 export function createChapter(familyId: string, chapter: Omit<Chapter, 'archived'>): string {
@@ -42,7 +44,7 @@ export function updateChapter(
 	inBackground(updateDoc(ref, patch), 'update chapter');
 }
 
-/** Hides (or restores) a subject, chapter or sheet. Nothing is ever deleted. */
+/** Hides (or restores) a subject, chapter or sheet: reversible (deletion: `catalogDelete.ts`). */
 export function setArchived(familyId: string, kind: CatalogKind, id: string, archived: boolean) {
 	inBackground(updateDoc(familyDoc(familyId, COLLECTIONS[kind], id), { archived }), 'archive');
 }

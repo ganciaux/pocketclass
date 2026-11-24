@@ -23,8 +23,19 @@
 				<h2 class="card-title">{fr.home.parentSection}</h2>
 				<div class="flex flex-wrap gap-2">
 					<a class="btn btn-primary" href={resolve('/parent/subjects')}>{fr.home.manageBinder}</a>
-					<a class="btn btn-outline" href={resolve('/parent/profiles')}>{fr.home.manageProfiles}</a>
-					<a class="btn btn-outline" href={resolve('/parent/notes')}>{fr.home.childrenNotes}</a>
+					<!-- Outline buttons take the page text colour: set the strip's own (readable on slate). -->
+					<a
+						class="btn btn-outline border-neutral-content/40 text-neutral-content"
+						href={resolve('/parent/profiles')}
+					>
+						{fr.home.manageProfiles}
+					</a>
+					<a
+						class="btn btn-outline border-neutral-content/40 text-neutral-content"
+						href={resolve('/parent/notes')}
+					>
+						{fr.home.childrenNotes}
+					</a>
 				</div>
 			</div>
 		</section>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import { activeOnly, progressById, sheetState } from '#lib/binder/binder.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
@@ -35,12 +36,10 @@
 <main>
 	<LoadState source={chapterLive} notFound={t.chapterNotFound} failed={t.loadFailed}>
 		{#snippet children(chapter)}
-			<a
-				class="link link-hover self-start text-sm"
+			<BackLink
 				href={resolve('/subject/[id]', { id: chapter.subjectId })}
-			>
-				{subjectLive.data ? t.back(subjectLive.data.name) : t.backToBinder}
-			</a>
+				label={subjectLive.data?.name ?? t.subject}
+			/>
 			<header class="flex items-center gap-3">
 				<div class="flex flex-1 flex-col">
 					{#if chapter.group}

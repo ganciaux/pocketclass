@@ -1,0 +1,83 @@
+import type { Subject, SubjectIcon } from '#lib/data/types.ts';
+
+/**
+ * Subject icons: our own line drawings on a 24 × 24 grid (stroke 2, round caps), drawn in the
+ * subject colour by `<SubjectBadge>`. Pure module (unit-tested).
+ */
+
+/** One stroke of an icon; `transform` for rotated shapes. */
+export interface IconPath {
+	d: string;
+	transform?: string;
+}
+
+const circle = (cx: number, cy: number, r: number) =>
+	`M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0`;
+const ellipse = (rx: number, ry: number) =>
+	`M${12 - rx} 12a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0`;
+const paths = (...d: string[]): IconPath[] => d.map((path) => ({ d: path }));
+
+export const ICON_PATHS: Record<SubjectIcon, IconPath[]> = {
+	calculator: paths(
+		'M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z',
+		'M8 6h8v4H8z',
+		'M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01'
+	),
+	pi: paths('M4 7h16', 'M8 7v12', 'M15 7v9a3 3 0 0 0 3 3'),
+	book: paths(
+		'M2 5c3-1.5 7-1.5 10 1 3-2.5 7-2.5 10-1v14c-3-1.5-7-1.5-10 1-3-2.5-7-2.5-10-1z',
+		'M12 6v15'
+	),
+	languages: paths('M3 4h11v8H8l-4 3v-3H3z', 'M17 9h4v8h-1v3l-3-3h-5v-2'),
+	landmark: paths('M3 8l9-5 9 5z', 'M5 11v7M10 11v7M14 11v7M19 11v7', 'M3 21h18'),
+	globe: paths(
+		circle(12, 12, 10),
+		'M2 12h20',
+		'M12 2c3.5 3.5 3.5 16.5 0 20c-3.5-3.5-3.5-16.5 0-20'
+	),
+	flask: paths(
+		'M9 3h6',
+		'M10 3v6l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3',
+		'M7 15h10'
+	),
+	atom: [
+		{ d: circle(12, 12, 1) },
+		{ d: ellipse(10, 4) },
+		{ d: ellipse(10, 4), transform: 'rotate(60 12 12)' },
+		{ d: ellipse(10, 4), transform: 'rotate(-60 12 12)' }
+	],
+	leaf: paths('M5 20C5 10 10 4 20 4c0 10-6 16-15 16z', 'M5 20l9-9'),
+	laptop: paths('M5 5h14a1 1 0 0 1 1 1v9H4V6a1 1 0 0 1 1-1z', 'M2 19h20'),
+	music: paths('M9 18V5l11-2v13', circle(6, 18, 3), circle(17, 16, 3)),
+	palette: paths(
+		'M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-1-2 0-3 2-1 3-1a4 4 0 0 0 4-4c0-4.4-4-8-9-8z',
+		'M7.5 11h.01M10 7h.01M15 7.5h.01'
+	),
+	dumbbell: paths('M6 7v10M3 9.5v5M18 7v10M21 9.5v5', 'M6 12h12'),
+	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z')
+};
+
+/** First keyword found in the (accent-free, lower-case) subject name. */
+const SUGGESTIONS: [RegExp, SubjectIcon][] = [
+	[/math/, 'calculator'],
+	[/fran|lecture|ecriture|grammaire|litt/, 'book'],
+	[/angl|espa|allem|ital|langue|latin|grec|lv[12]/, 'languages'],
+	[/hist/, 'landmark'],
+	[/geo/, 'globe'],
+	[/phys|chim/, 'flask'],
+	[/svt|bio|vie|nature|science/, 'leaf'],
+	[/techn|info|numer|code|program/, 'laptop'],
+	[/musi/, 'music'],
+	[/art|dessin|plast/, 'palette'],
+	[/eps|sport/, 'dumbbell']
+];
+
+/** Icon suggested for a subject name ("Mathématiques" → calculator); `star` when nothing fits. */
+export function suggestIcon(name: string): SubjectIcon {
+	const plain = name.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+	return SUGGESTIONS.find(([pattern]) => pattern.test(plain))?.[1] ?? 'star';
+}
+
+/** The icon shown for a subject: the chosen one, else the one suggested by its name. */
+export const subjectIcon = (subject: Pick<Subject, 'name' | 'icon'>): SubjectIcon =>
+	subject.icon ?? suggestIcon(subject.name);

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
@@ -18,6 +19,7 @@
 <svelte:head><title>{t.familyTitle} · {fr.app.name}</title></svelte:head>
 
 <main>
+	<BackLink href={resolve('/')} label={fr.app.home} />
 	<h1>{t.familyTitle}</h1>
 	<label class="flex cursor-pointer items-center gap-3">
 		<input class="toggle toggle-primary toggle-sm" type="checkbox" bind:checked={showResolved} />

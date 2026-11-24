@@ -1,7 +1,10 @@
 <script lang="ts">
+	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import { activeOnly, groupNames, moveItem } from '#lib/binder/binder.ts';
 	import ChapterSettings from '#lib/components/ChapterSettings.svelte';
+	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
+	import ConfirmDeleteDialog from '#lib/components/ConfirmDeleteDialog.svelte';
 	import ImportPreview from '#lib/components/ImportPreview.svelte';
 	import ImportResult from '#lib/components/ImportResult.svelte';
 	import JsonPaste from '#lib/components/JsonPaste.svelte';
@@ -15,15 +18,18 @@
 		watchSheetsOfSubject,
 		watchSubject
 	} from '#lib/data/catalog.ts';
+	import { deleteChapter, deleteSheet } from '#lib/data/catalogDelete.ts';
 	import { saveOrder, setArchived } from '#lib/data/catalogEdit.ts';
 	import { importSheets } from '#lib/data/importSheets.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import type { Chapter, ConceptRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import { reorder, row } from '#lib/motion.ts';
 	import type { ImportPlan } from '#lib/import/sheetPlan.ts';
 	import { sheetPrompt } from '#lib/prompts/sheetPrompt.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { sheetSchema, type SheetImport } from '#lib/schemas/sheet.ts';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
@@ -49,6 +55,14 @@
 
 	function move(sheets: WithId<ConceptRecord>[], id: string, step: -1 | 1) {
 		if (session.familyId) saveOrder(session.familyId, 'concepts', moveItem(sheets, id, step));
+	}
+
+	/** Sheet whose deletion is being confirmed (modal). */
+	let sheetToDelete = $state<WithId<ConceptRecord> | null>(null);
+
+	async function removeChapter(familyId: string, chapter: WithId<Chapter>) {
+		await deleteChapter(familyId, chapter.id);
+		await goto(resolve('/parent/subjects/[id]', { id: chapter.subjectId }), { replaceState: true });
 	}
 
 	// Add a sheet (prompt + JSON).
@@ -88,12 +102,10 @@
 			failed={fr.binder.loadFailed}
 		>
 			{#snippet children(chapter)}
-				<a
-					class="link link-hover self-start text-sm"
+				<BackLink
 					href={resolve('/parent/subjects/[id]', { id: chapter.subjectId })}
-				>
-					{subjectLive.data ? t.backTo(subjectLive.data.name) : t.back}
-				</a>
+					label={subjectLive.data?.name ?? fr.binder.subject}
+				/>
 				<header class="flex flex-wrap items-center gap-3">
 					<div class="flex flex-1 flex-col">
 						{#if chapter.group}
@@ -120,9 +132,17 @@
 							{#snippet children(sheets)}
 								<ul class="flex flex-col divide-y divide-base-300">
 									{#each sheets as sheet, i (sheet.id)}
-										<li class="flex items-center gap-3 py-2">
+										<li
+											class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2"
+											in:row
+											out:row={{ exit: true }}
+											animate:reorder
+										>
 											<span
-												class={['flex flex-1 flex-col', sheet.archived && 'text-base-content/50']}
+												class={[
+													'flex min-w-0 flex-1 basis-48 flex-col',
+													sheet.archived && 'text-base-content/50'
+												]}
 											>
 												{#if sheet.archived}
 													<strong>{@html renderInline(sheet.title)}</strong>
@@ -148,12 +168,23 @@
 												onmove={(step) => move(sheets, sheet.id, step)}
 												onarchive={(archived) =>
 													setArchived(familyId, 'concepts', sheet.id, archived)}
+												ondelete={() => (sheetToDelete = sheet)}
 											/>
 										</li>
 									{:else}
 										<li class="py-2 text-base-content/70">{fr.binder.noSheets}</li>
 									{/each}
 								</ul>
+								{#if sheetToDelete}
+									{@const sheet = sheetToDelete}
+									<ConfirmDeleteDialog
+										title={t.deleteNamed(sheet.title)}
+										help={t.deleteSheetHelp}
+										action={t.delete}
+										onconfirm={() => deleteSheet(familyId, sheet.id)}
+										onclose={() => (sheetToDelete = null)}
+									/>
+								{/if}
 							{/snippet}
 						</LoadState>
 					</div>
@@ -190,6 +221,12 @@
 				{#key chapter.id}
 					<ChapterSettings {familyId} {chapter} groups={groupNames(siblingsLive.data ?? [])} />
 				{/key}
+				<ConfirmDelete
+					title={t.deleteChapterTitle}
+					help={t.deleteChapterHelp(sheetsLive.data?.length ?? 0)}
+					action={t.delete}
+					onconfirm={() => removeChapter(familyId, chapter)}
+				/>
 			{/snippet}
 		</LoadState>
 	{/if}
