@@ -34,6 +34,10 @@
 	}
 </script>
 
+<svelte:head>
+	{#if childLive.data}<title>{displayName(childLive.data)} · {fr.app.name}</title>{/if}
+</svelte:head>
+
 <main>
 	<BackLink href={resolve('/parent/profiles')} label={t.back} />
 	{#if session.familyId}

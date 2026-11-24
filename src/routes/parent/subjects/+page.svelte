@@ -47,6 +47,8 @@
 	}
 </script>
 
+<svelte:head><title>{t.title} · {fr.app.name}</title></svelte:head>
+
 <main>
 	<BackLink href={resolve('/')} label={fr.app.home} />
 	<h1>{t.title}</h1>

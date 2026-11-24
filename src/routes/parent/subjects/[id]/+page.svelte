@@ -113,6 +113,10 @@
 	}
 </script>
 
+<svelte:head>
+	{#if subjectLive.data}<title>{subjectLive.data.name} · {fr.app.name}</title>{/if}
+</svelte:head>
+
 <main>
 	<BackLink href={resolve('/parent/subjects')} label={t.back} />
 	{#if session.familyId}

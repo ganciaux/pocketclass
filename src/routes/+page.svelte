@@ -16,6 +16,8 @@
 	);
 </script>
 
+<svelte:head><title>{fr.app.name}</title></svelte:head>
+
 <main class="doodles">
 	<h1>
 		{fr.auth.hello(

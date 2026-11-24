@@ -93,6 +93,10 @@
 	}
 </script>
 
+<svelte:head>
+	{#if chapterLive.data}<title>{chapterLive.data.title} · {fr.app.name}</title>{/if}
+</svelte:head>
+
 <main>
 	{#if session.familyId}
 		{@const familyId = session.familyId}
