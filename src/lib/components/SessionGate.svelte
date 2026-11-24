@@ -3,6 +3,7 @@
 	import logo from '#lib/assets/logo.webp';
 	import { session } from '#lib/auth.svelte.ts';
 	import LinkDeviceForm from '#lib/components/LinkDeviceForm.svelte';
+	import PasswordSignIn from '#lib/components/PasswordSignIn.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 
 	/** Renders the app only once the session is ready; sign-in and error screens otherwise. */
@@ -47,6 +48,7 @@
 				{#if signInError}
 					<p role="alert" class="alert alert-error alert-soft">{fr.auth.signInFailed}</p>
 				{/if}
+				<PasswordSignIn />
 			</div>
 		</section>
 	</main>
