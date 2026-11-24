@@ -50,8 +50,9 @@ npm run prod
 
 Puis vérifier :
 
-1. Ouvrir https://pocketclass-bd866.web.app et recharger : la nouvelle version s'active au
-   chargement suivant (service worker en `autoUpdate`).
+1. Ouvrir https://pocketclass-bd866.web.app : un bandeau « Une nouvelle version de PocketClass
+   est prête » propose **Mettre à jour** (sinon elle démarre à la prochaine ouverture de l'app).
+   Les apps déjà ouvertes vérifient les mises à jour toutes les heures.
 2. Contrôler les en-têtes de cache (l'émulateur ne les applique pas) :
 
    ```sh

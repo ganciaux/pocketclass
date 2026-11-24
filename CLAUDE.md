@@ -88,7 +88,6 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   is separate from the installed PWA). Expired link codes are never deleted (harmless, could
   be cleaned by the parent later). Converting an anonymous account (`linkWithCredential`)
   would let a child sign in again on a new phone without a code.
-- SW `autoUpdate`: add an update prompt once the data model changes between versions.
 
 ## Technical decisions log
 
@@ -150,7 +149,7 @@ made.
   2 children, invalid JSON errors, import + assignment, re-import v2 with one exercise less →
   archived, no duplicates, map, sheet with 24 KaTeX formulas, offline navigation).
 - 2026-11-23 — PWA: `withPwa(kitOptions, pwaOptions)` replaces `sveltekit()` (key `strategies`),
-  `generateSW` + `autoUpdate`, registered in the root layout (`virtual:pwa-register`). Manifest
+  `generateSW` + `autoUpdate` (now `prompt`, see below), registered in the root layout (`virtual:pwa-register`). Manifest
   and icons are static links in `app.html`. `globStrict: false` (the plugin always adds an empty
   `prerendered/**`). Needs `magicast`. Icons: see the 2026-11-23 "App icons" entry.
 - 2026-11-23 — `npm run build:emulators` (mode `emulators`) = build wired to the emulators, to
@@ -220,6 +219,20 @@ made.
   grain (`--noise`) in dark mode, faint maths doodles (SVG mask) on home and sign-in, full
   logo on the sign-in screen (`src/lib/assets/logo.webp`, 640 px, from `scripts/make-images.mjs`).
   The page background is base-200 through daisyUI's `--root-bg`.
+- 2026-11-24 — Service worker in `registerType: 'prompt'`: `src/lib/update.svelte.ts`
+  (`appUpdate`) + `<UpdateToast>` offer "Mettre à jour" when a version is waiting, and check
+  for updates every hour. PWA `base` / `buildBase` / `scope` forced to `/`: with Kit's
+  relative base the app registered `./sw.js` from the current page (opened on `/concept/x`
+  it had no service worker at all). The Playwright browser used here blocks service workers:
+  check SW behaviour on a phone or a normal Chrome.
+- 2026-11-24 — Build: Firebase and markdown (KaTeX, marked, DOMPurify) in their own chunks
+  (`build.rolldownOptions.output.codeSplitting.groups`): their hashes stay the same when our
+  code changes, so a deploy no longer makes phones download ~1 MB again.
+- 2026-11-24 — Parent page `/parent/notes`: every child's notes (`ProfileNotes`, resolved
+  ones hidden unless toggled). Import: late pre-ticks of assigned children no longer
+  overwrite boxes the parent already ticked.
+- 2026-11-24 — Real phones (iOS + Android) validated by the user: linking, staying signed in,
+  icon, dark theme, offline sheet.
 
 ## Firestore model
 
