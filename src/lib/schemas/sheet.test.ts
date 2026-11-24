@@ -19,6 +19,24 @@ describe('sheetSchema', () => {
 		expect(concept.exercises[0].difficulty).toBe(1);
 	});
 
+	it('defaults tags to an empty list', () => {
+		const result = validate(sheetSchema, minimalSheet());
+		expect((result as { data: SheetImport }).data.tags).toEqual([]);
+	});
+
+	it('trims tags and drops duplicates ignoring case and accents', () => {
+		const data = { ...minimalSheet(), tags: [' Fraction ', 'fraction', 'Fractión', 'COD'] };
+		const result = validate(sheetSchema, data);
+		expect((result as { data: SheetImport }).data.tags).toEqual(['Fraction', 'COD']);
+	});
+
+	it('rejects more than 10 tags or a tag over 30 characters', () => {
+		const many = Array.from({ length: 11 }, (_, i) => `tag ${i}`);
+		expect(errorsOf({ ...minimalSheet(), tags: many })).not.toEqual([]);
+		expect(errorsOf({ ...minimalSheet(), tags: ['x'.repeat(31)] })).not.toEqual([]);
+		expect(errorsOf({ ...minimalSheet(), tags: ['  '] })).not.toEqual([]);
+	});
+
 	it('accepts every exercise type', () => {
 		const data = minimalSheet();
 		const base = { usage: 'practice', keyPoint: 'kp-add' };

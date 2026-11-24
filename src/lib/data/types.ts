@@ -148,6 +148,8 @@ export interface ConceptRecord {
 	chapterId: string;
 	title: string;
 	order: number;
+	/** Keywords for the search; absent on sheets imported before tags existed. */
+	tags?: SheetDoc['tags'];
 	prerequisites: SheetDoc['prerequisites'];
 	keyPoints: SheetDoc['keyPoints'];
 	sheet: SheetDoc['sheet'];

@@ -36,6 +36,7 @@ export function idPrefix(subject: string, grade: string): string {
 const SHEET_SHAPE = `{
   "id": "<identifiant unique>",
   "title": "<titre de la fiche>",
+  "tags": ["<mot-clé>", "…"],
   "prerequisites": [],
   "keyPoints": [{ "id": "kp-…", "label": "<une idée essentielle>" }],
   "sheet": {
@@ -58,6 +59,7 @@ const SHEET_SHAPE = `{
 const RULES = `Règles :
 - Réponds uniquement avec le JSON, sans texte autour. Les clés JSON restent en anglais, le contenu est en français, adapté au niveau.
 - Identifiants : minuscules, chiffres, « - » ou « _ » (ex. "kp-simplify", "add-1").
+- "tags" : 3 à 8 mots-clés en français, en minuscules, ceux qu'un élève taperait pour retrouver la fiche (notions, vocabulaire, méthodes), sans répéter le nom de la matière.
 - 3 à 6 points-clés ("keyPoints", 8 au maximum). Chaque section, chaque exercice et chaque critère de "rubric" renvoie à un point-clé existant.
 - Exercices ("exercises") : au moins 2 d'entraînement ("usage": "practice") et 2 de contrôle ("usage": "assessment") par point-clé, "difficulty" de 1 à 3. Types possibles :
   - "mcq" : "question", "answer", "distractors" (exactement 3 mauvaises réponses) ;

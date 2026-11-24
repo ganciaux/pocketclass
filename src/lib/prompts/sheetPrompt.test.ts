@@ -27,6 +27,12 @@ describe('prompts', () => {
 		expect(prompt).toContain('commence par "mathematiques-3e-"');
 	});
 
+	it('asks for tags a pupil would type', () => {
+		const prompt = sheetPrompt(ctx);
+		expect(prompt).toContain('"tags"');
+		expect(prompt).toContain('3 à 8 mots-clés');
+	});
+
 	it('leaves a placeholder when the request is empty and skips empty lists', () => {
 		const prompt = sheetPrompt({
 			...ctx,

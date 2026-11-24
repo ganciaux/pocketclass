@@ -58,6 +58,14 @@ describe('planSheets', () => {
 		expect(dataOf(find(plan.ops, 'concepts/maths-3e-powers'))).toMatchObject({ order: 6 });
 	});
 
+	it('stores the sheet tags', () => {
+		const tagged = { ...fractions, tags: ['dénominateur', 'simplifier'] };
+		const plan = planSheets([tagged], target, {});
+		expect(dataOf(find(plan.ops, 'concepts/maths-3e-fractions'))).toMatchObject({
+			tags: ['dénominateur', 'simplifier']
+		});
+	});
+
 	it('stamps the sheet (server updatedAt) but not its exercises', () => {
 		const plan = planSheets([fractions], target, {});
 		const touched = plan.ops.filter((op) => op.kind === 'set' && op.touch).map(key);

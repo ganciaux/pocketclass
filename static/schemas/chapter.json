@@ -28,6 +28,16 @@
 						"type": "string",
 						"minLength": 1
 					},
+					"tags": {
+						"default": [],
+						"maxItems": 10,
+						"type": "array",
+						"items": {
+							"type": "string",
+							"minLength": 1,
+							"maxLength": 30
+						}
+					},
 					"prerequisites": {
 						"default": [],
 						"type": "array",

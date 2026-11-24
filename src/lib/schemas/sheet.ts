@@ -31,10 +31,27 @@ const assessmentSchema = z.object({
 		.optional()
 });
 
+/** Same tag whatever the case or accents (« Fractión » = « fraction »). */
+const tagKey = (tag: string) =>
+	tag
+		.normalize('NFD')
+		.replace(/\p{Diacritic}/gu, '')
+		.toLowerCase();
+
+/** Keywords to find the sheet (written by the AI); duplicates are dropped, not reported. */
+const tagsSchema = z
+	.array(text.max(30))
+	.max(10)
+	.default([])
+	.transform((tags) =>
+		tags.filter((tag, i) => tags.findIndex((t) => tagKey(t) === tagKey(tag)) === i)
+	);
+
 /** One revision sheet (a "concept"): key points, study sheet, exercises, assessment. */
 export const sheetBodySchema = z.object({
 	id: slug,
 	title: text,
+	tags: tagsSchema,
 	prerequisites: z.array(slug).default([]),
 	keyPoints: z.array(keyPointSchema).min(1).max(8),
 	sheet: z.object({

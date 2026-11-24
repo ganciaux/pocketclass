@@ -111,6 +111,7 @@ export function planSheets(
 			chapterId: target.chapterId,
 			title: sheet.title,
 			order: keepsPlace ? old.order : nextOrder++,
+			tags: sheet.tags,
 			prerequisites: sheet.prerequisites,
 			keyPoints: sheet.keyPoints,
 			sheet: sheet.sheet,
