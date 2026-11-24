@@ -106,7 +106,7 @@ service cloud.firestore {
       match /subjects/{subjectId} {
         allow read: if isMember(familyId);
       }
-      match /paths/{pathId} {
+      match /chapters/{chapterId} {
         allow read: if isMember(familyId);
       }
       match /concepts/{conceptId} {
@@ -132,8 +132,8 @@ service cloud.firestore {
           && !existsAfter(/databases/$(database)/documents/linkCodes/$(request.resource.data.code));
       }
 
-      // Linked devices: read their own profile and its subcollections (assignments,
-      // progress, notes...), and write only what the child owns.
+      // Linked devices: read their own profile and its subcollections (progress, notes...),
+      // and write only what the child owns (not `extraSubjects`, set by the parent).
       match /profiles/{profileId} {
         allow read: if isOwnDevice(familyId, profileId);
         // Look only: nickname and a small avatar data URL.
@@ -148,11 +148,12 @@ service cloud.firestore {
           allow read: if isOwnDevice(familyId, profileId);
         }
 
-        // "I read this sheet" (id = concept id).
+        // Sheet opened / read (id = concept id).
         match /progress/{conceptId} {
           allow create, update: if isOwnDevice(familyId, profileId)
-            && request.resource.data.keys().hasOnly(['pathId', 'readAt'])
-            && request.resource.data.pathId is string;
+            && request.resource.data.keys().hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt'])
+            && request.resource.data.subjectId is string
+            && request.resource.data.chapterId is string;
           allow delete: if isOwnDevice(familyId, profileId);
         }
 
@@ -161,9 +162,9 @@ service cloud.firestore {
         match /notes/{noteId} {
           allow create: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys().hasOnly(
-              ['conceptId', 'pathId', 'exerciseId', 'text', 'status', 'createdAt', 'updatedAt'])
+              ['conceptId', 'chapterId', 'exerciseId', 'text', 'status', 'createdAt', 'updatedAt'])
             && request.resource.data.conceptId is string
-            && request.resource.data.pathId is string
+            && request.resource.data.chapterId is string
             && validNoteText();
           allow update: if isOwnDevice(familyId, profileId)
             && onlyChanges(['text', 'status', 'updatedAt'])

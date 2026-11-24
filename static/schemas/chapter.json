@@ -4,69 +4,23 @@
 	"properties": {
 		"format": {
 			"type": "string",
-			"const": "pocketclass/path@1"
-		},
-		"id": {
-			"type": "string",
-			"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
-		},
-		"subject": {
-			"type": "string",
-			"minLength": 1
+			"const": "pocketclass/chapter@1"
 		},
 		"title": {
 			"type": "string",
 			"minLength": 1
 		},
-		"grade": {
+		"group": {
 			"type": "string",
 			"minLength": 1
 		},
-		"type": {
-			"type": "string",
-			"enum": [
-				"brevet",
-				"test",
-				"lessons"
-			]
-		},
-		"version": {
-			"type": "integer",
-			"minimum": 1,
-			"maximum": 9007199254740991
-		},
-		"topics": {
+		"sheets": {
 			"minItems": 1,
 			"type": "array",
 			"items": {
 				"type": "object",
 				"properties": {
 					"id": {
-						"type": "string",
-						"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
-					},
-					"title": {
-						"type": "string",
-						"minLength": 1
-					}
-				},
-				"required": [
-					"id",
-					"title"
-				]
-			}
-		},
-		"concepts": {
-			"minItems": 1,
-			"type": "array",
-			"items": {
-				"type": "object",
-				"properties": {
-					"id": {
-						"type": "string",
-						"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
-					},
-					"topic": {
 						"type": "string",
 						"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 					},
@@ -686,7 +640,6 @@
 				},
 				"required": [
 					"id",
-					"topic",
 					"title",
 					"keyPoints",
 					"sheet",
@@ -703,13 +656,7 @@
 	},
 	"required": [
 		"format",
-		"id",
-		"subject",
 		"title",
-		"grade",
-		"type",
-		"version",
-		"topics",
-		"concepts"
+		"sheets"
 	]
 }

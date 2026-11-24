@@ -3,10 +3,11 @@
 	import Avatar from '#lib/components/Avatar.svelte';
 	import ChildDevices from '#lib/components/ChildDevices.svelte';
 	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
+	import ExtraSubjects from '#lib/components/ExtraSubjects.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
-	import ProfileDashboard from '#lib/components/ProfileDashboard.svelte';
 	import ProfileLookForm from '#lib/components/ProfileLookForm.svelte';
 	import ProfileNotes from '#lib/components/ProfileNotes.svelte';
+	import SubjectCards from '#lib/components/SubjectCards.svelte';
 	import { deleteChildProfile, watchProfile } from '#lib/data/family.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { fr } from '#lib/i18n/fr.ts';
@@ -40,12 +41,13 @@
 				</header>
 				<section class="flex flex-col gap-2">
 					<h2>{fr.dashboard.title}</h2>
-					<ProfileDashboard {familyId} profileId={child.id} />
+					<SubjectCards {familyId} profile={child} />
 				</section>
 				<section class="flex flex-col gap-2">
 					<h2>{fr.notes.parentTitle}</h2>
 					<ProfileNotes {familyId} profileId={child.id} mode="parent" />
 				</section>
+				<ExtraSubjects {familyId} {child} />
 				<ProfileLookForm {familyId} profile={child} />
 				<ChildDevices {familyId} profileId={child.id} />
 				<ConfirmDelete

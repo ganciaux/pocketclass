@@ -1,0 +1,62 @@
+import { doc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { db } from '#lib/firebase.ts';
+import { COLLECTIONS } from './collections.ts';
+import { chaptersCol, familyDoc, subjectsCol } from './refs.ts';
+import type { Chapter, Subject } from './types.ts';
+import { inBackground } from './writes.ts';
+
+// Parent edits of the binder (subjects, chapters, sheet order). Plain writes with no server
+// read: they work offline like the child's writes (local cache first, synced later).
+
+/** Catalogue collections that can be reordered and archived. */
+export type CatalogKind = 'subjects' | 'chapters' | 'concepts';
+
+/** Creates a subject and returns its (generated) id at once. */
+export function createSubject(familyId: string, subject: Omit<Subject, 'archived'>): string {
+	const ref = doc(subjectsCol(familyId));
+	inBackground(setDoc(ref, { ...subject, archived: false }), 'create subject');
+	return ref.id;
+}
+
+export function updateSubject(
+	familyId: string,
+	subjectId: string,
+	patch: Partial<Pick<Subject, 'name' | 'color'>>
+): void {
+	const ref = familyDoc(familyId, COLLECTIONS.subjects, subjectId);
+	inBackground(updateDoc(ref, patch), 'update subject');
+}
+
+export function createChapter(familyId: string, chapter: Omit<Chapter, 'archived'>): string {
+	const ref = doc(chaptersCol(familyId));
+	inBackground(setDoc(ref, { ...chapter, archived: false }), 'create chapter');
+	return ref.id;
+}
+
+export function updateChapter(
+	familyId: string,
+	chapterId: string,
+	patch: Partial<Pick<Chapter, 'title' | 'group'>>
+): void {
+	const ref = familyDoc(familyId, COLLECTIONS.chapters, chapterId);
+	inBackground(updateDoc(ref, patch), 'update chapter');
+}
+
+/** Hides (or restores) a subject, chapter or sheet. Nothing is ever deleted. */
+export function setArchived(familyId: string, kind: CatalogKind, id: string, archived: boolean) {
+	inBackground(updateDoc(familyDoc(familyId, COLLECTIONS[kind], id), { archived }), 'archive');
+}
+
+/** Saves new positions (from `moveItem`) in one batch. */
+export function saveOrder(
+	familyId: string,
+	kind: CatalogKind,
+	items: { id: string; order: number }[]
+) {
+	if (items.length === 0) return;
+	const batch = writeBatch(db);
+	for (const { id, order } of items) {
+		batch.update(familyDoc(familyId, COLLECTIONS[kind], id), { order });
+	}
+	inBackground(batch.commit(), 'reorder');
+}

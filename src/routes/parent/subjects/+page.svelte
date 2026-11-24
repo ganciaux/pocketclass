@@ -1,0 +1,117 @@
+<script lang="ts">
+	import { session } from '#lib/auth.svelte.ts';
+	import { freeColor, moveItem, nextOrder } from '#lib/binder/binder.ts';
+	import { SUBJECT_SWATCH } from '#lib/binder/colors.ts';
+	import LoadState from '#lib/components/LoadState.svelte';
+	import OrderActions from '#lib/components/OrderActions.svelte';
+	import { watchSubjects } from '#lib/data/catalog.ts';
+	import { createSubject, saveOrder, setArchived } from '#lib/data/catalogEdit.ts';
+	import { live } from '#lib/data/live.svelte.ts';
+	import { GRADES, type Grade, type Subject, type WithId } from '#lib/data/types.ts';
+	import { fr } from '#lib/i18n/fr.ts';
+	import { resolve } from '$app/paths';
+
+	const t = fr.manage;
+	const subjectsLive = live(() => session.familyId && watchSubjects(session.familyId));
+
+	let name = $state('');
+	let grade = $state<Grade>('3e');
+	let nameMissing = $state(false);
+
+	const ofGrade = (subjects: WithId<Subject>[], g: Grade) => subjects.filter((s) => s.grade === g);
+
+	function create(event: SubmitEvent, subjects: WithId<Subject>[]) {
+		event.preventDefault();
+		const familyId = session.familyId;
+		nameMissing = !name.trim();
+		if (!familyId || nameMissing) return;
+		const siblings = ofGrade(subjects, grade);
+		createSubject(familyId, {
+			name: name.trim(),
+			grade,
+			color: freeColor(subjects),
+			order: nextOrder(siblings)
+		});
+		name = '';
+	}
+
+	function move(list: WithId<Subject>[], id: string, step: -1 | 1) {
+		if (session.familyId) saveOrder(session.familyId, 'subjects', moveItem(list, id, step));
+	}
+</script>
+
+<main>
+	<a class="link link-hover self-start text-sm" href={resolve('/')}>{fr.app.home}</a>
+	<h1>{t.title}</h1>
+	<p class="text-base-content/70">{t.help}</p>
+
+	<LoadState source={subjectsLive} failed={fr.binder.loadFailed}>
+		{#snippet children(subjects)}
+			{#each GRADES as g (g)}
+				{@const list = ofGrade(subjects, g)}
+				{#if list.length > 0}
+					<section class="card card-border bg-base-100">
+						<div class="card-body gap-2">
+							<h2 class="card-title">{g}</h2>
+							<ul class="flex flex-col divide-y divide-base-300">
+								{#each list as subject, i (subject.id)}
+									<li class="flex items-center gap-3 py-2">
+										<span class={['size-3 shrink-0 rounded-full', SUBJECT_SWATCH[subject.color]]}
+										></span>
+										<a
+											class={[
+												'flex-1 font-bold hover:underline',
+												subject.archived && 'text-base-content/50'
+											]}
+											href={resolve('/parent/subjects/[id]', { id: subject.id })}
+										>
+											{subject.name}
+										</a>
+										{#if subject.archived}
+											<span class="badge badge-ghost badge-sm">{t.hidden}</span>
+										{/if}
+										<OrderActions
+											first={i === 0}
+											last={i === list.length - 1}
+											archived={subject.archived}
+											onmove={(step) => move(list, subject.id, step)}
+											onarchive={(archived) =>
+												session.familyId &&
+												setArchived(session.familyId, 'subjects', subject.id, archived)}
+										/>
+									</li>
+								{/each}
+							</ul>
+						</div>
+					</section>
+				{/if}
+			{/each}
+			{#if subjects.length === 0}<p class="text-base-content/70">{t.noSubjects}</p>{/if}
+
+			<form class="card card-border bg-base-100" onsubmit={(e) => create(e, subjects)}>
+				<div class="card-body gap-3">
+					<h2 class="card-title">{t.newSubject}</h2>
+					<div class="grid gap-3 sm:grid-cols-[1fr_auto]">
+						<label class="fieldset">
+							<span class="fieldset-legend">{t.subjectName}</span>
+							<input
+								class="input w-full"
+								bind:value={name}
+								placeholder={t.subjectPlaceholder}
+								maxlength="40"
+							/>
+						</label>
+						<label class="fieldset">
+							<span class="fieldset-legend">{fr.common.grade}</span>
+							<select class="select w-full" bind:value={grade}>
+								{#each GRADES as g (g)}<option value={g}>{g}</option>{/each}
+							</select>
+						</label>
+					</div>
+					{#if nameMissing}<p role="alert" class="text-sm text-error">{t.nameRequired}</p>{/if}
+					<button class="btn btn-primary self-start" type="submit">{t.create}</button>
+				</div>
+			</form>
+		{/snippet}
+	</LoadState>
+</main>

@@ -73,7 +73,7 @@ const exerciseVariants = {
 export const EXERCISE_TYPES = Object.keys(exerciseVariants) as (keyof typeof exerciseVariants)[];
 
 /**
- * Builds the exercise union for a given set of common fields, so `path@1` (strict ids) and
+ * Builds the exercise union for a given set of common fields, so sheets (strict ids) and
  * `lesson@1` (optional ids) share the same type-specific definitions.
  */
 function exerciseUnion<Base extends z.ZodRawShape>(base: Base) {

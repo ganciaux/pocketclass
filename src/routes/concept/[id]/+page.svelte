@@ -4,9 +4,10 @@
 	import NoteForm from '#lib/components/NoteForm.svelte';
 	import NoteList from '#lib/components/NoteList.svelte';
 	import { watchNotes } from '#lib/data/notes.ts';
-	import { watchConcept } from '#lib/data/catalog.ts';
+	import { watchChapter, watchConcept } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import { setConceptRead, watchConceptProgress } from '#lib/data/progress.ts';
+	import { markOpened, setConceptRead, watchConceptProgress } from '#lib/data/progress.ts';
+	import type { ConceptRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { renderInline, renderMarkdown } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
@@ -26,7 +27,19 @@
 			conceptId &&
 			watchConceptProgress(session.familyId, profileId, conceptId)
 	);
-	const isRead = $derived(readLive.status === 'ready');
+	const isRead = $derived(readLive.data?.readAt !== undefined);
+
+	// Opening the sheet clears its "new" / "updated" badge (again if it is re-imported while open).
+	$effect(() => {
+		const sheet = conceptLive.data;
+		if (session.familyId && profileId && sheet) markOpened(session.familyId, profileId, sheet);
+	});
+
+	// For the back link only.
+	const chapterId = $derived(conceptLive.data?.chapterId);
+	const chapterLive = live(
+		() => session.familyId && chapterId && watchChapter(session.familyId, chapterId)
+	);
 
 	// The profile's notes, filtered to this sheet (one listener, cached for "My notes" too).
 	const notesLive = live(
@@ -36,7 +49,7 @@
 		(notesLive.data ?? []).filter((n) => n.conceptId === conceptId && !n.exerciseId)
 	);
 
-	function markRead(concept: { id: string; pathId: string }, read: boolean) {
+	function markRead(concept: WithId<ConceptRecord>, read: boolean) {
 		if (session.familyId && profileId) setConceptRead(session.familyId, profileId, concept, read);
 	}
 
@@ -55,9 +68,9 @@
 		{#snippet children(concept)}
 			<a
 				class="link link-hover self-start text-sm"
-				href={resolve('/path/[id]', { id: concept.pathId })}
+				href={resolve('/chapter/[id]', { id: concept.chapterId })}
 			>
-				{t.backToMap}
+				{chapterLive.data ? fr.binder.back(chapterLive.data.title) : fr.binder.backToBinder}
 			</a>
 			<h1>{@html renderInline(concept.title)}</h1>
 
@@ -148,7 +161,7 @@
 						<NoteForm
 							familyId={session.familyId}
 							{profileId}
-							target={{ conceptId: concept.id, pathId: concept.pathId }}
+							target={{ conceptId: concept.id, chapterId: concept.chapterId }}
 						/>
 						{#if conceptNotes.length > 0}
 							<NoteList familyId={session.familyId} {profileId} notes={conceptNotes} mode="child" />

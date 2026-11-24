@@ -9,6 +9,7 @@ import {
 import {
 	collection,
 	deleteDoc,
+	deleteField,
 	doc,
 	getDoc,
 	getDocs,
@@ -50,12 +51,11 @@ beforeEach(async () => {
 		await setDoc(doc(db, `families/${FAMILY}`), { name: 'F', admins: ['alice'] });
 		await setDoc(doc(db, `families/${FAMILY}/profiles/lea`), { firstName: 'Léa', role: 'child' });
 		await setDoc(doc(db, `families/${FAMILY}/profiles/tom`), { firstName: 'Tom', role: 'child' });
-		await setDoc(doc(db, `families/${FAMILY}/profiles/lea/assignments/p1`), { since: 1 });
 		await setDoc(doc(db, `families/${FAMILY}/devices/kid-phone`), { profileId: 'lea' });
 		await setDoc(doc(db, `families/${FAMILY}/concepts/c1`), { title: 'C', archived: false });
 		await setDoc(doc(db, `families/${FAMILY}/concepts/c1/exercises/e1`), { type: 'mcq' });
 		await setDoc(doc(db, `families/${FAMILY}/subjects/maths`), { name: 'Maths' });
-		await setDoc(doc(db, `families/${FAMILY}/paths/p1`), { title: 'P' });
+		await setDoc(doc(db, `families/${FAMILY}/chapters/ch1`), { title: 'P', subjectId: 'maths' });
 		await setDoc(doc(db, `families/${FAMILY}/assessments/c1`), { type: 'brevet' });
 		// Link codes for tom: a valid one and an expired one.
 		const tomCode = { familyId: FAMILY, profileId: 'tom' };
@@ -63,7 +63,7 @@ beforeEach(async () => {
 		await setDoc(doc(db, 'linkCodes/TOMOLD'), { ...tomCode, expiresAt: inMinutes(-1) });
 		await setDoc(doc(db, `families/${FAMILY}/profiles/lea/notes/n1`), {
 			conceptId: 'c1',
-			pathId: 'p1',
+			chapterId: 'ch1',
 			exerciseId: null,
 			text: 'Dur',
 			status: 'open'
@@ -141,7 +141,7 @@ describe('linked devices', () => {
 		for (const path of [
 			'',
 			'/subjects/maths',
-			'/paths/p1',
+			'/chapters/ch1',
 			'/concepts/c1',
 			'/concepts/c1/exercises/e1',
 			'/assessments/c1'
@@ -149,21 +149,22 @@ describe('linked devices', () => {
 			await assertSucceeds(getDoc(at(kid, `families/${FAMILY}${path}`)));
 		}
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/concepts/c1`), { t: 1 }));
-		await assertFails(setDoc(at(kid, `families/${FAMILY}/paths/p1`), { t: 1 }));
+		await assertFails(setDoc(at(kid, `families/${FAMILY}/chapters/ch1`), { t: 1 }));
+		await assertFails(setDoc(at(kid, `families/${FAMILY}/subjects/maths`), { t: 1 }));
 	});
 
-	it('cannot write points, assignments or their device link without a code', async () => {
+	it('cannot write points, their extra subjects or their device link without a code', async () => {
 		const kid = as('kid-phone');
-		await assertFails(updateDoc(at(kid, `families/${FAMILY}/profiles/lea`), { points: 999 }));
-		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/lea/assignments/p2`), { s: 1 }));
+		const lea = `families/${FAMILY}/profiles/lea`;
+		await assertFails(updateDoc(at(kid, lea), { points: 999 }));
+		await assertFails(updateDoc(at(kid, lea), { extraSubjects: ['maths-6e'] }));
+		await assertSucceeds(updateDoc(at(as('alice'), lea), { extraSubjects: ['maths-6e'] }));
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/devices/kid-phone`), { profileId: 'x' }));
 	});
 
 	it('read only their own profile and its subcollections, and their device entry', async () => {
 		await assertSucceeds(getDoc(at(as('kid-phone'), `families/${FAMILY}/profiles/lea`)));
-		await assertSucceeds(
-			getDoc(at(as('kid-phone'), `families/${FAMILY}/profiles/lea/assignments/p1`))
-		);
+		await assertSucceeds(getDoc(at(as('kid-phone'), `families/${FAMILY}/profiles/lea/notes/n1`)));
 		await assertFails(getDoc(at(as('kid-phone'), `families/${FAMILY}/profiles/tom`)));
 		await assertSucceeds(getDoc(at(as('kid-phone'), `families/${FAMILY}/devices/kid-phone`)));
 		await assertFails(getDoc(at(as('kid-phone'), `families/${FAMILY}/devices/other`)));
@@ -264,12 +265,7 @@ describe('device linking', () => {
 		const parent = as('alice');
 		const lea = `families/${FAMILY}/profiles/lea`;
 		const batch = writeBatch(parent);
-		for (const path of [
-			`families/${FAMILY}/devices/kid-phone`,
-			`${lea}/assignments/p1`,
-			`${lea}/notes/n1`,
-			lea
-		]) {
+		for (const path of [`families/${FAMILY}/devices/kid-phone`, `${lea}/notes/n1`, lea]) {
 			batch.delete(doc(parent, path));
 		}
 		await assertSucceeds(batch.commit());
@@ -321,20 +317,32 @@ describe('child writes', () => {
 		await assertFails(updateDoc(at(kid, `families/${FAMILY}/profiles/tom`), { nickname: 'T' }));
 	});
 
-	it('mark sheets as read on their own profile', async () => {
+	it('record opened and read sheets on their own profile', async () => {
 		const kid = as('kid-phone');
-		const read = { pathId: 'p1', readAt: serverTimestamp() };
-		await assertSucceeds(setDoc(at(kid, `${lea}/progress/c1`), read));
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		const opened = { ...where, openedAt: serverTimestamp() };
+		await assertSucceeds(setDoc(at(kid, `${lea}/progress/c1`), opened, { merge: true }));
+		await assertSucceeds(
+			setDoc(
+				at(kid, `${lea}/progress/c1`),
+				{ ...where, readAt: serverTimestamp() },
+				{ merge: true }
+			)
+		);
+		await assertSucceeds(
+			setDoc(at(kid, `${lea}/progress/c1`), { ...where, readAt: deleteField() }, { merge: true })
+		);
 		await assertSucceeds(deleteDoc(at(kid, `${lea}/progress/c1`)));
-		await assertFails(setDoc(at(kid, `${lea}/progress/c1`), { ...read, score: 20 }));
-		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), read));
+		await assertFails(setDoc(at(kid, `${lea}/progress/c1`), { ...opened, score: 20 }));
+		await assertFails(setDoc(at(kid, `${lea}/progress/c1`), { openedAt: serverTimestamp() }));
+		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), opened));
 	});
 
 	it('write open notes; only the parent sets seen / resolved', async () => {
 		const kid = as('kid-phone');
 		const note = {
 			conceptId: 'c1',
-			pathId: 'p1',
+			chapterId: 'ch1',
 			exerciseId: null,
 			text: 'Les fractions négatives',
 			status: 'open',

@@ -9,14 +9,13 @@ import { db } from '#lib/firebase.ts';
 import { COLLECTIONS, ROOT } from './collections.ts';
 import type {
 	AssessmentRecord,
-	Assignment,
+	Chapter,
 	ConceptRecord,
 	Device,
 	ExerciseRecord,
 	Family,
 	LinkCode,
 	Note,
-	PathRecord,
 	Profile,
 	ProgressRecord,
 	Subject,
@@ -50,11 +49,6 @@ export const profilesCol = (familyId: string) => familyCol<Profile>(familyId, CO
 export const profileRef = (familyId: string, profileId: string) =>
 	typedDoc<Profile>(familyId, COLLECTIONS.profiles, profileId);
 
-export const assignmentsCol = (familyId: string, profileId: string) =>
-	familyCol<Assignment>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.assignments);
-export const assignmentRef = (familyId: string, profileId: string, pathId: string) =>
-	typedDoc<Assignment>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.assignments, pathId);
-
 export const progressCol = (familyId: string, profileId: string) =>
 	familyCol<ProgressRecord>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.progress);
 export const progressRef = (familyId: string, profileId: string, conceptId: string) =>
@@ -71,12 +65,13 @@ export const notesCol = (familyId: string, profileId: string) =>
 export const noteRef = (familyId: string, profileId: string, noteId: string) =>
 	typedDoc<Note>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.notes, noteId);
 
+export const subjectsCol = (familyId: string) => familyCol<Subject>(familyId, COLLECTIONS.subjects);
 export const subjectRef = (familyId: string, subjectId: string) =>
 	typedDoc<Subject>(familyId, COLLECTIONS.subjects, subjectId);
 
-export const pathsCol = (familyId: string) => familyCol<PathRecord>(familyId, COLLECTIONS.paths);
-export const pathRef = (familyId: string, pathId: string) =>
-	typedDoc<PathRecord>(familyId, COLLECTIONS.paths, pathId);
+export const chaptersCol = (familyId: string) => familyCol<Chapter>(familyId, COLLECTIONS.chapters);
+export const chapterRef = (familyId: string, chapterId: string) =>
+	typedDoc<Chapter>(familyId, COLLECTIONS.chapters, chapterId);
 
 export const conceptsCol = (familyId: string) =>
 	familyCol<ConceptRecord>(familyId, COLLECTIONS.concepts);
@@ -86,5 +81,5 @@ export const conceptRef = (familyId: string, conceptId: string) =>
 export const exercisesCol = (familyId: string, conceptId: string) =>
 	familyCol<ExerciseRecord>(familyId, COLLECTIONS.concepts, conceptId, COLLECTIONS.exercises);
 
-export const assessmentsCol = (familyId: string) =>
-	familyCol<AssessmentRecord>(familyId, COLLECTIONS.assessments);
+export const assessmentRef = (familyId: string, assessmentId: string) =>
+	typedDoc<AssessmentRecord>(familyId, COLLECTIONS.assessments, assessmentId);

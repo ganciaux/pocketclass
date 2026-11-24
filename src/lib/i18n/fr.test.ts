@@ -10,8 +10,8 @@ describe('plural', () => {
 	});
 
 	it('is used by the import messages', () => {
-		expect(fr.import.done(1, 23)).toBe('Import terminé : 1 notion, 23 exercices.');
-		expect(fr.import.conceptLine(1, 0, 2)).toBe(
+		expect(fr.import.done(2, 1)).toBe('Import terminé : 2 fiches ajoutées, 1 fiche mise à jour.');
+		expect(fr.import.sheetLine(1, 0, 2)).toBe(
 			"1 point-clé · 0 exercice d'entraînement · 2 exercices de contrôle"
 		);
 	});

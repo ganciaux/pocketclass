@@ -14,7 +14,6 @@ import { docSource, getDocCacheFirst, querySource, type Subscribe } from './sour
 import { inBackground } from './writes.ts';
 import { deleteInBatches } from './batches.ts';
 import {
-	assignmentsCol,
 	devicesCol,
 	familyRef,
 	notesCol,
@@ -81,6 +80,16 @@ export function updateProfileLook(familyId: string, profileId: string, look: Pro
 	);
 }
 
+/** Parent: subjects of other grades this child sees too. */
+export function setExtraSubjects(familyId: string, profileId: string, subjectIds: string[]): void {
+	inBackground(
+		updateDoc(profileRef(familyId, profileId), {
+			extraSubjects: subjectIds.length > 0 ? subjectIds : deleteField()
+		}),
+		'extra subjects'
+	);
+}
+
 /** Live child profiles, sorted by first name (client-side: no composite index). */
 export const watchChildProfiles = (familyId: string): Subscribe<WithId<Profile>[]> =>
 	querySource(query(profilesCol(familyId), where('role', '==', 'child')), (profiles) =>
@@ -99,13 +108,12 @@ export async function createChildProfile(
 
 /**
  * Parent action (online): deletes a child profile for good. Its devices go first (they lose
- * access at once), then its assignments, progress and notes, then the profile itself.
+ * access at once), then its progress and notes, then the profile itself.
  * Reads from the server (getDocs) so nothing written elsewhere is left behind.
  */
 export async function deleteChildProfile(familyId: string, profileId: string): Promise<void> {
 	const [devices, ...owned] = await Promise.all([
 		getDocs(query(devicesCol(familyId), where('profileId', '==', profileId))),
-		getDocs(assignmentsCol(familyId, profileId)),
 		getDocs(progressCol(familyId, profileId)),
 		getDocs(notesCol(familyId, profileId))
 	]);

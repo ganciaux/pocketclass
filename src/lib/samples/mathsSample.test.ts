@@ -14,9 +14,9 @@ import {
 	type Fraction
 } from '#lib/math/fraction.ts';
 import { validate } from '#lib/schemas/errors.ts';
-import { pathSchema, type PathDoc } from '#lib/schemas/path.ts';
+import { chapterSchema, type ChapterImport } from '#lib/schemas/chapter.ts';
 
-const SAMPLE = 'static/samples/maths-3e-brevet.json';
+const SAMPLE = 'static/samples/maths-3e-revisions.json';
 
 /**
  * Convention for sample `calculation` exercises: the expression to compute is the LAST inline
@@ -116,8 +116,8 @@ function evaluate(latex: string): Fraction {
 }
 
 const raw: unknown = JSON.parse(readFileSync(SAMPLE, 'utf8'));
-const validation = validate(pathSchema, raw);
-const path = validation.success ? (validation.data as PathDoc) : null;
+const validation = validate(chapterSchema, raw);
+const chapter = validation.success ? (validation.data as ChapterImport) : null;
 
 describe('LaTeX evaluator (test helper)', () => {
 	it('evaluates the supported syntax', () => {
@@ -131,13 +131,17 @@ describe('LaTeX evaluator (test helper)', () => {
 });
 
 describe(`sample ${SAMPLE}`, () => {
-	it('is a valid pocketclass/path@1', () => {
+	it('is a valid pocketclass/chapter@1', () => {
 		expect(validation.success ? [] : validation.errors).toEqual([]);
 	});
 
 	it('has the expected structure', () => {
-		expect(path?.id).toBe('maths-3e-brevet');
-		const fractions = path?.concepts.find((c) => c.id === 'maths-3e-fractions');
+		expect(chapter?.sheets.map((s) => s.id)).toEqual([
+			'maths-3e-fractions',
+			'maths-3e-powers',
+			'maths-3e-pythagoras'
+		]);
+		const fractions = chapter?.sheets.find((c) => c.id === 'maths-3e-fractions');
 		expect(fractions?.keyPoints.map((k) => k.id)).toEqual([
 			'kp-simplify',
 			'kp-add',
@@ -158,7 +162,7 @@ describe(`sample ${SAMPLE}`, () => {
 		}
 	});
 
-	const calculations = (path?.concepts ?? []).flatMap((concept) =>
+	const calculations = (chapter?.sheets ?? []).flatMap((concept) =>
 		concept.exercises
 			.filter((e) => e.type === 'calculation')
 			.map((exercise) => ({ concept: concept.id, exercise }))

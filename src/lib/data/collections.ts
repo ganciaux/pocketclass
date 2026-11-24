@@ -12,11 +12,10 @@ export const COLLECTIONS = {
 	devices: 'devices',
 	profiles: 'profiles',
 	subjects: 'subjects',
-	paths: 'paths',
+	chapters: 'chapters',
 	concepts: 'concepts',
 	exercises: 'exercises',
 	assessments: 'assessments',
-	assignments: 'assignments',
 	progress: 'progress',
 	notes: 'notes'
 } as const;

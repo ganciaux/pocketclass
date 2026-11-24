@@ -1,20 +1,10 @@
 {
-	"format": "pocketclass/path@1",
-	"id": "maths-3e-brevet",
-	"subject": "Mathématiques",
-	"title": "Mission Brevet — Maths",
-	"grade": "3e",
-	"type": "brevet",
-	"version": 1,
-	"topics": [
-		{ "id": "numbers", "title": "Nombres et calculs" },
-		{ "id": "geometry", "title": "Géométrie" },
-		{ "id": "functions", "title": "Fonctions" }
-	],
-	"concepts": [
+	"format": "pocketclass/chapter@1",
+	"title": "Révisions du brevet",
+	"group": "Nombres et géométrie",
+	"sheets": [
 		{
 			"id": "maths-3e-fractions",
-			"topic": "numbers",
 			"title": "Calculer avec des fractions",
 			"prerequisites": [],
 			"keyPoints": [
@@ -119,7 +109,6 @@
 		},
 		{
 			"id": "maths-3e-powers",
-			"topic": "numbers",
 			"title": "Les puissances",
 			"prerequisites": [],
 			"keyPoints": [
@@ -157,7 +146,6 @@
 		},
 		{
 			"id": "maths-3e-pythagoras",
-			"topic": "geometry",
 			"title": "Le théorème de Pythagore",
 			"prerequisites": ["maths-3e-powers"],
 			"keyPoints": [

@@ -9,7 +9,7 @@ import { inBackground } from './writes.ts';
 
 export interface NoteTarget {
 	conceptId: string;
-	pathId: string;
+	chapterId: string;
 	exerciseId?: string | null;
 }
 
@@ -20,7 +20,7 @@ export function addNote(familyId: string, profileId: string, target: NoteTarget,
 	inBackground(
 		addDoc(notesCol(familyId, profileId), {
 			conceptId: target.conceptId,
-			pathId: target.pathId,
+			chapterId: target.chapterId,
 			exerciseId: target.exerciseId ?? null,
 			text,
 			status: 'open',

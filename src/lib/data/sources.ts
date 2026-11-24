@@ -50,6 +50,34 @@ export function querySource<T>(
 		);
 }
 
+/** A source with a fixed value (e.g. no progress to show for a parent). */
+export const constant =
+	<T>(value: T): Subscribe<T> =>
+	(onData) => {
+		onData(value);
+		return () => {};
+	};
+
+/**
+ * Several live sources as one: emits once every source has a value, then on every change.
+ * Lets a page wait for all its lists with a single `live()` / `<LoadState>`.
+ */
+export function combine<T extends Record<string, unknown>>(sources: {
+	[K in keyof T]: Subscribe<T[K]>;
+}): Subscribe<T> {
+	return (onData, onError) => {
+		const keys = Object.keys(sources) as (keyof T)[];
+		const values: Partial<T> = {};
+		const stops = keys.map((key) =>
+			sources[key]((value) => {
+				values[key] = value;
+				if (keys.every((k) => k in values)) onData({ ...values } as T);
+			}, onError)
+		);
+		return () => stops.forEach((stop) => stop());
+	};
+}
+
 /** Resolves with the first snapshot (from the local cache if the document is cached). */
 export function firstSnapshot<T>(ref: DocumentReference<T>): Promise<DocumentSnapshot<T>> {
 	return new Promise((resolve, reject) => {

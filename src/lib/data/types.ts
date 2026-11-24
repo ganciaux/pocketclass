@@ -1,11 +1,9 @@
 import type { Timestamp } from 'firebase/firestore';
 import type { Exercise } from '#lib/schemas/common.ts';
-import type { AssessmentDoc, ConceptDoc, PathDoc } from '#lib/schemas/path.ts';
+import type { AssessmentDoc, SheetDoc } from '#lib/schemas/sheet.ts';
 
 // Storage shapes. Nested content types are derived from the Zod import schemas, so a schema
 // change flows here; only storage-specific fields (order, archived, ids...) are declared.
-
-export type PathType = PathDoc['type'];
 
 /** `Omit` applied to each member of a union (keeps the discriminated union intact). */
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
@@ -54,15 +52,23 @@ export interface Profile {
 	nickname?: string;
 	/** Small square image as a data URL (resized in the browser, see profile/avatar.ts). */
 	avatar?: string;
+	/** Subjects of other grades shown to this child too (set by the parent). */
+	extraSubjects?: string[];
 }
 
 /** The profile fields a child may edit (the rules allow only these). */
 export type ProfileLook = Pick<Profile, 'nickname' | 'avatar'>;
 
-/** families/{familyId}/profiles/{profileId}/progress/{conceptId}: the sheet was read. */
+/**
+ * families/{familyId}/profiles/{profileId}/progress/{conceptId}: the child opened the sheet
+ * (`openedAt`, updated on every visit) and may have marked it as read. Timestamps are null
+ * while the write is pending (server timestamp).
+ */
 export interface ProgressRecord {
-	pathId: string;
-	readAt: Timestamp;
+	subjectId: string;
+	chapterId: string;
+	openedAt: Timestamp | null;
+	readAt?: Timestamp | null;
 }
 
 export const NOTE_STATUSES = ['open', 'seen', 'resolved'] as const;
@@ -71,7 +77,7 @@ export type NoteStatus = (typeof NOTE_STATUSES)[number];
 /** families/{familyId}/profiles/{profileId}/notes/{noteId}: what the child found difficult. */
 export interface Note {
 	conceptId: string;
-	pathId: string;
+	chapterId: string;
 	/** Set when the note is about an exercise (phase 2). */
 	exerciseId: string | null;
 	text: string;
@@ -81,41 +87,52 @@ export interface Note {
 	updatedAt: Timestamp | null;
 }
 
-/** families/{familyId}/profiles/{profileId}/assignments/{pathId} */
-export interface Assignment {
-	since: Timestamp;
-	dueDate?: string;
-}
+/** Subject colours: Tailwind palette names (500 shades read well in both themes). */
+export const SUBJECT_COLORS = [
+	'amber',
+	'blue',
+	'emerald',
+	'rose',
+	'violet',
+	'cyan',
+	'orange',
+	'lime'
+] as const;
+export type SubjectColor = (typeof SUBJECT_COLORS)[number];
 
-/** families/{familyId}/subjects/{subjectId} */
+/** families/{familyId}/subjects/{subjectId}: one subject of one grade (e.g. Maths 3e). */
 export interface Subject {
 	name: string;
-	color: string;
+	grade: Grade;
+	color: SubjectColor;
+	order: number;
+	archived: boolean;
 }
 
-/** families/{familyId}/paths/{pathId} */
-export interface PathRecord {
+/** families/{familyId}/chapters/{chapterId}: a folder of sheets inside a subject. */
+export interface Chapter {
 	subjectId: string;
 	title: string;
-	grade: string;
-	type: PathType;
-	topics: (PathDoc['topics'][number] & { order: number })[];
-	source: ImportSource;
-	version: number;
-	updatedAt: Timestamp;
+	/** Heading the chapter is shown under (e.g. "Algèbre"), display only. */
+	group: string | null;
+	order: number;
+	archived: boolean;
 }
 
-/** families/{familyId}/concepts/{conceptId} */
+/** families/{familyId}/concepts/{conceptId}: a sheet (id = JSON id, family-wide). */
 export interface ConceptRecord {
-	pathId: string;
 	subjectId: string;
-	topicId: string;
+	chapterId: string;
 	title: string;
 	order: number;
-	prerequisites: ConceptDoc['prerequisites'];
-	keyPoints: ConceptDoc['keyPoints'];
-	sheet: ConceptDoc['sheet'];
-	summaryInstruction?: ConceptDoc['summaryInstruction'];
+	prerequisites: SheetDoc['prerequisites'];
+	keyPoints: SheetDoc['keyPoints'];
+	sheet: SheetDoc['sheet'];
+	summaryInstruction?: SheetDoc['summaryInstruction'];
+	/** Increases on every import of the sheet. */
+	version: number;
+	/** Last import (server timestamp): newer than the child's `openedAt` = "updated". */
+	updatedAt: Timestamp | null;
 	archived: boolean;
 }
 
@@ -126,15 +143,13 @@ export interface ConceptRecord {
  */
 export type ExerciseRecord = DistributiveOmit<Exercise, 'id'> & { archived: boolean };
 
-/** families/{familyId}/assessments/{assessmentId} (id = concept id in phase 1) */
+/** families/{familyId}/assessments/{assessmentId} (id = concept id) */
 export interface AssessmentRecord extends AssessmentDoc {
-	pathId: string;
+	chapterId: string;
 	conceptIds: string[];
 	scoring: { pointsPerCorrect: number; perfectBonus: number };
 	archived: boolean;
 }
-
-export type ImportSource = 'paste' | 'sample';
 
 /** A Firestore document with its id. */
 export type WithId<T> = T & { id: string };

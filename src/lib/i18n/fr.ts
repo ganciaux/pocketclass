@@ -30,7 +30,6 @@ export const fr = {
 	},
 	common: {
 		grade: 'Niveau',
-		emptyTopic: 'Rien pour le moment',
 		save: 'Enregistrer',
 		cancel: 'Annuler',
 		needsOnline: 'Nécessite une connexion internet.',
@@ -63,22 +62,32 @@ export const fr = {
 	},
 	home: {
 		parentSection: 'Espace parent',
-		importPath: 'Importer un parcours',
+		manageBinder: 'Gérer le classeur',
 		manageProfiles: 'Gérer les profils',
 		childrenNotes: 'Remarques des enfants',
-		familyPaths: 'Parcours de la famille',
-		noFamilyPaths: 'Aucun parcours importé pour le moment.',
-		loadFailed: 'Impossible de charger les parcours.',
-		version: (v: number) => `version ${v}`
+		myBinder: 'Mon classeur',
+		familyBinder: 'Le classeur de la famille'
 	},
-	map: {
-		notFound: "Ce parcours n'existe pas (ou plus).",
-		loadFailed: 'Impossible de charger le parcours.',
-		todo: 'à faire',
-		read: 'lue ✓'
+	binder: {
+		loadFailed: 'Impossible de charger le classeur.',
+		noSubjects: 'Aucune matière pour le moment.',
+		noSubjectsParent: 'Aucune matière : crée-les dans « Gérer le classeur ».',
+		noChapters: 'Aucun chapitre pour le moment.',
+		noSheets: 'Aucune fiche pour le moment.',
+		subjectNotFound: "Cette matière n'existe pas (ou plus).",
+		chapterNotFound: "Ce chapitre n'existe pas (ou plus).",
+		backToBinder: '← Classeur',
+		back: (title: string) => `← ${title}`,
+		sheets: (count: number) => plural(count, 'fiche'),
+		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
+		fresh: (count: number) => plural(count, 'nouveauté'),
+		state: { new: 'Nouveau', updated: 'Mis à jour', read: 'Lue ✓', opened: 'Commencée' },
+		next: 'Continuer :',
+		allRead: 'Toutes les fiches sont lues ✓',
+		manage: 'Gérer'
 	},
 	concept: {
-		notFound: "Cette notion n'existe pas (ou plus).",
+		notFound: "Cette fiche n'existe pas (ou plus).",
 		loadFailed: 'Impossible de charger la fiche.',
 		keyPoints: "L'essentiel",
 		examples: 'Exemples',
@@ -86,7 +95,6 @@ export const fr = {
 		pitfalls: '⚠️ Pièges à éviter',
 		practice: "S'entraîner",
 		assessment: 'Contrôle',
-		backToMap: '← Retour à la carte',
 		markRead: "J'ai lu cette fiche",
 		isRead: '✓ Fiche lue',
 		markUnread: 'Marquer comme non lue'
@@ -106,16 +114,15 @@ export const fr = {
 		notFound: "Ce profil n'existe pas (ou plus).",
 		deleteTitle: 'Supprimer ce profil',
 		deleteHelp: (name: string) =>
-			`Supprime définitivement le profil de ${name} : sa progression, ses remarques et ses affectations. Ses appareils reliés sont déliés. Les parcours de la famille ne sont pas touchés. Impossible à annuler.`,
+			`Supprime définitivement le profil de ${name} : sa progression et ses remarques. Ses appareils reliés sont déliés. Le classeur de la famille n'est pas touché. Impossible à annuler.`,
+		extraSubjects: 'Matières en plus',
+		extraHelp: (grade: string) =>
+			`En plus des matières de ${grade}, cet enfant voit les matières cochées :`,
+		noOtherSubjects: "Aucune matière d'un autre niveau pour l'instant.",
 		delete: 'Supprimer définitivement'
 	},
 	dashboard: {
-		title: "Où j'en suis",
-		loadFailed: 'Impossible de charger ta progression.',
-		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
-		next: 'Continuer :',
-		allRead: 'Toutes les fiches sont lues ✓',
-		empty: 'Aucun parcours affecté pour le moment.'
+		title: "Où j'en suis"
 	},
 	look: {
 		title: 'Pseudo et avatar',
@@ -150,7 +157,7 @@ export const fr = {
 		status: { open: 'À voir', seen: 'Vue par le parent', resolved: 'Réglée ✓' },
 		/** Parent buttons, by target status. */
 		review: { open: 'Rouvrir', seen: 'Vue', resolved: 'Réglée' },
-		archivedConcept: 'Notion archivée',
+		archivedConcept: 'Fiche archivée',
 		on: (date: string) => `le ${date}`
 	},
 	devices: {
@@ -173,43 +180,89 @@ export const fr = {
 	parent: {
 		adminOnly: 'Cette page est réservée aux parents.'
 	},
+	manage: {
+		title: 'Gérer le classeur',
+		help: "Une matière par niveau (ex. Maths 3e). Chaque enfant voit les matières de son niveau ; tu peux lui en ajouter d'autres depuis son profil.",
+		back: '← Gérer le classeur',
+		backTo: (title: string) => `← ${title}`,
+		view: "Voir comme l'enfant",
+		newSubject: 'Nouvelle matière',
+		subjectName: 'Nom',
+		subjectPlaceholder: 'Ex. : Mathématiques',
+		color: 'Couleur',
+		colors: {
+			amber: 'Moutarde',
+			blue: 'Bleu',
+			emerald: 'Vert',
+			rose: 'Rose',
+			violet: 'Violet',
+			cyan: 'Turquoise',
+			orange: 'Orange',
+			lime: 'Citron vert'
+		},
+		create: 'Créer',
+		nameRequired: 'Indique un nom.',
+		subjectSettings: 'Réglages de la matière',
+		chapterSettings: 'Réglages du chapitre',
+		saved: 'Enregistré.',
+		chapters: 'Chapitres',
+		newChapter: 'Nouveau chapitre',
+		chapterTitle: 'Titre',
+		chapterPlaceholder: 'Ex. : Calcul numérique',
+		group: 'Partie (facultatif)',
+		groupHelp: 'Ex. : Algèbre, Géométrie. Les chapitres d’une même partie sont regroupés.',
+		titleRequired: 'Indique un titre.',
+		sheets: 'Fiches',
+		moveUp: 'Monter',
+		moveDown: 'Descendre',
+		hide: 'Masquer',
+		show: 'Réafficher',
+		hidden: 'Masqué aux enfants',
+		noSubjects: 'Aucune matière. Crée la première ci-dessous.'
+	},
 	import: {
-		title: 'Importer un parcours',
-		help: "Colle ici le JSON produit par l'IA (format pocketclass/path@1).",
-		placeholder: '{ "format": "pocketclass/path@1", … }',
+		addSheet: 'Ajouter une fiche',
+		addSheetHelp:
+			"Décris la fiche voulue, copie le prompt dans l'IA de ton choix, puis colle sa réponse ici. Pour modifier une fiche, colle une nouvelle version avec le même identifiant.",
+		importChapter: 'Importer un chapitre complet',
+		importChapterHelp:
+			"Pour démarrer une matière : l'IA produit un chapitre et toutes ses fiches d'un coup.",
+		request: 'Sujet de la fiche',
+		requestPlaceholder: 'Ex. : les puissances de 10',
+		chapterRequest: 'Notions du chapitre',
+		chapterRequestPlaceholder: 'Ex. : fractions, puissances, racines carrées',
+		prompt: "Prompt pour l'IA",
+		copy: 'Copier le prompt',
+		copied: 'Copié ✓',
+		copyFailed: 'Copie impossible : sélectionne le texte à la main.',
+		paste: "Réponse de l'IA (JSON)",
+		sheetPlaceholder: '{ "format": "pocketclass/sheet@1", … }',
+		chapterPlaceholder: '{ "format": "pocketclass/chapter@1", … }',
 		loadSample: "Charger l'exemple",
 		sampleFailed: "Impossible de charger l'exemple.",
-		preview: (title: string) => `Aperçu : ${title}`,
 		errorsTitle: 'Le JSON contient des erreurs',
 		warningsTitle: "Remarques de l'IA",
-		version: 'Version',
-		versionNew: (v: number) => `${v} (nouveau parcours)`,
-		versionUpdate: (from: number, to: number) => `${from} → ${to} (mise à jour)`,
-		subject: 'Matière',
-		type: 'Type',
-		types: { brevet: 'Brevet', test: 'Contrôle', lessons: 'Leçons' },
-		conceptLine: (keyPoints: number, practice: number, assessment: number) =>
+		sheetLine: (keyPoints: number, practice: number, assessment: number) =>
 			[
 				plural(keyPoints, 'point-clé', 'points-clés'),
 				plural(practice, "exercice d'entraînement", "exercices d'entraînement"),
 				plural(assessment, 'exercice de contrôle', 'exercices de contrôle')
 			].join(' · '),
-		conflict: (conceptId: string, ownerPathId: string) =>
-			`La notion « ${conceptId} » appartient déjà au parcours « ${ownerPathId} ». Change son identifiant dans le JSON.`,
-		conflictCheckFailed: 'Impossible de vérifier les identifiants des notions.',
+		isNew: 'Nouvelle fiche',
+		isUpdate: (version: number) => `Mise à jour (version ${version} → ${version + 1})`,
+		conflict: (sheetId: string) =>
+			`La fiche « ${sheetId} » est déjà dans un autre chapitre. Change son identifiant dans le JSON, ou masque l'autre fiche.`,
+		checkFailed: 'Impossible de vérifier les fiches existantes.',
 		offline: "L'import nécessite une connexion internet.",
-		assignTo: 'Affecter à',
-		noChildren: "Crée d'abord un profil enfant pour pouvoir affecter le parcours.",
-		submit: 'Importer',
+		submitSheet: 'Enregistrer',
+		submitChapter: 'Créer le chapitre',
 		importing: 'Import en cours…',
 		failed: "L'import a échoué. Vérifie ta connexion et réessaie.",
-		assignFailed:
-			"Le parcours est importé, mais l'affectation a échoué. Recharge l'exemple ou le JSON pour réessayer d'affecter.",
-		done: (concepts: number, exercises: number) =>
-			`Import terminé : ${plural(concepts, 'notion')}, ${plural(exercises, 'exercice')}.`,
-		archived: (concepts: number, exercises: number) =>
-			`Archivés car absents du nouveau fichier : ${plural(concepts, 'notion')}, ${plural(exercises, 'exercice')}.`,
-		openPath: 'Voir la carte du parcours'
+		done: (created: number, updated: number) =>
+			`Import terminé : ${plural(created, 'fiche ajoutée', 'fiches ajoutées')}, ${plural(updated, 'fiche mise à jour', 'fiches mises à jour')}.`,
+		archived: (exercises: number) =>
+			`Archivés car absents du nouveau JSON : ${plural(exercises, 'exercice')}.`,
+		openChapter: 'Voir le chapitre'
 	},
 	validation: {
 		slug: 'identifiant invalide : lettres minuscules, chiffres, « - » ou « _ » uniquement',

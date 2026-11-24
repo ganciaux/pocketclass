@@ -1,6 +1,6 @@
 import { writeBatch, type DocumentReference } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
-import { chunk } from '#lib/import/importPlan.ts';
+import { chunk } from '#lib/import/sheetPlan.ts';
 
 /** Firestore limit is 500 operations per batch; keep a margin. */
 export const MAX_BATCH_OPS = 450;
