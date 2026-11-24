@@ -338,6 +338,37 @@ describe('child writes', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), opened));
 	});
 
+	it('only the parent stamps a sheet as acquired; the child still opens and reads it', async () => {
+		const kid = as('kid-phone');
+		const parent = as('alice');
+		const path = `${lea}/progress/c1`;
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		const stamp = { ...where, acquiredAt: serverTimestamp() };
+		// The child can neither create nor set the stamp.
+		await assertFails(setDoc(at(kid, path), { ...where, openedAt: serverTimestamp(), ...stamp }));
+		await assertSucceeds(setDoc(at(kid, path), { ...where, openedAt: serverTimestamp() }));
+		await assertFails(setDoc(at(kid, path), stamp, { merge: true }));
+		// The parent stamps (also a sheet never opened, on another profile).
+		await assertSucceeds(setDoc(at(parent, path), stamp, { merge: true }));
+		await assertSucceeds(setDoc(at(parent, `families/${FAMILY}/profiles/tom/progress/c1`), stamp));
+		// The child keeps opening / reading the stamped sheet, but cannot remove or move the stamp.
+		await assertSucceeds(
+			setDoc(at(kid, path), { ...where, openedAt: serverTimestamp() }, { merge: true })
+		);
+		await assertSucceeds(
+			setDoc(at(kid, path), { ...where, readAt: serverTimestamp() }, { merge: true })
+		);
+		await assertFails(
+			setDoc(at(kid, path), { ...where, acquiredAt: deleteField() }, { merge: true })
+		);
+		await assertFails(setDoc(at(kid, path), stamp, { merge: true }));
+		await assertFails(deleteDoc(at(kid, path)));
+		// The parent removes it.
+		await assertSucceeds(
+			setDoc(at(parent, path), { ...where, acquiredAt: deleteField() }, { merge: true })
+		);
+	});
+
 	it('write open notes; only the parent sets seen / resolved', async () => {
 		const kid = as('kid-phone');
 		const note = {

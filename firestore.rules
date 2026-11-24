@@ -149,12 +149,20 @@ service cloud.firestore {
         }
 
         // Sheet opened / read (id = concept id).
+        // Opened / read by the child. `acquiredAt` (the « Acquise » stamp) is the parent's:
+        // the child keeps writing a stamped document but never sets, changes or removes it.
         match /progress/{conceptId} {
-          allow create, update: if isOwnDevice(familyId, profileId)
+          allow create: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys().hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt'])
             && request.resource.data.subjectId is string
             && request.resource.data.chapterId is string;
-          allow delete: if isOwnDevice(familyId, profileId);
+          allow update: if isOwnDevice(familyId, profileId)
+            && request.resource.data.keys()
+              .hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt'])
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['acquiredAt'])
+            && request.resource.data.subjectId is string
+            && request.resource.data.chapterId is string;
+          allow delete: if isOwnDevice(familyId, profileId) && !('acquiredAt' in resource.data);
         }
 
         // What the child found difficult. Created open; editing the text reopens it; the
