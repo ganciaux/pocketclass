@@ -54,6 +54,12 @@ Premier login parent : l'app crée la famille, le profil parent et l'index `user
 Rien à configurer dans la console Firebase : le parent (admin) est celui qui a créé la famille
 (`families.admins`, `profile.role = admin`).
 
+Mot de passe parent : une fois connecté avec Google, le parent peut définir un mot de passe
+dans « Mon profil ». Il est rattaché au **même compte** (même famille, toujours admin) ; on se
+connecte ensuite avec Google ou avec l'e-mail et ce mot de passe. L'app ne crée jamais de
+compte e-mail à part. Prérequis console : fournisseur « Adresse e-mail/Mot de passe » activé.
+L'emulator Auth refuse ce rattachement (« e-mail déjà utilisé ») : à tester sur la vraie app.
+
 Les profils enfants se créent dans **Gérer les profils**. Pour connecter le téléphone d'un
 enfant : ouvrir son profil → **Lier un appareil** affiche un code (6 caractères, 10 minutes,
 usage unique) ; sur le téléphone de l'enfant, ouvrir l'app → « Je suis un enfant » → saisir le
