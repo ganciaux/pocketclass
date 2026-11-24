@@ -125,6 +125,22 @@ describe('filterSeen', () => {
 	});
 });
 
+describe('filterSeen with tags', () => {
+	const tagged = {
+		...binder,
+		sheets: binder.sheets.map((s) => (s.id === 'add' ? { ...s, tags: ['dénominateur'] } : s))
+	};
+	const entries = seenSheets(tagged, view);
+
+	it('searches the sheet tags', () => {
+		expect(filterSeen(entries, 'denominateur', null).map((e) => e.sheet.id)).toEqual(['add']);
+	});
+
+	it('a sheet without tags is still searchable', () => {
+		expect(filterSeen(entries, 'complement', null).map((e) => e.sheet.id)).toEqual(['cod']);
+	});
+});
+
 describe('pickRandom', () => {
 	it('returns null for an empty list', () => {
 		expect(pickRandom([])).toBeNull();

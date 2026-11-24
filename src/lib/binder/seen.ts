@@ -18,6 +18,8 @@ type SheetLike = {
 	subjectId: string;
 	chapterId: string;
 	title: string;
+	/** Absent on sheets imported before tags existed. */
+	tags?: string[];
 	archived: boolean;
 	updatedAt: Stamp | null;
 };
@@ -66,9 +68,11 @@ export const normalize = (text: string) =>
 		.replace(/\s+/g, ' ')
 		.trim();
 
-/** What the search looks into (tags will join here when sheets have them). */
+/** What the search looks into: sheet title and tags, subject name, chapter title. */
 export const searchText = (entry: SeenSheet) =>
-	[entry.sheet.title, entry.subject.name, entry.chapter.title].join(' ');
+	[entry.sheet.title, ...(entry.sheet.tags ?? []), entry.subject.name, entry.chapter.title].join(
+		' '
+	);
 
 /** Every word of `query` must appear; `subjectId` null = every subject. */
 export function filterSeen<E extends SeenSheet>(
