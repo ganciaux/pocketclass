@@ -1,12 +1,14 @@
 <script lang="ts">
 	import LoadState from '#lib/components/LoadState.svelte';
 	import NoteList from '#lib/components/NoteList.svelte';
-	import { watchActiveConcepts } from '#lib/data/catalog.ts';
+	import { activeOnly } from '#lib/binder/binder.ts';
+	import { watchActiveConcepts, watchChapters, watchSubjects } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { watchNotes } from '#lib/data/notes.ts';
 	import { fr } from '#lib/i18n/fr.ts';
+	import type { NoteCatalog } from '#lib/notes/notes.ts';
 
-	/** All the notes of a profile, each linking back to its sheet ("My notes", parent view). */
+	/** All the notes of a profile, each linking back to where it was written ("My notes", parent view). */
 	let {
 		familyId,
 		profileId,
@@ -22,7 +24,14 @@
 
 	const notesLive = live(() => watchNotes(familyId, profileId));
 	const conceptsLive = live(() => watchActiveConcepts(familyId));
-	const titles = $derived(new Map((conceptsLive.data ?? []).map((c) => [c.id, c.title])));
+	const chaptersLive = live(() => watchChapters(familyId));
+	const subjectsLive = live(() => watchSubjects(familyId));
+	/** Titles of what the notes can be about; hidden chapters and subjects count as gone. */
+	const catalog = $derived<NoteCatalog>({
+		sheets: new Map((conceptsLive.data ?? []).map((c) => [c.id, c.title])),
+		chapters: new Map(activeOnly(chaptersLive.data ?? []).map((c) => [c.id, c.title])),
+		subjects: new Map(activeOnly(subjectsLive.data ?? []).map((s) => [s.id, s.name]))
+	});
 </script>
 
 <LoadState source={notesLive} failed={fr.notes.loadFailed}>
@@ -32,7 +41,7 @@
 			{profileId}
 			notes={showResolved ? notes : notes.filter((n) => n.status !== 'resolved')}
 			{mode}
-			{titles}
+			{catalog}
 		/>
 	{/snippet}
 </LoadState>

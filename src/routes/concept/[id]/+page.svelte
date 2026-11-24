@@ -294,7 +294,11 @@
 						<NoteForm
 							familyId={session.familyId}
 							{profileId}
-							target={{ conceptId: concept.id, chapterId: concept.chapterId }}
+							target={{
+								conceptId: concept.id,
+								chapterId: concept.chapterId,
+								subjectId: concept.subjectId
+							}}
 						/>
 						{#if conceptNotes.length > 0}
 							<NoteList familyId={session.familyId} {profileId} notes={conceptNotes} mode="child" />

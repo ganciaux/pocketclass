@@ -3,6 +3,7 @@
 	import '../app.css';
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
+	import NoteFab from '#lib/components/NoteFab.svelte';
 	import TestModeBanner from '#lib/components/TestModeBanner.svelte';
 	import SessionGate from '#lib/components/SessionGate.svelte';
 	import UpdateToast from '#lib/components/UpdateToast.svelte';
@@ -63,6 +64,7 @@
 
 <SessionGate>
 	{@render children()}
+	<NoteFab />
 </SessionGate>
 
 <UpdateToast />

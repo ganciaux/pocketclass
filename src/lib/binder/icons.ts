@@ -64,6 +64,7 @@ export const UI_ICONS = {
 	check: paths('M20 6 9 17l-5-5'),
 	play: paths('M7 4v16l13-8z'),
 	bookmark: paths('M6 3h12v18l-6-4-6 4z'),
+	message: paths('M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),
 	lightbulb: paths(
 		'M9 18h6',

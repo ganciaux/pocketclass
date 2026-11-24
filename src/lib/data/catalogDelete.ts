@@ -4,6 +4,7 @@ import {
 	query,
 	updateDoc,
 	where,
+	type DocumentData,
 	type DocumentReference,
 	type Query
 } from 'firebase/firestore';
@@ -23,15 +24,34 @@ import {
 
 // Parent deletions of the binder (online, awaited, after a typed confirmation). Hiding
 // (`archived`) stays the reversible option; these remove the content for good, with what
-// hangs on it: exercises, assessment, and the children's progress and notes on those sheets.
+// hangs on it: exercises, assessment, and the children's progress and notes on those sheets
+// (and their notes on the deleted chapters and subject).
 // Reads come from the server (getDocs) so nothing written elsewhere is left behind.
 
 const refsOf = async (q: Query) => (await getDocs(q)).docs.map((d) => d.ref);
 
-/** Exercises, assessment and sheet documents of `sheetIds`, plus the children's progress and notes. */
-async function sheetRefs(familyId: string, sheetIds: string[]): Promise<DocumentReference[]> {
-	if (sheetIds.length === 0) return [];
+/** What a deletion takes along besides its sheets: notes written on these chapters / subject. */
+interface NoteScope {
+	chapterIds?: string[];
+	subjectId?: string;
+}
+
+/**
+ * Exercises, assessment and sheet documents of `sheetIds`, plus the children's progress and
+ * notes on them, and their notes on the chapters / subject of `scope`.
+ */
+async function sheetRefs(
+	familyId: string,
+	sheetIds: string[],
+	scope: NoteScope = {}
+): Promise<DocumentReference[]> {
+	const chapterIds = new Set(scope.chapterIds);
+	if (sheetIds.length === 0 && chapterIds.size === 0 && !scope.subjectId) return [];
 	const ids = new Set(sheetIds);
+	const noteGoes = (note: DocumentData) =>
+		ids.has(note.conceptId) ||
+		chapterIds.has(note.chapterId) ||
+		(!!scope.subjectId && note.subjectId === scope.subjectId);
 	const profiles = await refsOf(profilesCol(familyId));
 	const [exercises, owned] = await Promise.all([
 		Promise.all(sheetIds.map((id) => refsOf(exercisesCol(familyId, id)))),
@@ -43,7 +63,7 @@ async function sheetRefs(familyId: string, sheetIds: string[]): Promise<Document
 				]);
 				return [
 					...progress.docs.filter((d) => ids.has(d.id)),
-					...notes.docs.filter((d) => ids.has(d.data().conceptId))
+					...notes.docs.filter((d) => noteGoes(d.data()))
 				].map((d) => d.ref);
 			})
 		)
@@ -67,7 +87,7 @@ export async function deleteSheet(familyId: string, sheetId: string): Promise<vo
 export async function deleteChapter(familyId: string, chapterId: string): Promise<void> {
 	const sheetIds = await sheetIdsWhere(familyId, 'chapterId', chapterId);
 	await deleteInBatches([
-		...(await sheetRefs(familyId, sheetIds)),
+		...(await sheetRefs(familyId, sheetIds, { chapterIds: [chapterId] })),
 		chapterRef(familyId, chapterId)
 	]);
 }
@@ -88,7 +108,10 @@ export async function deleteSubject(familyId: string, subjectId: string): Promis
 		refsOf(query(chaptersCol(familyId), where('subjectId', '==', subjectId)))
 	]);
 	await deleteInBatches([
-		...(await sheetRefs(familyId, sheetIds)),
+		...(await sheetRefs(familyId, sheetIds, {
+			chapterIds: chapters.map((c) => c.id),
+			subjectId
+		})),
 		...chapters,
 		subjectRef(familyId, subjectId)
 	]);

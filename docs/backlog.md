@@ -29,8 +29,9 @@ Mis à jour le 24 novembre 2026. Le détail de chaque choix technique est dans
   (phase 3), un contrôle réussi pourra le poser tout seul.
 - **Mode test enfant** : le parent utilise l'app comme un enfant choisi (son classeur), avec
   ses propres données de test, remises à zéro quand il veut.
-- **Remarques** : l'enfant écrit une remarque sur une fiche ; le parent les voit toutes
-  (`/parent/notes`) et les marque vues ou réglées.
+- **Remarques** : l'enfant écrit une remarque sur une fiche, ou de n'importe quelle page avec
+  le bouton « Une difficulté ? » (rattachée au chapitre, à la matière, ou libre) ; le parent
+  les voit toutes (`/parent/notes`) et les marque vues ou réglées.
 - **Identité visuelle** : thèmes clair et sombre tirés du logo, icônes de l'app (livre et
   crayon-fusée, sans le texte), icônes de matières, animations.
 - **Outillage** : emulators sur les ports 8180 (Firestore) et 5050 (Hosting), tests des règles
@@ -65,7 +66,6 @@ existe déjà ou signale ce qu'il faudra trancher.
 
 | Idée | À savoir |
 | --- | --- |
-| Pouvoir ajouter une remarque n'importe où. | Aujourd'hui : sur une fiche. Le champ pour une remarque sur un exercice existe déjà. |
 | Envoyer des photos (copie de contrôle, illustration d'une remarque). | Pas de Firebase Storage sur le plan gratuit (les avatars sont stockés dans Firestore, compressés). Une photo de copie lisible ne tient pas facilement dans un document (1 Mo max) : choisir entre passer au plan Blaze et compresser fortement. Lié à la phase 4 (résumé photographié). |
 
 ### Révision active

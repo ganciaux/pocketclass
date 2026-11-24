@@ -222,7 +222,24 @@ export const fr = {
 		status: { open: 'À voir', seen: 'Vue par le parent', resolved: 'Réglée ✓' },
 		/** Parent buttons, by target status. */
 		review: { open: 'Rouvrir', seen: 'Vue', resolved: 'Réglée' },
-		archivedConcept: 'Fiche archivée',
+		/** Where a note was written (« Mes remarques », parent view). */
+		place: {
+			chapter: 'Chapitre ·',
+			subject: 'Matière ·',
+			free: 'Remarque libre',
+			gone: {
+				sheet: 'Fiche supprimée ou masquée',
+				chapter: 'Chapitre supprimé ou masqué',
+				subject: 'Matière supprimée ou masquée'
+			}
+		},
+		/** Floating button on the child pages: its label is `formTitle`. */
+		about: {
+			chapter: (title: string) => `À propos du chapitre « ${title} ».`,
+			subject: (name: string) => `À propos de la matière « ${name} ».`,
+			free: 'Remarque libre : elle ne se rapporte à aucune fiche.'
+		},
+		close: 'Fermer',
 		on: (date: string) => `le ${date}`
 	},
 	devices: {

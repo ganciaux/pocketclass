@@ -48,7 +48,9 @@ export function noteContext(
 
 /** Where a note was written; `gone`: that sheet, chapter or subject is deleted or hidden. */
 export type NotePlace =
-	| { kind: 'sheet' | 'chapter' | 'subject'; id: string; title: string }
+	| { kind: 'sheet'; id: string; title: string }
+	| { kind: 'chapter'; id: string; title: string }
+	| { kind: 'subject'; id: string; title: string }
 	| { kind: 'free' }
 	| { kind: 'gone'; of: 'sheet' | 'chapter' | 'subject' };
 

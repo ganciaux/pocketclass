@@ -7,9 +7,11 @@ import { inBackground } from './writes.ts';
 
 // Notes of a profile: written by the child (offline-friendly), reviewed by the parent.
 
+/** What a note is about; every id null = a free note. */
 export interface NoteTarget {
-	conceptId: string;
-	chapterId: string;
+	conceptId?: string | null;
+	chapterId?: string | null;
+	subjectId?: string | null;
 	exerciseId?: string | null;
 }
 
@@ -19,8 +21,9 @@ export const watchNotes = (familyId: string, profileId: string): Subscribe<WithI
 export function addNote(familyId: string, profileId: string, target: NoteTarget, text: string) {
 	inBackground(
 		addDoc(notesCol(familyId, profileId), {
-			conceptId: target.conceptId,
-			chapterId: target.chapterId,
+			conceptId: target.conceptId ?? null,
+			chapterId: target.chapterId ?? null,
+			subjectId: target.subjectId ?? null,
 			exerciseId: target.exerciseId ?? null,
 			text,
 			status: 'open',

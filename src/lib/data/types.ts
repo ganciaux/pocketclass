@@ -76,10 +76,15 @@ export interface ProgressRecord {
 export const NOTE_STATUSES = ['open', 'seen', 'resolved'] as const;
 export type NoteStatus = (typeof NOTE_STATUSES)[number];
 
-/** families/{familyId}/profiles/{profileId}/notes/{noteId}: what the child found difficult. */
+/**
+ * families/{familyId}/profiles/{profileId}/notes/{noteId}: what the child found difficult, about
+ * a sheet (`conceptId` + `chapterId` + `subjectId`), a chapter (`chapterId`), a subject
+ * (`subjectId`) or nothing (free note: every id null). Older notes have no `subjectId`.
+ */
 export interface Note {
-	conceptId: string;
-	chapterId: string;
+	conceptId: string | null;
+	chapterId: string | null;
+	subjectId?: string | null;
 	/** Set when the note is about an exercise (phase 2). */
 	exerciseId: string | null;
 	text: string;
