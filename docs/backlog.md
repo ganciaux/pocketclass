@@ -13,6 +13,9 @@ Mis à jour le 24 novembre 2026. Le détail de chaque choix technique est dans
   construit par l'app. Le parent peut ordonner, masquer et supprimer.
 - **Suivi** : fiche ouverte / lue, état « nouvelle » / « mise à jour », tableau de bord de
   l'enfant avec sa progression.
+- **Vue enfant** : le niveau n'est plus affiché sur sa page matière (seulement pour une
+  matière d'un autre niveau) ; dans une fiche, chaque point de « L'essentiel » mène à la
+  première partie qui en parle.
 - **Remarques** : l'enfant écrit une remarque sur une fiche ; le parent les voit toutes
   (`/parent/notes`) et les marque vues ou réglées.
 - **Identité visuelle** : thèmes clair et sombre tirés du logo, icônes de l'app (livre et
@@ -44,8 +47,6 @@ existe déjà ou signale ce qu'il faudra trancher.
 
 | Idée | À savoir |
 | --- | --- |
-| Ne pas montrer son niveau (6e / 3e) à l'enfant : il le connaît déjà. | Petit changement d'affichage. |
-| Les numéros de « L'essentiel » d'une fiche sont des liens qui font défiler jusqu'à la partie qui en parle. | Les parties portent déjà les numéros de leurs points-clés. Un point-clé peut être dans plusieurs parties : aller à la première. |
 | Une page avec toutes les fiches déjà vues, avec une recherche et un tirage au hasard pour en choisir une. | `progress.openedAt` enregistre déjà les fiches ouvertes. |
 | Des tags (mots-clés) sur les fiches, pour la recherche. | Conclusion du « procès » du 23 novembre : les mettre sur chaque fiche (pas sur la matière), écrits par l'IA dans le JSON de la fiche. |
 

@@ -68,7 +68,10 @@
 							<div class="flex items-center gap-4">
 								<SubjectBadge {subject} size={4} />
 								<div class="flex min-w-0 flex-1 flex-col">
-									<span class="badge badge-ghost badge-sm self-start">{subject.grade}</span>
+									<!-- A child knows their grade: only show it for a subject of another grade. -->
+									{#if !session.isChild || subject.grade !== session.profile?.grade}
+										<span class="badge badge-ghost badge-sm self-start">{subject.grade}</span>
+									{/if}
 									<h1>{subject.name}</h1>
 								</div>
 							</div>

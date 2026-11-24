@@ -94,6 +94,7 @@ export const fr = {
 		example: (n: number) => `Exemple ${n}`,
 		showSolution: 'Voir la solution',
 		section: (n: number, total: number) => `Partie ${n} / ${total}`,
+		goToSection: (section: number) => `(aller à la partie ${section})`,
 		pitfalls: 'Pièges à éviter',
 		practice: "S'entraîner",
 		assessment: 'Contrôle',

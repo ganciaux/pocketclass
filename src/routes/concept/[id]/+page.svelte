@@ -67,6 +67,25 @@
 	const keyPointNumber = $derived(
 		new Map(conceptLive.data?.keyPoints.map((kp, i) => [kp.id, i + 1]) ?? [])
 	);
+
+	/** Key point id → number (1-based) of the first section that covers it. */
+	const keyPointSection = $derived.by(() => {
+		const first = new Map<string, number>();
+		conceptLive.data?.sheet.sections.forEach((section, s) => {
+			for (const kp of section.keyPoints) if (!first.has(kp)) first.set(kp, s + 1);
+		});
+		return first;
+	});
+
+	/** Scrolls to a section (below the sticky header) and moves the focus to it. */
+	function goToSection(event: MouseEvent, n: number) {
+		const target = document.getElementById(`section-${n}`);
+		if (!target) return;
+		event.preventDefault();
+		const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+		target.focus({ preventScroll: true });
+	}
 </script>
 
 <svelte:head>
@@ -102,11 +121,31 @@
 					</h2>
 					<ol class="flex flex-col gap-2">
 						{#each concept.keyPoints as kp, i (kp.id)}
-							<li class="flex gap-3">
-								<span class="badge badge-primary badge-sm mt-0.5 rounded-full font-bold">
-									{i + 1}
-								</span>
-								<span>{@html renderInline(kp.label)}</span>
+							{@const section = keyPointSection.get(kp.id)}
+							<li>
+								<!-- The whole row links to the first section about this key point. -->
+								{#if section}
+									<a
+										class="-mx-2 flex gap-3 rounded-box px-2 py-1 hover:bg-primary/10"
+										href="#section-{section}"
+										onclick={(event) => goToSection(event, section)}
+									>
+										<span class="badge badge-primary badge-sm mt-0.5 rounded-full font-bold">
+											{i + 1}
+										</span>
+										<span>
+											{@html renderInline(kp.label)}
+											<span class="sr-only">{t.goToSection(section)}</span>
+										</span>
+									</a>
+								{:else}
+									<span class="flex gap-3 py-1">
+										<span class="badge badge-primary badge-sm mt-0.5 rounded-full font-bold">
+											{i + 1}
+										</span>
+										<span>{@html renderInline(kp.label)}</span>
+									</span>
+								{/if}
 							</li>
 						{/each}
 					</ol>
@@ -114,7 +153,12 @@
 			</section>
 
 			{#each concept.sheet.sections as section, s (s)}
-				<section class="card card-border bg-base-100">
+				<!-- Target of the key point links: kept clear of the sticky header. -->
+				<section
+					id="section-{s + 1}"
+					tabindex="-1"
+					class="card card-border scroll-mt-[calc(4.5rem+env(safe-area-inset-top))] bg-base-100 outline-none"
+				>
 					<div class="card-body gap-3">
 						<header class="flex items-start gap-3">
 							<span
