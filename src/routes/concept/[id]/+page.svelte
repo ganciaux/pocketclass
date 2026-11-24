@@ -24,7 +24,8 @@
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
 
-	const profileId = $derived(session.childId);
+	// Whose progress and notes: a signed-in child, or the parent testing as a child.
+	const profileId = $derived(session.childView?.ownerId ?? null);
 	const readLive = live(
 		() =>
 			session.familyId &&

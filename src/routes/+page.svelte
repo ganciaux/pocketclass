@@ -8,16 +8,22 @@
 	import { displayName } from '#lib/profile/display.ts';
 	import { resolve } from '$app/paths';
 
-	// Parents see every subject of the family; children see their binder with their progress.
+	// Parents see every subject of the family; children (or a parent testing as a child) see
+	// their binder with their progress.
+	const ownerId = $derived(session.childView?.ownerId ?? null);
 	const notesLive = live(
-		() => session.familyId && session.childId && watchNotes(session.familyId, session.childId)
+		() => session.familyId && ownerId && watchNotes(session.familyId, ownerId)
 	);
 </script>
 
 <main class="doodles">
-	<h1>{fr.auth.hello(session.profile ? displayName(session.profile) : '')}</h1>
+	<h1>
+		{fr.auth.hello(
+			session.childView?.name ?? (session.profile ? displayName(session.profile) : '')
+		)}
+	</h1>
 
-	{#if session.isAdmin}
+	{#if session.isAdmin && !session.childView}
 		<section class="card bg-neutral text-neutral-content">
 			<div class="card-body gap-3">
 				<h2 class="card-title">{fr.home.parentSection}</h2>
@@ -43,15 +49,12 @@
 
 	{#if session.familyId && session.profile}
 		<section class="flex flex-col gap-2">
-			<h2>{session.isAdmin ? fr.home.familyBinder : fr.home.myBinder}</h2>
-			<SubjectCards
-				familyId={session.familyId}
-				profile={session.isChild ? session.profile : null}
-			/>
+			<h2>{session.childView ? fr.home.myBinder : fr.home.familyBinder}</h2>
+			<SubjectCards familyId={session.familyId} view={session.childView} {ownerId} />
 		</section>
 	{/if}
 
-	{#if session.isChild}
+	{#if session.childView}
 		<a
 			class="card card-border bg-base-100 transition-colors hover:border-secondary"
 			href={resolve('/me/notes')}

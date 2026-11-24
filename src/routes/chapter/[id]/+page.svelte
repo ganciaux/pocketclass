@@ -24,15 +24,15 @@
 	import { page } from '$app/state';
 
 	const t = fr.binder;
+	// Child pages: a signed-in child, or a parent testing as a child (see `session.childView`).
+	const asChild = $derived(session.childView !== null);
+	const ownerId = $derived(session.childView?.ownerId ?? null);
 	const chapterId = $derived(page.params.id ?? '');
 	const chapterLive = live(
 		() => session.familyId && chapterId && watchChapter(session.familyId, chapterId)
 	);
 	const contentLive = live(
-		() =>
-			session.familyId &&
-			chapterId &&
-			watchChapterContent(session.familyId, chapterId, session.childId)
+		() => session.familyId && chapterId && watchChapterContent(session.familyId, chapterId, ownerId)
 	);
 	// Back link, colours and picture of the subject.
 	const subjectId = $derived(chapterLive.data?.subjectId);
@@ -85,14 +85,14 @@
 				{#snippet children(content)}
 					{@const progress = progressById(content.progress)}
 					{@const sheets = activeOnly(content.sheets)}
-					{#if session.isChild && sheets.length > 0}
+					{#if asChild && sheets.length > 0}
 						<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[color]} />
 					{/if}
 
 					<!-- The sheets as a path: numbered steps joined by a line, checked once read. -->
 					<ol class="flex flex-col">
 						{#each sheets as sheet, i (sheet.id)}
-							{@const state = session.isChild ? sheetState(sheet, progress.get(sheet.id)) : null}
+							{@const state = asChild ? sheetState(sheet, progress.get(sheet.id)) : null}
 							<li class="relative flex gap-3 pb-3 last:pb-0">
 								{#if i < sheets.length - 1}
 									<span

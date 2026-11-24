@@ -30,3 +30,6 @@ firebase-export-*
 
 # /court skill trials
 .court/
+
+# Superpowers plan execution workspaces
+.superpowers/

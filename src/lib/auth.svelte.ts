@@ -12,6 +12,19 @@ import { linkDevice, unlinkDevice, watchDevice } from '#lib/data/devices.ts';
 import { ensureFamilyForUser, getProfile, watchProfile } from '#lib/data/family.ts';
 import { isPermissionDenied } from '#lib/data/sources.ts';
 import type { Profile, WithId } from '#lib/data/types.ts';
+import { childViewOf } from '#lib/profile/childView.ts';
+
+/** Remembers on this device which child a parent tests as (one key per family). */
+const testChildKey = (familyId: string) => `pocketclass.testChild.${familyId}`;
+
+/** Browser storage may be unavailable (private browsing): test mode then lasts the session. */
+function storage(action: (store: Storage) => string | null | void): string | null {
+	try {
+		return action(localStorage) ?? null;
+	} catch {
+		return null;
+	}
+}
 
 type SessionStatus = 'loading' | 'signedOut' | 'ready' | 'notLinked' | 'error';
 
@@ -34,9 +47,18 @@ class Session {
 	/** Primitive for `live()` sources (the profile object changes with every edit). */
 	profileId = $derived(this.profile?.id ?? null);
 	isAdmin = $derived(this.profile?.role === 'admin');
+	/** Real role: a linked child device (UI for children reads `childView`, which also covers tests). */
 	isChild = $derived(this.profile?.role === 'child');
-	/** The profile id when a child is signed in (progress and notes are children-only). */
-	childId = $derived(this.isChild ? this.profileId : null);
+
+	/** Child a parent is testing as (child test mode), and that child's live profile. */
+	testChildId = $state<string | null>(null);
+	#testChild = $state<WithId<Profile> | null>(null);
+	#stopTestChild: (() => void) | null = null;
+	/**
+	 * What child pages show and whose data they use: a signed-in child, or a parent testing as
+	 * a child (that child's binder, the parent's own progress and notes). Null: parent view.
+	 */
+	childView = $derived(childViewOf(this.profile, this.#testChild));
 
 	#started = false;
 	/** Incremented on each load: a slower previous load must not overwrite a newer one. */
@@ -87,6 +109,46 @@ class Session {
 		}
 	}
 
+	/** Parent: use the app as this child (their binder; progress and notes on the parent). */
+	startTest(childId: string): void {
+		const familyId = this.familyId;
+		if (!this.isAdmin || !familyId) return;
+		storage((store) => store.setItem(testChildKey(familyId), childId));
+		this.#watchTestChild(familyId, childId);
+	}
+
+	/** Parent: back to the parent view (test data stays until reset). */
+	stopTest(): void {
+		const familyId = this.familyId;
+		if (familyId) storage((store) => store.removeItem(testChildKey(familyId)));
+		this.#endTest();
+	}
+
+	#watchTestChild(familyId: string, childId: string): void {
+		this.#endTest();
+		this.testChildId = childId;
+		const run = this.#run;
+		this.#stopTestChild = watchProfile(familyId, childId)(
+			(child) => {
+				if (run !== this.#run || this.testChildId !== childId) return;
+				// Deleted (or unknown) child: the test stops by itself.
+				if (child) this.#testChild = child;
+				else this.stopTest();
+			},
+			(error) => {
+				console.error('[session] test child', error);
+				if (run === this.#run && this.testChildId === childId) this.stopTest();
+			}
+		);
+	}
+
+	#endTest(): void {
+		this.#stopTestChild?.();
+		this.#stopTestChild = null;
+		this.testChildId = null;
+		this.#testChild = null;
+	}
+
 	/** After an error (e.g. offline on first load). */
 	retry(): void {
 		void this.#load(auth.currentUser);
@@ -95,6 +157,7 @@ class Session {
 	#reset(status: SessionStatus): void {
 		for (const stop of this.#stops) stop();
 		this.#stops = [];
+		this.#endTest();
 		this.familyId = null;
 		this.profile = null;
 		this.status = status;
@@ -128,6 +191,11 @@ class Session {
 					if (live) this.profile = live;
 				}, onError)
 			);
+			// A parent resumes the child test mode remembered on this device.
+			if (profile.role === 'admin') {
+				const testChildId = storage((store) => store.getItem(testChildKey(index.familyId)));
+				if (testChildId) this.#watchTestChild(index.familyId, testChildId);
+			}
 			// Open listeners are not re-checked when access is revoked: a child device watches
 			// its own entry to notice at once that the parent unlinked it.
 			if (user.isAnonymous) {

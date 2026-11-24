@@ -11,7 +11,7 @@
 <main>
 	<BackLink href={resolve('/')} label={fr.app.home} />
 	<h1>{fr.notes.title}</h1>
-	{#if session.familyId && session.profileId}
-		<ProfileNotes familyId={session.familyId} profileId={session.profileId} mode="child" />
+	{#if session.familyId && session.childView}
+		<ProfileNotes familyId={session.familyId} profileId={session.childView.ownerId} mode="child" />
 	{/if}
 </main>

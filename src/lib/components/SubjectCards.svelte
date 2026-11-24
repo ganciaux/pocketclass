@@ -18,22 +18,28 @@
 	import { resolve } from '$app/paths';
 
 	/**
-	 * The binder: one card per subject. With a child `profile`: the subjects they see, with their
-	 * progress (child home, parent's view of a child). Without: every subject, one binder per
-	 * grade (parent home).
+	 * The binder: one card per subject. With a child `view` (grade and extra subjects): the
+	 * subjects that child sees, with the progress of `ownerId` (child home, parent testing as a
+	 * child, parent's view of a child). Without: every subject, one binder per grade (parent home).
 	 */
-	let { familyId, profile }: { familyId: string; profile: WithId<Profile> | null } = $props();
+	let {
+		familyId,
+		view,
+		ownerId
+	}: {
+		familyId: string;
+		view: Pick<Profile, 'grade' | 'extraSubjects'> | null;
+		ownerId: string | null;
+	} = $props();
 
 	const t = fr.binder;
-	// Primitive: the profile object changes with every edit, its id does not.
-	const profileId = $derived(profile?.id ?? null);
-	const binderLive = live(() => watchBinder(familyId, profileId));
+	const binderLive = live(() => watchBinder(familyId, ownerId));
 
 	type Shelf = { grade: Grade | null; subjects: WithId<Subject>[] };
 
 	/** A child sees one binder; the parent sees one per grade (grades without subjects skipped). */
 	function shelves(subjects: WithId<Subject>[]): Shelf[] {
-		if (profile) return [{ grade: null, subjects: visibleSubjects(subjects, profile) }];
+		if (view) return [{ grade: null, subjects: visibleSubjects(subjects, view) }];
 		const active = sortSubjects(activeOnly(subjects));
 		return GRADES.map((grade) => ({
 			grade,
@@ -67,11 +73,11 @@
 								<div class="flex min-w-0 flex-1 flex-col gap-2">
 									<span class="flex items-center gap-2">
 										<strong class="flex-1 text-lg">{subject.name}</strong>
-										{#if profile && subject.grade !== profile.grade}
+										{#if view && subject.grade !== view.grade}
 											<span class="badge badge-ghost badge-sm">{subject.grade}</span>
 										{/if}
 									</span>
-									{#if profile}
+									{#if view}
 										<TallyLine {tally} />
 									{:else}
 										<span class="text-sm text-base-content/70">{t.sheets(tally.total)}</span>

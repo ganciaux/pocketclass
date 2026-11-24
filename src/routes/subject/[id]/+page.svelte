@@ -25,15 +25,15 @@
 	import { page } from '$app/state';
 
 	const t = fr.binder;
+	// Child pages: a signed-in child, or a parent testing as a child (see `session.childView`).
+	const asChild = $derived(session.childView !== null);
+	const ownerId = $derived(session.childView?.ownerId ?? null);
 	const subjectId = $derived(page.params.id ?? '');
 	const subjectLive = live(
 		() => session.familyId && subjectId && watchSubject(session.familyId, subjectId)
 	);
 	const contentLive = live(
-		() =>
-			session.familyId &&
-			subjectId &&
-			watchSubjectContent(session.familyId, subjectId, session.childId)
+		() => session.familyId && subjectId && watchSubjectContent(session.familyId, subjectId, ownerId)
 	);
 
 	/** Chapter numbers in display order (groups first-come, as on the page). */
@@ -60,7 +60,7 @@
 					{@const progress = progressById(content.progress)}
 					{@const tallies = tallyBy(sheets, 'chapterId', progress)}
 					{@const numbers = numbering(chapters)}
-					{@const next = session.isChild ? nextUnread(chapters, sheets, progress) : null}
+					{@const next = asChild ? nextUnread(chapters, sheets, progress) : null}
 
 					<!-- Banner in the subject's colour: its picture, name and overall progress. -->
 					<header class={['card', SUBJECT_TINT[subject.color]]}>
@@ -69,13 +69,13 @@
 								<SubjectBadge {subject} size={4} />
 								<div class="flex min-w-0 flex-1 flex-col">
 									<!-- A child knows their grade: only show it for a subject of another grade. -->
-									{#if !session.isChild || subject.grade !== session.profile?.grade}
+									{#if !session.childView || subject.grade !== session.childView.grade}
 										<span class="badge badge-ghost badge-sm self-start">{subject.grade}</span>
 									{/if}
 									<h1>{subject.name}</h1>
 								</div>
 							</div>
-							{#if session.isChild}
+							{#if asChild}
 								<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[subject.color]} />
 							{:else}
 								<div class="flex items-center justify-between gap-2">
@@ -109,7 +109,7 @@
 								<Icon paths={UI_ICONS.chevronRight} />
 							</div>
 						</a>
-					{:else if session.isChild && sheets.length > 0}
+					{:else if asChild && sheets.length > 0}
 						<p role="status" class="alert alert-success alert-soft">
 							<Icon paths={UI_ICONS.check} />
 							{t.allRead}
@@ -142,7 +142,7 @@
 										</span>
 										<div class="flex min-w-0 flex-1 flex-col gap-2">
 											<strong class="text-lg leading-tight">{chapter.title}</strong>
-											{#if session.isChild}
+											{#if asChild}
 												<TallyLine tally={chapterTally} barClass={SUBJECT_TEXT[subject.color]} />
 											{:else}
 												<span class="text-sm text-base-content/70">

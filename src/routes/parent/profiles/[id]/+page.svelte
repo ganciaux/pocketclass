@@ -42,7 +42,7 @@
 				</header>
 				<section class="flex flex-col gap-2">
 					<h2>{fr.dashboard.title}</h2>
-					<SubjectCards {familyId} profile={child} />
+					<SubjectCards {familyId} view={child} ownerId={child.id} />
 				</section>
 				<section class="flex flex-col gap-2">
 					<h2>{fr.notes.parentTitle}</h2>
