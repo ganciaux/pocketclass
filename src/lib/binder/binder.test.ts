@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	freeColor,
 	groupChapters,
+	isAcquired,
 	groupNames,
 	moveItem,
 	nextOrder,
@@ -144,6 +145,19 @@ describe('sheet states', () => {
 		expect(sheetState({ updatedAt: at(999) }, { openedAt: null })).toBe('opened');
 		expect(sheetState({ updatedAt: null }, { openedAt: at(1) })).toBe('opened');
 	});
+
+	it('is still new when only stamped by the parent (never opened)', () => {
+		expect(sheetState(sheet, { acquiredAt: at(50) })).toBe('new');
+	});
+});
+
+describe('acquired stamp', () => {
+	it('is acquired once stamped, even while the write is pending', () => {
+		expect(isAcquired(undefined)).toBe(false);
+		expect(isAcquired({ openedAt: at(1) })).toBe(false);
+		expect(isAcquired({ openedAt: at(1), acquiredAt: at(2) })).toBe(true);
+		expect(isAcquired({ acquiredAt: null })).toBe(true);
+	});
 });
 
 describe('progress counts', () => {
@@ -156,21 +170,23 @@ describe('progress counts', () => {
 	const progress = new Map<string, SheetProgress>([
 		['s1', { openedAt: at(200), readAt: at(200) }],
 		['s2', { openedAt: at(200), readAt: at(200) }],
-		['s3', { openedAt: at(200) }]
+		['s3', { openedAt: at(200), acquiredAt: at(250) }],
+		['s4', { acquiredAt: at(250) }]
 	]);
 
-	it('counts read and fresh (new or updated) sheets', () => {
-		expect(tally(sheets, progress)).toEqual({ total: 4, read: 1, fresh: 2 });
+	it('counts read, fresh (new or updated) and acquired sheets', () => {
+		expect(tally(sheets, progress)).toEqual({ total: 4, read: 1, fresh: 2, acquired: 2 });
 	});
 
 	it('counts per subject and per chapter', () => {
 		const bySubject = tallyBy(sheets, 'subjectId', progress);
-		expect(bySubject.get('maths')).toEqual({ total: 3, read: 1, fresh: 1 });
-		expect(bySubject.get('french')).toEqual({ total: 1, read: 0, fresh: 1 });
+		expect(bySubject.get('maths')).toEqual({ total: 3, read: 1, fresh: 1, acquired: 1 });
+		expect(bySubject.get('french')).toEqual({ total: 1, read: 0, fresh: 1, acquired: 1 });
 		expect(tallyBy(sheets, 'chapterId', progress).get('powers')).toEqual({
 			total: 1,
 			read: 0,
-			fresh: 0
+			fresh: 0,
+			acquired: 1
 		});
 	});
 
@@ -215,6 +231,11 @@ describe('nextUnread', () => {
 				])
 			)
 		).toBeNull();
+	});
+
+	it('skips the sheets stamped as acquired, read or not', () => {
+		const acquired = { acquiredAt: at(2) };
+		expect(nextUnread(chapters, sheets, new Map([['a1', acquired]]))?.id).toBe('a2');
 	});
 });
 

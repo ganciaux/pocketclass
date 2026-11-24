@@ -116,17 +116,26 @@ export const groupNames = (chapters: Pick<Chapter, 'group'>[]) =>
 export type SheetState = 'new' | 'updated' | 'read' | 'opened';
 
 export interface SheetProgress {
-	/** Null while pending (server timestamp): the child has just opened it. */
-	openedAt: Stamp | null;
+	/**
+	 * Null while pending (server timestamp): the child has just opened it. Absent: never opened
+	 * (the document only holds the parent's stamp).
+	 */
+	openedAt?: Stamp | null;
 	/** Absent: not read. Null: marked as read, write pending. */
 	readAt?: Stamp | null;
+	/** The parent's « Acquise » stamp. Absent: not acquired. Null: stamped, write pending. */
+	acquiredAt?: Stamp | null;
 }
+
+/** Stamped « Acquise » by the parent (independent of read). */
+export const isAcquired = (progress: SheetProgress | undefined) =>
+	progress?.acquiredAt !== undefined;
 
 export function sheetState(
 	sheet: { updatedAt: Stamp | null },
 	progress: SheetProgress | undefined
 ): SheetState {
-	if (!progress) return 'new';
+	if (!progress || progress.openedAt === undefined) return 'new';
 	const { openedAt } = progress;
 	if (sheet.updatedAt && openedAt && sheet.updatedAt.toMillis() > openedAt.toMillis()) {
 		return 'updated';
@@ -139,16 +148,20 @@ export interface Tally {
 	read: number;
 	/** New or updated sheets: what the child has not seen yet. */
 	fresh: number;
+	/** Stamped « Acquise » by the parent. */
+	acquired: number;
 }
 
 type SheetLike = { id: string; updatedAt: Stamp | null };
 
 export function tally(sheets: SheetLike[], progress: ReadonlyMap<string, SheetProgress>): Tally {
-	const result: Tally = { total: sheets.length, read: 0, fresh: 0 };
+	const result: Tally = { total: sheets.length, read: 0, fresh: 0, acquired: 0 };
 	for (const sheet of sheets) {
-		const state = sheetState(sheet, progress.get(sheet.id));
+		const sheetProgress = progress.get(sheet.id);
+		const state = sheetState(sheet, sheetProgress);
 		if (state === 'read') result.read++;
 		if (state === 'new' || state === 'updated') result.fresh++;
+		if (isAcquired(sheetProgress)) result.acquired++;
 	}
 	return result;
 }
@@ -177,7 +190,10 @@ export function reachableSheets<S extends { chapterId: string; archived: boolean
 export const progressById = <P extends SheetProgress>(progress: (P & { id: string })[]) =>
 	new Map(progress.map((p) => [p.id, p]));
 
-/** First sheet not read yet, in binder order (chapters, then sheets). Null when all are read. */
+/**
+ * First sheet neither read nor acquired, in binder order (chapters, then sheets). Null when
+ * there is none left.
+ */
 export function nextUnread<S extends SheetLike & Ordered & { chapterId: string; title: string }>(
 	chapters: ({ id: string; title: string } & Ordered)[],
 	sheets: S[],
@@ -188,7 +204,9 @@ export function nextUnread<S extends SheetLike & Ordered & { chapterId: string; 
 			sheets.filter((s) => s.chapterId === chapter.id),
 			(s) => s.title
 		);
-		const next = inChapter.find((s) => sheetState(s, progress.get(s.id)) !== 'read');
+		const next = inChapter.find(
+			(s) => sheetState(s, progress.get(s.id)) !== 'read' && !isAcquired(progress.get(s.id))
+		);
 		if (next) return next;
 	}
 	return null;

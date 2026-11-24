@@ -81,6 +81,14 @@ describe('seenSheets', () => {
 		expect(seenSheets(binder, view).map((e) => e.sheet.id)).toEqual(['eq1', 'half', 'cod', 'add']);
 	});
 
+	it('leaves out a sheet only stamped as acquired by the parent (never opened)', () => {
+		const stamped = {
+			...binder,
+			progress: [...binder.progress, { id: 'unopened', acquiredAt: at(9) }]
+		};
+		expect(seenSheets(stamped, view).map((e) => e.sheet.id)).not.toContain('unopened');
+	});
+
 	it('carries the subject, the chapter and the sheet state', () => {
 		const add = seenSheets(binder, view).find((e) => e.sheet.id === 'add');
 		expect(add?.subject.name).toBe('Maths');

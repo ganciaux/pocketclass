@@ -126,7 +126,12 @@
 								</h2>
 							{/if}
 							{#each list as chapter (chapter.id)}
-								{@const chapterTally = tallies.get(chapter.id) ?? { total: 0, read: 0, fresh: 0 }}
+								{@const chapterTally = tallies.get(chapter.id) ?? {
+									total: 0,
+									read: 0,
+									fresh: 0,
+									acquired: 0
+								}}
 								<a
 									class="card subject-card card-border bg-base-100"
 									href={resolve('/chapter/[id]', { id: chapter.id })}

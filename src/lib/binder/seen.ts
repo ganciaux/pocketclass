@@ -47,7 +47,8 @@ export function seenSheets<S extends SheetLike, Su extends SubjectLike, C extend
 		const subject = subjects.get(sheet.subjectId);
 		const chapter = chapters.get(sheet.chapterId);
 		const opened = progress.get(sheet.id);
-		if (!subject || !chapter || !opened) continue;
+		// A document holding only the parent's stamp: never opened, so not « seen ».
+		if (!subject || !chapter || !opened || opened.openedAt === undefined) continue;
 		entries.push({
 			sheet,
 			subject,

@@ -60,7 +60,7 @@
 				{#if shelf.grade}<h3 class="text-lg font-bold">{shelf.grade}</h3>{/if}
 				<div class="grid gap-3 sm:grid-cols-2">
 					{#each shelf.subjects as subject (subject.id)}
-						{@const tally = tallies.get(subject.id) ?? { total: 0, read: 0, fresh: 0 }}
+						{@const tally = tallies.get(subject.id) ?? { total: 0, read: 0, fresh: 0, acquired: 0 }}
 						<a
 							class={[
 								'card subject-card border-l-8 bg-base-100 shadow-sm',
