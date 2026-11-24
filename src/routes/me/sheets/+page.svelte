@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
 	import { SUBJECT_BORDER, SUBJECT_TEXT } from '#lib/binder/colors.ts';
-	import { filterSeen, pickRandom, seenSheets } from '#lib/binder/seen.ts';
+	import { activeSubjectId, filterSeen, pickRandom, seenSheets } from '#lib/binder/seen.ts';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import SheetStateBadge from '#lib/components/SheetStateBadge.svelte';
@@ -42,6 +42,7 @@
 			{#snippet children(binder)}
 				{@const seen = seenSheets(binder, view)}
 				{@const shown = filterSeen(seen, query, subjectId)}
+				{@const active = activeSubjectId(seen, subjectId)}
 				<!-- Chips: only the subjects that have seen sheets, in the order they first appear. -->
 				{@const subjects = [...new Map(seen.map((e) => [e.subject.id, e.subject])).values()]}
 
@@ -68,8 +69,8 @@
 					/>
 					<div class="flex flex-wrap gap-2" role="group" aria-label={fr.binder.subject}>
 						<button
-							class={['btn btn-sm', subjectId === null && 'btn-active']}
-							aria-pressed={subjectId === null}
+							class={['btn btn-sm', active === null && 'btn-active']}
+							aria-pressed={active === null}
 							onclick={() => (subjectId = null)}
 						>
 							{t.all}
@@ -79,9 +80,9 @@
 								class={[
 									'btn btn-sm border-2',
 									SUBJECT_BORDER[subject.color],
-									subjectId === subject.id ? 'btn-active' : SUBJECT_TEXT[subject.color]
+									active === subject.id ? 'btn-active' : SUBJECT_TEXT[subject.color]
 								]}
-								aria-pressed={subjectId === subject.id}
+								aria-pressed={active === subject.id}
 								onclick={() => (subjectId = subject.id)}
 							>
 								{subject.name}

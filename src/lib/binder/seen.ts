@@ -74,6 +74,13 @@ export const searchText = (entry: SeenSheet) =>
 		' '
 	);
 
+/**
+ * The subject filter in force: null (every subject) when no seen sheet belongs to that subject
+ * any more (test data reset, subject hidden by the parent), so a stale chip hides nothing.
+ */
+export const activeSubjectId = (entries: SeenSheet[], subjectId: string | null) =>
+	subjectId && entries.some((e) => e.subject.id === subjectId) ? subjectId : null;
+
 /** Every word of `query` must appear; `subjectId` null = every subject. */
 export function filterSeen<E extends SeenSheet>(
 	entries: E[],
@@ -81,8 +88,9 @@ export function filterSeen<E extends SeenSheet>(
 	subjectId: string | null
 ): E[] {
 	const words = normalize(query).split(' ').filter(Boolean);
+	const subject = activeSubjectId(entries, subjectId);
 	return entries.filter((entry) => {
-		if (subjectId && entry.subject.id !== subjectId) return false;
+		if (subject && entry.subject.id !== subject) return false;
 		const text = normalize(searchText(entry));
 		return words.every((word) => text.includes(word));
 	});

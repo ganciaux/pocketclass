@@ -120,6 +120,10 @@ describe('filterSeen', () => {
 		expect(ids('fraction', 'fr')).toEqual([]);
 	});
 
+	it('ignores a subject filter no seen sheet belongs to any more', () => {
+		expect(ids('', 'gone')).toEqual(['eq1', 'half', 'cod', 'add']);
+	});
+
 	it('searches raw titles with LaTeX', () => {
 		expect(ids('frac{1}{2}')).toEqual(['half']);
 	});
