@@ -123,3 +123,16 @@ export async function deleteChildProfile(familyId: string, profileId: string): P
 		profileRef(familyId, profileId)
 	]);
 }
+
+/**
+ * Parent action (online): clears what the parent did while testing as a child (child test
+ * mode writes on the parent's own profile). Reads from the server, like a profile deletion.
+ * Phases 2–3: add the parent's attempts and points here when they exist.
+ */
+export async function resetTestData(familyId: string, profileId: string): Promise<void> {
+	const owned = await Promise.all([
+		getDocs(progressCol(familyId, profileId)),
+		getDocs(notesCol(familyId, profileId))
+	]);
+	await deleteInBatches(owned.flatMap((snap) => snap.docs.map((d) => d.ref)));
+}

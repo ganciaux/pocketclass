@@ -23,6 +23,11 @@
 		() => session.familyId && profileId && watchProfile(session.familyId, profileId)
 	);
 
+	async function testAs(childId: string) {
+		session.startTest(childId);
+		await goto(resolve('/'));
+	}
+
 	async function deleteChild(familyId: string, childId: string) {
 		await deleteChildProfile(familyId, childId);
 		await goto(resolve('/parent/profiles'), { replaceState: true });
@@ -40,6 +45,14 @@
 					<h1 class="flex-1">{displayName(child)}</h1>
 					<span class="badge badge-secondary">{child.grade}</span>
 				</header>
+				<section class="card card-border bg-base-100">
+					<div class="card-body gap-3">
+						<p class="text-sm text-base-content/70">{fr.testMode.startHelp}</p>
+						<button class="btn btn-primary self-start" onclick={() => testAs(child.id)}>
+							{fr.testMode.start(displayName(child))}
+						</button>
+					</div>
+				</section>
 				<section class="flex flex-col gap-2">
 					<h2>{fr.dashboard.title}</h2>
 					<SubjectCards {familyId} view={child} ownerId={child.id} />

@@ -3,6 +3,7 @@
 	import '../app.css';
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
+	import TestModeBanner from '#lib/components/TestModeBanner.svelte';
 	import SessionGate from '#lib/components/SessionGate.svelte';
 	import UpdateToast from '#lib/components/UpdateToast.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
@@ -58,6 +59,7 @@
 		</button>
 	{/if}
 </header>
+<TestModeBanner />
 
 <SessionGate>
 	{@render children()}

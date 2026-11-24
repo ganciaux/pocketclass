@@ -136,6 +136,15 @@ export const fr = {
 		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
 		saved: 'Enregistré.'
 	},
+	testMode: {
+		start: (name: string) => `Tester comme ${name}`,
+		startHelp: 'Tu vois son classeur, mais ta progression et tes remarques restent à toi.',
+		banner: (name: string) => `Mode test : classeur de ${name}`,
+		reset: 'Remettre à zéro',
+		resetConfirm: 'Effacer ta progression et tes remarques de test ?',
+		resetFailed: "La remise à zéro n'a pas fonctionné.",
+		stop: 'Quitter'
+	},
 	me: {
 		title: 'Mon profil'
 	},
