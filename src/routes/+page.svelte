@@ -29,6 +29,7 @@
 				<div class="flex flex-wrap gap-2">
 					<a class="btn btn-primary" href={resolve('/parent/import')}>{fr.home.importPath}</a>
 					<a class="btn btn-outline" href={resolve('/parent/profiles')}>{fr.home.manageProfiles}</a>
+					<a class="btn btn-outline" href={resolve('/parent/notes')}>{fr.home.childrenNotes}</a>
 				</div>
 			</div>
 		</section>

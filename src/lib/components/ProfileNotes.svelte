@@ -10,8 +10,15 @@
 	let {
 		familyId,
 		profileId,
-		mode
-	}: { familyId: string; profileId: string; mode: 'child' | 'parent' } = $props();
+		mode,
+		showResolved = true
+	}: {
+		familyId: string;
+		profileId: string;
+		mode: 'child' | 'parent';
+		/** False: hide the notes the parent already resolved. */
+		showResolved?: boolean;
+	} = $props();
 
 	const notesLive = live(() => watchNotes(familyId, profileId));
 	const conceptsLive = live(() => watchActiveConcepts(familyId));
@@ -20,6 +27,12 @@
 
 <LoadState source={notesLive} failed={fr.notes.loadFailed}>
 	{#snippet children(notes)}
-		<NoteList {familyId} {profileId} {notes} {mode} {titles} />
+		<NoteList
+			{familyId}
+			{profileId}
+			notes={showResolved ? notes : notes.filter((n) => n.status !== 'resolved')}
+			{mode}
+			{titles}
+		/>
 	{/snippet}
 </LoadState>
