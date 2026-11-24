@@ -2,6 +2,7 @@
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { resolve } from '$app/paths';
 	import { session } from '#lib/auth.svelte.ts';
+	import PasswordForm from '#lib/components/PasswordForm.svelte';
 	import ProfileLookForm from '#lib/components/ProfileLookForm.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { connectivity } from '#lib/online.svelte.ts';
@@ -32,6 +33,11 @@
 	<h1>{fr.me.title}</h1>
 	{#if session.familyId && session.profile}
 		<ProfileLookForm familyId={session.familyId} profile={session.profile} />
+	{/if}
+
+	<!-- Parents only (children use an anonymous account linked by code). -->
+	{#if session.isAdmin && session.user?.email && !session.user.isAnonymous}
+		<PasswordForm email={session.user.email} />
 	{/if}
 
 	{#if session.isChild}

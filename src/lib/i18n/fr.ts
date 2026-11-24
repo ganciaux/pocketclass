@@ -157,6 +157,35 @@ export const fr = {
 	me: {
 		title: 'Mon profil'
 	},
+	account: {
+		title: 'Mot de passe',
+		help: 'Pour te connecter sans Google (pratique sur iPhone).',
+		email: 'E-mail',
+		password: 'Mot de passe',
+		confirm: 'Confirmer le mot de passe',
+		set: 'Définir le mot de passe',
+		change: 'Changer le mot de passe',
+		saving: 'Enregistrement…',
+		saved: 'Mot de passe enregistré.',
+		tooShort: (min: number) => `Au moins ${min} caractères.`,
+		mismatch: 'Les deux mots de passe sont différents.',
+		or: 'ou',
+		signIn: 'Se connecter',
+		signingIn: 'Connexion…',
+		forgot: 'Mot de passe oublié ?',
+		resetSent:
+			"Si un compte existe pour cet e-mail, un message pour choisir un nouveau mot de passe vient d'être envoyé.",
+		errors: {
+			wrongCredentials: 'E-mail ou mot de passe incorrect.',
+			tooManyRequests: "Trop d'essais. Réessaie dans quelques minutes.",
+			offline: 'Pas de connexion internet.',
+			weakPassword: 'Mot de passe trop faible.',
+			alreadyUsed: 'Cet e-mail est déjà utilisé par un autre compte.',
+			invalidEmail: 'E-mail invalide.',
+			popupClosed: 'Fenêtre Google fermée : réessaie.',
+			generic: "Ça n'a pas fonctionné. Réessaie."
+		}
+	},
 	notes: {
 		title: 'Mes remarques',
 		parentTitle: 'Remarques',

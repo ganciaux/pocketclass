@@ -1,12 +1,19 @@
 import {
 	deleteUser,
+	EmailAuthProvider,
 	GoogleAuthProvider,
+	linkWithCredential,
 	onAuthStateChanged,
+	reauthenticateWithPopup,
+	sendPasswordResetEmail,
 	signInAnonymously,
+	signInWithEmailAndPassword,
 	signInWithPopup,
 	signOut as firebaseSignOut,
+	updatePassword,
 	type User
 } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { auth } from '#lib/firebase.ts';
 import { linkDevice, unlinkDevice, watchDevice } from '#lib/data/devices.ts';
 import { ensureFamilyForUser, getProfile, watchProfile } from '#lib/data/family.ts';
@@ -41,6 +48,8 @@ class Session {
 	familyId = $state<string | null>(null);
 	/** Live: nickname or avatar changes show at once. */
 	profile = $state<WithId<Profile> | null>(null);
+	/** The parent's account also signs in with e-mail + password (linked to the Google account). */
+	hasPassword = $state(false);
 	/** True while a device is being linked: keeps the link form on screen meanwhile. */
 	linking = $state(false);
 
@@ -74,6 +83,41 @@ class Session {
 
 	async signInWithGoogle(): Promise<void> {
 		await signInWithPopup(auth, new GoogleAuthProvider());
+	}
+
+	/** Parent: sign in with the password linked to their Google account (no sign-up). */
+	async signInWithPassword(email: string, password: string): Promise<void> {
+		await signInWithEmailAndPassword(auth, email.trim(), password);
+	}
+
+	/** Parent: Firebase e-mail to choose a new password. */
+	async sendPasswordReset(email: string): Promise<void> {
+		await sendPasswordResetEmail(auth, email.trim());
+	}
+
+	/**
+	 * Parent: sets the password of their account (linked to the same account, so the same
+	 * family), or changes it. Firebase wants a recent sign-in for this: on
+	 * `requires-recent-login`, the parent signs in with Google again, then it retries once.
+	 */
+	async setPassword(password: string): Promise<void> {
+		const user = auth.currentUser;
+		if (!user || user.isAnonymous || !user.email) throw new Error('No parent account');
+		const email = user.email;
+		const save = () =>
+			this.hasPassword
+				? updatePassword(user, password)
+				: linkWithCredential(user, EmailAuthProvider.credential(email, password));
+		try {
+			await save();
+		} catch (error) {
+			if (!(error instanceof FirebaseError) || error.code !== 'auth/requires-recent-login') {
+				throw error;
+			}
+			await reauthenticateWithPopup(user, new GoogleAuthProvider());
+			await save();
+		}
+		this.hasPassword = true;
 	}
 
 	async signOut(): Promise<void> {
@@ -169,6 +213,7 @@ class Session {
 		if (!user) return this.#reset('signedOut');
 
 		this.#reset('loading');
+		this.hasPassword = user.providerData.some((p) => p.providerId === 'password');
 		try {
 			const index = await ensureFamilyForUser(user);
 			if (run !== this.#run) return;
@@ -193,6 +238,8 @@ class Session {
 			);
 			// A parent resumes the child test mode remembered on this device.
 			if (profile.role === 'admin') {
+				// iOS may clear an installed web app's data (and the session with it): ask to keep it.
+				navigator.storage?.persist?.().catch(() => {});
 				const testChildId = storage((store) => store.getItem(testChildKey(index.familyId)));
 				if (testChildId) this.#watchTestChild(index.familyId, testChildId);
 			}
