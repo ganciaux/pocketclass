@@ -1,16 +1,19 @@
 # PocketClass — project memory
 
-Family revision PWA for two middle-schoolers (3e / brevet, and 6e). A collection of revision
-sheets organised as **subject → path → topic → concept**. Full phase 1 brief:
-[docs/prompt-claude-code-phase1.md](docs/prompt-claude-code-phase1.md) (the source of truth for schemas).
+Family revision PWA for two middle-schoolers (3e / brevet, and 6e). A **binder** of revision
+sheets: **subject** (one per grade, e.g. Maths 3e) → **chapter** (independent folders, optionally
+shown under a display-only **group** such as "Algèbre") → **sheet** (stored as a `concept`).
+Phase 1 brief: [docs/prompt-claude-code-phase1.md](docs/prompt-claude-code-phase1.md) (its
+`path@1` part is superseded by the binder, see the 2026-11-24 decision).
 
 A concept has: 3–6 **key points** (the backbone, everything links to them), a **study sheet**
 (sections + examples + pitfalls), unlimited **practice** exercises, one **assessment** (the only
 thing that earns points, phase 3) and a **summary** written on paper and checked by an external AI
 (phase 4).
 
-Content is produced by an **external AI**: the parent pastes a prompt into any AI, gets JSON back,
-pastes it into the app. **The app never calls an AI API.**
+Content is produced by an **external AI**: the app builds the prompt (subject, grade, chapter,
+ids already used), the parent pastes it into any AI, gets JSON back, pastes it into the app.
+**The app never calls an AI API.**
 
 ## Language rule (absolute)
 
@@ -43,19 +46,19 @@ pastes it into the app. **The app never calls an AI API.**
 
 Layers, from the outside in. A layer only imports from layers below it.
 
-| Layer      | Where                                                                                             | Rules                                                                                                                                                                                                                                                                                                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Routes     | `src/routes/**`                                                                                   | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                                                                                                                                                                     |
-| Components | `src/lib/components/`                                                                             | Reusable UI: `LoadState`, `SessionGate` (+ `LinkDeviceForm`), `Avatar`, `ProfileLookForm`, `ProfileDashboard`, `NoteForm` / `NoteList` / `ProfileNotes`, `ConfirmDelete` (type « SUPPRIMER » before an irreversible deletion), `ChildDevices`. Components shared by the child and parent views take `familyId` / `profileId` props.                                                          |
-| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`)                                 | Runes singletons. `session.profile` is live; use `session.profileId` / `session.childId` (primitives) in `live()` sources; `isAdmin` / `isChild`.                                                                                                                                                                                                                                            |
-| Data       | `src/lib/data/`                                                                                   | The only code touching Firestore. `refs.ts` builds every path (names in `collections.ts`). `sources.ts`: `Subscribe` sources (`docSource`, `querySource`) and cache-first one-shot reads (`firstSnapshot`, `getDocCacheFirst`). Domain sources are named `watchX` (`catalog.ts`, `family.ts`, `devices.ts`, `progress.ts`, `notes.ts`). Executors of pure plans live here (`importPath.ts`). |
-| Pure logic | `schemas/`, `import/`, `math/`, `render/`, `i18n/`, `linking/`, `profile/`, `progress/`, `notes/` | No **runtime** Firebase import: unit-tested with Vitest. May import types from `data/types.ts` and names from `data/collections.ts` (both pure). Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                                                                |
+| Layer      | Where                                                                                                       | Rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ---------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Routes     | `src/routes/**`                                                                                             | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                                                                                                                                                                                                                                                                                                                                           |
+| Components | `src/lib/components/`                                                                                       | Reusable UI: `LoadState`, `SessionGate` (+ `LinkDeviceForm`), `Avatar`, `ProfileLookForm`, `SubjectCards` (binder + progress, child home and parent view), `TallyLine`, `SheetStateBadge`, `NoteForm` / `NoteList` / `ProfileNotes`, `ConfirmDelete` (type « SUPPRIMER »), `ChildDevices`. Parent binder tools: `OrderActions` (↑ ↓ hide), `SubjectForm`, `ChapterForm` / `ChapterSettings`, `ExtraSubjects`, import flow = `PromptCopy` + `JsonPaste` (any Zod schema) + `ImportPreview` + `ImportResult`. Shared components take `familyId` / `profileId` props. |
+| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`)                                           | Runes singletons. `session.profile` is live; use `session.profileId` / `session.childId` (primitives) in `live()` sources; `isAdmin` / `isChild`.                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Data       | `src/lib/data/`                                                                                             | The only code touching Firestore. `refs.ts` builds every path (names in `collections.ts`). `sources.ts`: `Subscribe` sources (`docSource`, `querySource`) and cache-first one-shot reads (`firstSnapshot`, `getDocCacheFirst`). Domain sources are named `watchX` (`catalog.ts`, `family.ts`, `devices.ts`, `progress.ts`, `notes.ts`); `combine()` merges sources for one `<LoadState>` (`watchBinder`, `watchSubjectContent`…). Parent binder edits in `catalogEdit.ts`. Executors of pure plans live here (`importSheets.ts`).                                  |
+| Pure logic | `schemas/`, `import/`, `binder/`, `prompts/`, `math/`, `render/`, `i18n/`, `linking/`, `profile/`, `notes/` | No **runtime** Firebase import: unit-tested with Vitest. May import types from `data/types.ts` and names from `data/collections.ts` (both pure). Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                                                                                                                                                                                                                                      |
 
 - **Pattern for Firestore features**: pure planner in a pure module (unit-tested) + thin
-  executor in `data/` (e.g. `import/importPlan.ts` + `data/importPath.ts`). Keep it for
+  executor in `data/` (e.g. `import/sheetPlan.ts` + `data/importSheets.ts`). Keep it for
   attempts, points, summaries.
 - **Reads are cache-first** (work offline), except deliberate online-only parent actions such as
-  the import, which reads from the server (`data/importPath.ts`).
+  the import, which reads from the server (`data/importSheets.ts`).
 - **Live data in components**: `live()` (`data/live.svelte.ts`) resets on source change (in
   `$effect.pre`, so no frame shows stale data) and drops late results; sources must read
   **primitives** (ids), not objects that change on every keystroke. Name the live value
@@ -72,10 +75,10 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   `main` is already a column with gaps (base layer). Project classes in `app.css`: `.prose`
   (Markdown + KaTeX), `.code-display`, `.doodles` (home and sign-in only, never behind a
   sheet). Avoid custom class names that daisyUI already uses (`.status`, `.label`, `.card`…).
-- **Child writes** (progress, notes, profile look) go through `inBackground()` (`data/writes.ts`):
-  not awaited, so they work offline (local cache first, live sources update at once).
-  Parent actions that need the server (import, link code, unlink) are awaited and disabled
-  offline.
+- **Child writes** (progress, notes, profile look) and **parent binder edits** (subjects,
+  chapters, order, hide) go through `inBackground()` (`data/writes.ts`): not awaited, so they
+  work offline (local cache first, live sources update at once). Parent actions that need the
+  server (import, link code, unlink) are awaited and disabled offline.
 - **Rules** change ⇒ add a case in `tests/rules/firestore.rules.test.ts` (`npm run test:rules`).
 
 ### To plan in later phases (not coded on purpose)
@@ -233,6 +236,26 @@ made.
   overwrite boxes the parent already ticked.
 - 2026-11-24 — Real phones (iOS + Android) validated by the user: linking, staying signed in,
   icon, dark theme, offline sheet.
+- 2026-11-24 — **Binder replaces paths** (user's choices): 3 levels subject → chapter → sheet,
+  plus an optional display-only `group` on chapters. Subjects are **per grade** (auto ids); a
+  child sees the active subjects of their grade plus `profile.extraSubjects` (set by the
+  parent): no assignments any more. Chapters are independent (no map, no order constraint for
+  the child); order is an integer renumbered by `moveItem` (↑ ↓). Nothing is deleted: subjects,
+  chapters and sheets are hidden with `archived`.
+  - Formats: `pocketclass/sheet@1` (one sheet, added to the chapter it is pasted in; same id =
+    update: next `version`, same place, missing exercises / assessment archived) and
+    `pocketclass/chapter@1` (title, group, sheets: creates a chapter at the end of a subject).
+    `path@1` removed; `lesson@1` (photo of the exercise book, phase 6) unchanged. Sheet ids stay
+    family-wide: an id used by an **active** sheet of another chapter blocks the import.
+  - Prompts built by the app (`prompts/sheetPrompt.ts`, French instructions, English keys) with
+    subject, grade, chapter, group, the sheets already in the chapter and the ids already used.
+  - "New" / "updated": `progress/{conceptId}` = `{ subjectId, chapterId, openedAt, readAt? }`.
+    Opening a sheet writes `openedAt` (merge, offline); never opened = new; sheet `updatedAt`
+    (server time of the last import) newer than `openedAt` = updated. Unread = `readAt` deleted.
+  - Subject colours = 8 Tailwind palette names (500 shades, `binder/colors.ts`), not daisyUI
+    theme colours (several of ours are identical).
+  - No migration: old `paths` / `assignments` data is ignored; content is re-imported (the
+    sample is now `static/samples/maths-3e-revisions.json`, a `chapter@1`).
 
 ## Firestore model
 
@@ -241,29 +264,31 @@ users/{uid}                                    { familyId, profileId }   (both =
 linkCodes/{code}                               { familyId, profileId, expiresAt }   (one-time device link code)
 families/{familyId}                            { name, admins: [uid], createdAt }   (familyId = parent uid)
   devices/{uid}                                { profileId, code, linkedAt }      (child phone, anonymous uid)
-  profiles/{profileId}                         { firstName, role: admin|child, grade, points, nickname?, avatar? }
-  subjects/{subjectId}                         { name, color }
-  paths/{pathId}                               { subjectId, title, grade, type, topics[], source, version, updatedAt }
-  concepts/{conceptId}                         { pathId, subjectId, topicId, title, order, prerequisites,
-                                                 keyPoints, sheet, summaryInstruction, archived }
+  profiles/{profileId}                         { firstName, role: admin|child, grade, points, nickname?, avatar?,
+                                                 extraSubjects? }
+  subjects/{subjectId}                         { name, grade, color, order, archived }   (auto id)
+  chapters/{chapterId}                         { subjectId, title, group|null, order, archived }   (auto id)
+  concepts/{conceptId}                         { subjectId, chapterId, title, order, prerequisites, keyPoints,
+                                                 sheet, summaryInstruction, version, updatedAt, archived }   (a sheet)
   concepts/{conceptId}/exercises/{exerciseId}  { usage, type, keyPoint, difficulty, ...type fields, archived }
-  assessments/{assessmentId}                   { pathId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }
-  profiles/{profileId}/assignments/{pathId}    { since, dueDate? }
-  profiles/{profileId}/progress/{conceptId}    { pathId, readAt }   (sheet read)
-  profiles/{profileId}/notes/{noteId}          { conceptId, pathId, exerciseId, text, status: open|seen|resolved,
+  assessments/{assessmentId}                   { chapterId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }   (id = sheet id)
+  profiles/{profileId}/progress/{conceptId}    { subjectId, chapterId, openedAt, readAt? }   (sheet opened / read)
+  profiles/{profileId}/notes/{noteId}          { conceptId, chapterId, exerciseId, text, status: open|seen|resolved,
                                                  createdAt, updatedAt }
   profiles/{profileId}/attempts|summaries|pointsLedger   (phases 2–4)
 ```
 
-- Catalogue (subjects, paths, concepts, exercises, assessments) belongs to the family; progress
-  belongs to the profile.
-- Stable ids from the import: concept id = JSON id; exercise id = JSON id (unique per concept).
-- Re-import = upsert, `version` increments, missing items get `archived: true`. **Never delete.**
+- Catalogue (subjects, chapters, concepts, exercises, assessments) belongs to the family;
+  progress belongs to the profile.
+- Stable ids from the import: concept (sheet) id = JSON id; exercise id = JSON id (unique per
+  sheet). Subject and chapter ids are generated.
+- Re-import of a sheet = upsert, `version` increments, missing exercises get `archived: true`.
+  **Never delete** (catalogue).
 - Writes go through `writeBatch`, max 450 operations per batch.
 
 ## JSON formats (`src/lib/schemas/`)
 
-`pocketclass/path@1`, `pocketclass/lesson@1`, `pocketclass/summary@1`. JSON Schemas are exported
+`pocketclass/sheet@1`, `pocketclass/chapter@1`, `pocketclass/lesson@1`, `pocketclass/summary@1`. JSON Schemas are exported
 to `static/schemas/` by `npm run schemas`. Loose parsing (code fences, text around the JSON) in
 `src/lib/import/parseJsonLoose.ts`.
 
@@ -293,7 +318,9 @@ Firebase project id: `pocketclass-bd866`. App: https://pocketclass-bd866.web.app
 ## Roadmap
 
 Phase 1 (done): skeleton, import, map, sheet. Done after phase 1: child device linking
-(one-time code), nickname / avatar, "sheet read" progress + dashboard, notes. Phase 2: practice
+(one-time code), nickname / avatar, "sheet read" progress + dashboard, notes, binder
+(subjects / chapters / sheets, replaces paths; a curated "path" may come back later as a
+selection of sheets). Phase 2: practice
 engine, `fractions.*` generators, attempts. Phase 3: assessments, scoring, pointsLedger.
 Phase 4: summary photo flow. Phase 5: child-side extras (QR code if needed). Phase 6:
 spaced repetition, in-app AI prompts, quick lesson entry (`lesson@1`).

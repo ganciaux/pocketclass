@@ -110,6 +110,10 @@ Principes :
 
 ### `pocketclass/path@1`
 
+> Remplacé le 2026-11-24 par le **classeur** (matière → chapitre → fiche) : formats
+> `pocketclass/sheet@1` (une fiche = un `Concept` sans `topic`, avec `format`) et
+> `pocketclass/chapter@1` (`title`, `group?`, `sheets[]`). Voir `CLAUDE.md`.
+
 ```ts
 Path = {
   format: "pocketclass/path@1",
@@ -176,6 +180,8 @@ Ajoute un script `npm run schemas` qui exporte les trois JSON Schema dans `stati
 **Tolérance à l'import :** avant `JSON.parse`, retire un éventuel bloc de code Markdown (une ligne de trois backticks suivie ou non de `json`, puis la ligne de fermeture), ainsi que les espaces et le texte autour du premier `{` et du dernier `}`.
 
 ## 5. Données d'exemple — `static/samples/maths-3e-brevet.json`
+
+> Devenu `static/samples/maths-3e-revisions.json` (format `chapter@1`) le 2026-11-24.
 
 Écris un parcours `path@1` **valide** :
 

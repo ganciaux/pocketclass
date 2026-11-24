@@ -38,7 +38,7 @@ Le projet Firebase par défaut est `pocketclass-bd866` (fichier `.firebaserc`).
 
 ⚠️ **Les règles et l'app vont ensemble.** Une fonctionnalité qui écrit de nouvelles données a
 besoin des nouvelles règles, sinon elle est refusée en production. C'est le cas de la liaison
-des appareils, des remarques et des fiches lues. En cas de doute, utiliser `npm run prod` ou
+des appareils, des remarques, de la progression et du classeur (chapitres). En cas de doute, utiliser `npm run prod` ou
 `npm run deploy`, qui envoient les deux.
 
 ## Mettre en production (cas normal)
@@ -93,4 +93,7 @@ console (lien plus haut).
   par les commandes de déploiement) ignore `PUBLIC_USE_EMULATORS`. `npm run build:emulators`
   sert uniquement aux tests locaux.
 - **Changement du modèle de données** : si une nouvelle version lit les anciennes données
-  autrement, réimporter le parcours concerné depuis l'espace parent.
+  autrement, réimporter les fiches concernées depuis « Gérer le classeur ».
+- **Passage au classeur (2026-11-24)** : les anciens parcours (`paths`, `assignments`) ne sont
+  plus lus. Après ce déploiement, recréer les matières et réimporter le contenu (l'exemple :
+  « Importer un chapitre complet » → « Charger l'exemple »). La progression de test est perdue.

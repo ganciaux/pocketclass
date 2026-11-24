@@ -1,7 +1,12 @@
 # PocketClass
 
-PWA familiale de révision (fiches, exercices, contrôles) pour collégiens.
+PWA familiale de révision (fiches, exercices, contrôles) pour collégiens, organisée comme un
+classeur : matières (par niveau) → chapitres (regroupés par partie) → fiches.
 SvelteKit 3 + Svelte 5, Firebase (Auth, Firestore, Hosting).
+
+Le contenu vient d'une IA externe : dans « Gérer le classeur », l'app prépare le prompt
+(matière, niveau, chapitre), le parent le colle dans l'IA et colle le JSON obtenu
+(`pocketclass/sheet@1` pour une fiche, `pocketclass/chapter@1` pour un chapitre complet).
 
 ## Prérequis
 
@@ -76,7 +81,7 @@ apparaître. DevTools → Application → Manifest doit indiquer que l'app est i
 ```sh
 npm run check      # svelte-check
 npm run lint       # vérifie le formatage (npm run format pour corriger)
-npm run test       # Vitest (schémas, import, fractions, rendu Markdown, textes, exactitude de l'exemple)
+npm run test       # Vitest (schémas, classeur, import, prompts, fractions, rendu Markdown, textes, exemple)
 npm run test:rules # règles Firestore (réutilise l'emulator lancé, sinon en démarre un)
 npm run schemas    # régénère static/schemas/*.json
 ```
@@ -96,7 +101,7 @@ Détails, liens et retour arrière : [docs/operations.md](docs/operations.md).
 - Projet : `pocketclass-bd866` (`.firebaserc`)
 - Règles : `firestore.rules`. Les parents (admins) ont un accès complet à leur famille ; les
   appareils enfants liés lisent le catalogue et leur profil, et n'écrivent que leur pseudo /
-  avatar, leurs fiches lues et leurs remarques. Tout le reste est refusé.
+  avatar, leur progression (fiches ouvertes / lues) et leurs remarques. Tout le reste est refusé.
   Tests : `npm run test:rules`.
 - Famille : son id est l'uid du parent (premier login rejouable sans doublon).
 - Architecture et conventions du code : voir `CLAUDE.md`.
