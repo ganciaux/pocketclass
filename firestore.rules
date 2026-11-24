@@ -166,8 +166,7 @@ service cloud.firestore {
         }
 
         // What the child found difficult (on a sheet, a chapter, a subject or free). Created
-        // open; editing the text reopens it; the
-        // parent (admin) sets seen / resolved.
+        // open; editing the text reopens it; the parent (admin) sets seen / resolved.
         match /notes/{noteId} {
           allow create: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys().hasOnly(['conceptId', 'chapterId', 'subjectId',
