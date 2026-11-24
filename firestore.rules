@@ -165,14 +165,16 @@ service cloud.firestore {
           allow delete: if isOwnDevice(familyId, profileId) && !('acquiredAt' in resource.data);
         }
 
-        // What the child found difficult. Created open; editing the text reopens it; the
+        // What the child found difficult (on a sheet, a chapter, a subject or free). Created
+        // open; editing the text reopens it; the
         // parent (admin) sets seen / resolved.
         match /notes/{noteId} {
           allow create: if isOwnDevice(familyId, profileId)
-            && request.resource.data.keys().hasOnly(
-              ['conceptId', 'chapterId', 'exerciseId', 'text', 'status', 'createdAt', 'updatedAt'])
-            && request.resource.data.conceptId is string
-            && request.resource.data.chapterId is string
+            && request.resource.data.keys().hasOnly(['conceptId', 'chapterId', 'subjectId',
+              'exerciseId', 'text', 'status', 'createdAt', 'updatedAt'])
+            && nullableId(request.resource.data, 'conceptId')
+            && nullableId(request.resource.data, 'chapterId')
+            && nullableId(request.resource.data, 'subjectId')
             && validNoteText();
           allow update: if isOwnDevice(familyId, profileId)
             && onlyChanges(['text', 'status', 'updatedAt'])
@@ -193,6 +195,12 @@ service cloud.firestore {
 
     function isOwnDevice(familyId, profileId) {
       return isDevice(familyId) && deviceProfileId(familyId) == profileId;
+    }
+
+    // A note is about a sheet, a chapter, a subject or nothing (free note): each id is a
+    // string, null, or absent (older notes have no `subjectId`).
+    function nullableId(data, field) {
+      return data.get(field, null) == null || data.get(field, null) is string;
     }
 
     function validNoteText() {

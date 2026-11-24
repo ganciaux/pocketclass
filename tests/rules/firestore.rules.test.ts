@@ -390,6 +390,36 @@ describe('child writes', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/notes/n4`), note));
 		await assertSucceeds(updateDoc(at(as('alice'), `${lea}/notes/n1`), { status: 'resolved' }));
 	});
+
+	it('write notes on a chapter, a subject or free (no target)', async () => {
+		const kid = as('kid-phone');
+		const note = {
+			conceptId: null,
+			chapterId: null,
+			subjectId: null,
+			exerciseId: null,
+			text: 'Je ne sais plus où ranger mes fiches',
+			status: 'open',
+			createdAt: serverTimestamp(),
+			updatedAt: serverTimestamp()
+		};
+		await assertSucceeds(setDoc(at(kid, `${lea}/notes/free`), note));
+		await assertSucceeds(setDoc(at(kid, `${lea}/notes/chapter`), { ...note, chapterId: 'ch1' }));
+		await assertSucceeds(setDoc(at(kid, `${lea}/notes/subject`), { ...note, subjectId: 'maths' }));
+		await assertSucceeds(
+			setDoc(at(kid, `${lea}/notes/sheet`), {
+				...note,
+				conceptId: 'c1',
+				chapterId: 'ch1',
+				subjectId: 'maths'
+			})
+		);
+		await assertFails(setDoc(at(kid, `${lea}/notes/bad`), { ...note, subjectId: 42 }));
+		await assertFails(setDoc(at(kid, `${lea}/notes/bad`), { ...note, chapterId: ['ch1'] }));
+		await assertFails(setDoc(at(kid, `${lea}/notes/bad`), { ...note, place: 'home' }));
+		await assertSucceeds(updateDoc(at(kid, `${lea}/notes/free`), { text: 'Rangé !' }));
+		await assertFails(updateDoc(at(kid, `${lea}/notes/free`), { subjectId: 'maths' }));
+	});
 });
 
 describe('parent test mode', () => {
