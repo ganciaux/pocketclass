@@ -136,6 +136,15 @@ export const fr = {
 		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
 		saved: 'Enregistré.'
 	},
+	seen: {
+		title: 'Mes fiches vues',
+		search: 'Rechercher une fiche',
+		all: 'Toutes',
+		random: 'Au hasard',
+		empty: "Tu n'as encore ouvert aucune fiche.",
+		noMatch: 'Aucune fiche ne correspond.',
+		loadFailed: 'Impossible de charger tes fiches.'
+	},
 	testMode: {
 		start: (name: string) => `Tester comme ${name}`,
 		startHelp: 'Tu vois son classeur, mais ta progression et tes remarques restent à toi.',

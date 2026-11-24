@@ -55,11 +55,19 @@
 	{/if}
 
 	{#if session.childView}
-		<a
-			class="card card-border bg-base-100 transition-colors hover:border-secondary"
-			href={resolve('/me/notes')}
-		>
-			<div class="card-body">{fr.notes.link(openCount(notesLive.data ?? []))}</div>
-		</a>
+		<div class="grid gap-3 sm:grid-cols-2">
+			<a
+				class="card card-border bg-base-100 transition-colors hover:border-secondary"
+				href={resolve('/me/sheets')}
+			>
+				<div class="card-body">{fr.seen.title}</div>
+			</a>
+			<a
+				class="card card-border bg-base-100 transition-colors hover:border-secondary"
+				href={resolve('/me/notes')}
+			>
+				<div class="card-body">{fr.notes.link(openCount(notesLive.data ?? []))}</div>
+			</a>
+		</div>
 	{/if}
 </main>

@@ -16,6 +16,10 @@ Mis à jour le 24 novembre 2026. Le détail de chaque choix technique est dans
 - **Vue enfant** : le niveau n'est plus affiché sur sa page matière (seulement pour une
   matière d'un autre niveau) ; dans une fiche, chaque point de « L'essentiel » mène à la
   première partie qui en parle.
+- **Mes fiches vues** : l'enfant retrouve les fiches qu'il a ouvertes (les plus récentes
+  d'abord), avec une recherche sans accents, un filtre par matière et un tirage au hasard.
+- **Mode test enfant** : le parent utilise l'app comme un enfant choisi (son classeur), avec
+  ses propres données de test, remises à zéro quand il veut.
 - **Remarques** : l'enfant écrit une remarque sur une fiche ; le parent les voit toutes
   (`/parent/notes`) et les marque vues ou réglées.
 - **Identité visuelle** : thèmes clair et sombre tirés du logo, icônes de l'app (livre et
@@ -47,7 +51,6 @@ existe déjà ou signale ce qu'il faudra trancher.
 
 | Idée | À savoir |
 | --- | --- |
-| Une page avec toutes les fiches déjà vues, avec une recherche et un tirage au hasard pour en choisir une. | `progress.openedAt` enregistre déjà les fiches ouvertes. |
 | Des tags (mots-clés) sur les fiches, pour la recherche. | Conclusion du « procès » du 23 novembre : les mettre sur chaque fiche (pas sur la matière), écrits par l'IA dans le JSON de la fiche. |
 
 ### Remarques et photos
