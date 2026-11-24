@@ -23,6 +23,11 @@ export const fr = {
 		error: "Quelque chose s'est mal passé. Recharge la page.",
 		home: "← Retour à l'accueil"
 	},
+	update: {
+		available: 'Une nouvelle version de PocketClass est prête.',
+		apply: 'Mettre à jour',
+		later: 'Plus tard'
+	},
 	common: {
 		grade: 'Niveau',
 		emptyTopic: 'Rien pour le moment',
@@ -60,6 +65,7 @@ export const fr = {
 		parentSection: 'Espace parent',
 		importPath: 'Importer un parcours',
 		manageProfiles: 'Gérer les profils',
+		childrenNotes: 'Remarques des enfants',
 		familyPaths: 'Parcours de la famille',
 		noFamilyPaths: 'Aucun parcours importé pour le moment.',
 		loadFailed: 'Impossible de charger les parcours.',
@@ -126,6 +132,9 @@ export const fr = {
 	notes: {
 		title: 'Mes remarques',
 		parentTitle: 'Remarques',
+		familyTitle: 'Remarques des enfants',
+		showResolved: 'Afficher aussi les remarques réglées',
+		noChildren: "Aucun profil enfant pour l'instant.",
 		link: (open: number) => (open === 0 ? 'Mes remarques' : `Mes remarques · ${open} à voir`),
 		formTitle: 'Une difficulté ?',
 		formHelp:

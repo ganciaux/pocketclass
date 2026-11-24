@@ -4,17 +4,18 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import SessionGate from '#lib/components/SessionGate.svelte';
+	import UpdateToast from '#lib/components/UpdateToast.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { connectivity } from '#lib/online.svelte.ts';
+	import { appUpdate } from '#lib/update.svelte.ts';
 	import { resolve } from '$app/paths';
-	import { registerSW } from 'virtual:pwa-register';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
 
 	session.start();
-	// Service worker (app shell cache). autoUpdate: a new version is activated on next load.
-	registerSW({ immediate: true });
+	// Service worker (app shell cache); new versions are offered by <UpdateToast>.
+	appUpdate.start();
 </script>
 
 <svelte:head>
@@ -47,3 +48,5 @@
 <SessionGate>
 	{@render children()}
 </SessionGate>
+
+<UpdateToast />

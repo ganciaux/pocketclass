@@ -4,6 +4,20 @@ import { withPwa } from '@vite-pwa/sveltekit';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+	build: {
+		rolldownOptions: {
+			output: {
+				// Big libraries in their own chunks: their file names (content hashes) do not change
+				// when our code does, so a deploy does not make phones download them again.
+				codeSplitting: {
+					groups: [
+						{ name: 'firebase', test: /node_modules[\\/](@firebase|firebase)[\\/]/ },
+						{ name: 'markdown', test: /node_modules[\\/](katex|marked|dompurify)[\\/]/ }
+					]
+				}
+			}
+		}
+	},
 	plugins: [
 		tailwindcss(),
 		// withPwa wraps the sveltekit() plugin (first argument = SvelteKit options).
@@ -18,9 +32,15 @@ export default defineConfig({
 			},
 			{
 				strategies: 'generateSW',
-				registerType: 'autoUpdate',
+				// A new version waits until the user accepts it (src/lib/update.svelte.ts).
+				registerType: 'prompt',
 				// Registered from the root layout with `virtual:pwa-register`.
 				injectRegister: false,
+				// Absolute: Kit's relative base would register `./sw.js` from the current page, so an app
+				// opened on /concept/x looked for /concept/sw.js and silently had no service worker.
+				base: '/',
+				buildBase: '/',
+				scope: '/',
 				kit: { adapterFallback: 'index.html', spa: true },
 				manifest: {
 					name: 'PocketClass — Fiches de révision',
