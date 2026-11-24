@@ -62,7 +62,7 @@
 
 	async function removeChapter(familyId: string, chapter: WithId<Chapter>) {
 		await deleteChapter(familyId, chapter.id);
-		await goto(resolve('/parent/subjects/[id]', { id: chapter.subjectId }), { replaceState: true });
+		await goto(resolve('/parent/subjects/[id]', { id: chapter.subjectId }), { replace: true });
 	}
 
 	// Add a sheet (prompt + JSON).

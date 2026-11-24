@@ -1,6 +1,6 @@
 # PocketClass — état et idées en attente
 
-Mis à jour le 24 novembre 2026. Le détail de chaque choix technique est dans
+Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
 [CLAUDE.md](../CLAUDE.md) (« Technical decisions log »).
 
 ## Ce qui est fait
@@ -36,6 +36,22 @@ Mis à jour le 24 novembre 2026. Le détail de chaque choix technique est dans
   crayon-fusée, sans le texte), icônes de matières, animations.
 - **Outillage** : emulators sur les ports 8180 (Firestore) et 5050 (Hosting), tests des règles
   Firestore, `npm run verify` puis `npm run prod` pour déployer.
+
+## À faire au prochain déploiement
+
+Tout est poussé sur `main`, rien n'est déployé depuis le mot de passe parent.
+
+- Lancer `npm run prod` : il déploie l'app **et les règles Firestore** (nécessaires au tampon
+  « Acquise » et aux remarques n'importe où).
+- Vérifier sur la vraie app :
+  - rattacher un mot de passe au compte Google depuis « Mon profil », puis se connecter avec
+    (l'emulator bloque ce rattachement) ;
+  - sur le téléphone d'un enfant : ouvrir et marquer lue une fiche tamponnée « Acquise » ;
+  - le bouton « Une difficulté ? » sur iPhone (au-dessus de la barre du bas, zone sûre).
+- Facultatif : console Firebase → Authentication → Modèles, langue des e-mails en français
+  (e-mail « mot de passe oublié »).
+- Sur iPhone : voir si les reconnexions fréquentes cessent (stockage persistant demandé,
+  connexion par mot de passe possible).
 
 ## En pause : phase 2 (entraînement)
 

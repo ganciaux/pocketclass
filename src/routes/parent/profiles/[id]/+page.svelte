@@ -30,7 +30,7 @@
 
 	async function deleteChild(familyId: string, childId: string) {
 		await deleteChildProfile(familyId, childId);
-		await goto(resolve('/parent/profiles'), { replaceState: true });
+		await goto(resolve('/parent/profiles'), { replace: true });
 	}
 </script>
 

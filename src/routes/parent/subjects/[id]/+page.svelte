@@ -71,7 +71,7 @@
 
 	async function removeSubject(familyId: string) {
 		await deleteSubject(familyId, subjectId);
-		await goto(resolve('/parent/subjects'), { replaceState: true });
+		await goto(resolve('/parent/subjects'), { replace: true });
 	}
 
 	// Whole chapter import (prompt + JSON).
