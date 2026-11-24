@@ -80,8 +80,8 @@ export const fr = {
 		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
 		fresh: (count: number) => plural(count, 'nouveauté'),
 		state: { new: 'Nouveau', updated: 'Mis à jour', read: 'Lue ✓', opened: 'Commencée' },
-		next: 'Continuer :',
-		allRead: 'Toutes les fiches sont lues ✓',
+		next: 'Continuer',
+		allRead: 'Toutes les fiches sont lues !',
 		manage: 'Gérer',
 		/** Back link label while the subject / chapter name loads. */
 		subject: 'Matière',
@@ -91,13 +91,14 @@ export const fr = {
 		notFound: "Cette fiche n'existe pas (ou plus).",
 		loadFailed: 'Impossible de charger la fiche.',
 		keyPoints: "L'essentiel",
-		examples: 'Exemples',
+		example: (n: number) => `Exemple ${n}`,
 		showSolution: 'Voir la solution',
-		pitfalls: '⚠️ Pièges à éviter',
+		section: (n: number, total: number) => `Partie ${n} / ${total}`,
+		pitfalls: 'Pièges à éviter',
 		practice: "S'entraîner",
 		assessment: 'Contrôle',
 		markRead: "J'ai lu cette fiche",
-		isRead: '✓ Fiche lue',
+		isRead: 'Fiche lue, bravo !',
 		markUnread: 'Marquer comme non lue'
 	},
 	profiles: {

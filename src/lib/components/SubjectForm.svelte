@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SUBJECT_SWATCH } from '#lib/binder/colors.ts';
 	import { ICON_PATHS, subjectIcon } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import { updateSubject } from '#lib/data/catalogEdit.ts';
 	import {
@@ -106,20 +107,7 @@
 						<span
 							class="grid size-11 place-items-center rounded-box text-base-content/70 peer-checked:bg-base-200 peer-checked:text-base-content peer-checked:ring-2 peer-checked:ring-base-content peer-focus-visible:ring-2"
 						>
-							<svg
-								aria-hidden="true"
-								class="size-6"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							>
-								{#each ICON_PATHS[i] as path, p (p)}
-									<path d={path.d} transform={path.transform} />
-								{/each}
-							</svg>
+							<Icon paths={ICON_PATHS[i]} class="size-6" />
 						</span>
 						<span class="sr-only">{t.icons[i]}</span>
 					</label>

@@ -57,6 +57,25 @@ export const ICON_PATHS: Record<SubjectIcon, IconPath[]> = {
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z')
 };
 
+/** Interface icons, same style (back link, lists, sheet page). */
+export const UI_ICONS = {
+	chevronLeft: paths('m15 18-6-6 6-6'),
+	chevronRight: paths('m9 18 6-6-6-6'),
+	check: paths('M20 6 9 17l-5-5'),
+	play: paths('M7 4v16l13-8z'),
+	bookmark: paths('M6 3h12v18l-6-4-6 4z'),
+	lightbulb: paths(
+		'M9 18h6',
+		'M10 22h4',
+		'M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z'
+	),
+	alert: paths(
+		'M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+		'M12 9v4',
+		'M12 17h.01'
+	)
+} satisfies Record<string, IconPath[]>;
+
 /** First keyword found in the (accent-free, lower-case) subject name. */
 const SUGGESTIONS: [RegExp, SubjectIcon][] = [
 	[/math/, 'calculator'],

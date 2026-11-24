@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SUBJECT_TILE } from '#lib/binder/colors.ts';
 	import { ICON_PATHS, subjectIcon } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import type { Subject } from '#lib/data/types.ts';
 
 	/**
@@ -28,18 +29,6 @@
 		style:height="{size}rem"
 		aria-hidden="true"
 	>
-		<svg
-			class="size-[55%]"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="2"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-		>
-			{#each ICON_PATHS[subjectIcon(subject)] as path, i (i)}
-				<path d={path.d} transform={path.transform} />
-			{/each}
-		</svg>
+		<Icon paths={ICON_PATHS[subjectIcon(subject)]} class="size-[55%]" />
 	</span>
 {/if}

@@ -26,6 +26,30 @@ export const SUBJECT_TILE: Record<SubjectColor, string> = {
 	lime: 'bg-lime-500/15 text-lime-700 dark:text-lime-300'
 };
 
+/** Light wash of the colour (subject header banner). */
+export const SUBJECT_TINT: Record<SubjectColor, string> = {
+	amber: 'bg-amber-500/10',
+	blue: 'bg-blue-500/10',
+	emerald: 'bg-emerald-500/10',
+	rose: 'bg-rose-500/10',
+	violet: 'bg-violet-500/10',
+	cyan: 'bg-cyan-500/10',
+	orange: 'bg-orange-500/10',
+	lime: 'bg-lime-500/10'
+};
+
+/** Text (and `currentColor`: progress bars, icons) in the colour. */
+export const SUBJECT_TEXT: Record<SubjectColor, string> = {
+	amber: 'text-amber-600 dark:text-amber-400',
+	blue: 'text-blue-600 dark:text-blue-400',
+	emerald: 'text-emerald-600 dark:text-emerald-400',
+	rose: 'text-rose-600 dark:text-rose-400',
+	violet: 'text-violet-600 dark:text-violet-400',
+	cyan: 'text-cyan-600 dark:text-cyan-400',
+	orange: 'text-orange-600 dark:text-orange-400',
+	lime: 'text-lime-600 dark:text-lime-400'
+};
+
 /** Colour swatch (subject form, lists). */
 export const SUBJECT_SWATCH: Record<SubjectColor, string> = {
 	amber: 'bg-amber-500',

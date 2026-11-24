@@ -1,6 +1,4 @@
 <script lang="ts">
-	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
-	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import {
 		activeOnly,
@@ -8,12 +6,19 @@
 		nextUnread,
 		progressById,
 		reachableSheets,
+		tally,
 		tallyBy
 	} from '#lib/binder/binder.ts';
+	import { SUBJECT_TEXT, SUBJECT_TILE, SUBJECT_TINT } from '#lib/binder/colors.ts';
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import BackLink from '#lib/components/BackLink.svelte';
+	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import TallyLine from '#lib/components/TallyLine.svelte';
 	import { watchSubject, watchSubjectContent } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
+	import type { Chapter, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
@@ -30,6 +35,14 @@
 			subjectId &&
 			watchSubjectContent(session.familyId, subjectId, session.childId)
 	);
+
+	/** Chapter numbers in display order (groups first-come, as on the page). */
+	const numbering = (chapters: WithId<Chapter>[]) =>
+		new Map(
+			groupChapters(chapters)
+				.flatMap((g) => g.chapters)
+				.map((c, i) => [c.id, i + 1])
+		);
 </script>
 
 <svelte:head>
@@ -40,53 +53,101 @@
 	<BackLink href={resolve('/')} label={fr.app.home} />
 	<LoadState source={subjectLive} notFound={t.subjectNotFound} failed={t.loadFailed}>
 		{#snippet children(subject)}
-			<header class="flex items-center gap-3">
-				<SubjectBadge {subject} />
-				<h1 class="flex-1">{subject.name}</h1>
-				<span class="badge badge-ghost">{subject.grade}</span>
-				{#if session.isAdmin}
-					<a
-						class="btn btn-ghost btn-sm"
-						href={resolve('/parent/subjects/[id]', { id: subject.id })}
-					>
-						{t.manage}
-					</a>
-				{/if}
-			</header>
-
 			<LoadState source={contentLive} failed={t.loadFailed}>
 				{#snippet children(content)}
 					{@const chapters = activeOnly(content.chapters)}
 					{@const sheets = reachableSheets(content.sheets, chapters)}
 					{@const progress = progressById(content.progress)}
 					{@const tallies = tallyBy(sheets, 'chapterId', progress)}
+					{@const numbers = numbering(chapters)}
 					{@const next = session.isChild ? nextUnread(chapters, sheets, progress) : null}
 
+					<!-- Banner in the subject's colour: its picture, name and overall progress. -->
+					<header class={['card', SUBJECT_TINT[subject.color]]}>
+						<div class="card-body gap-3">
+							<div class="flex items-center gap-4">
+								<SubjectBadge {subject} size={4} />
+								<div class="flex min-w-0 flex-1 flex-col">
+									<span class="badge badge-ghost badge-sm self-start">{subject.grade}</span>
+									<h1>{subject.name}</h1>
+								</div>
+							</div>
+							{#if session.isChild}
+								<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[subject.color]} />
+							{:else}
+								<div class="flex items-center justify-between gap-2">
+									<span class="text-sm text-base-content/70">{t.sheets(sheets.length)}</span>
+									{#if session.isAdmin}
+										<a
+											class="btn btn-ghost btn-sm"
+											href={resolve('/parent/subjects/[id]', { id: subject.id })}
+										>
+											{t.manage}
+										</a>
+									{/if}
+								</div>
+							{/if}
+						</div>
+					</header>
+
 					{#if next}
-						<a class="btn btn-primary" href={resolve('/concept/[id]', { id: next.id })}>
-							{t.next}
-							{@html renderInline(next.title)}
+						<a
+							class="card subject-card bg-primary text-primary-content shadow-sm"
+							href={resolve('/concept/[id]', { id: next.id })}
+						>
+							<div class="card-body flex-row items-center gap-3">
+								<span class="grid size-10 place-items-center rounded-full bg-primary-content/15">
+									<Icon paths={UI_ICONS.play} />
+								</span>
+								<span class="flex min-w-0 flex-1 flex-col">
+									<span class="text-sm font-bold opacity-80">{t.next}</span>
+									<span class="font-bold">{@html renderInline(next.title)}</span>
+								</span>
+								<Icon paths={UI_ICONS.chevronRight} />
+							</div>
 						</a>
 					{:else if session.isChild && sheets.length > 0}
-						<span class="badge badge-success self-start">{t.allRead}</span>
+						<p role="status" class="alert alert-success alert-soft">
+							<Icon paths={UI_ICONS.check} />
+							{t.allRead}
+						</p>
 					{/if}
 
 					{#each groupChapters(chapters) as { group, chapters: list } (group)}
 						<section class="flex flex-col gap-2">
-							{#if group}<h2>{group}</h2>{/if}
+							{#if group}
+								<h2
+									class="divider divider-start text-sm tracking-wide text-base-content/60 uppercase"
+								>
+									{group}
+								</h2>
+							{/if}
 							{#each list as chapter (chapter.id)}
-								{@const tally = tallies.get(chapter.id) ?? { total: 0, read: 0, fresh: 0 }}
+								{@const chapterTally = tallies.get(chapter.id) ?? { total: 0, read: 0, fresh: 0 }}
 								<a
-									class="card card-border bg-base-100 transition-colors hover:border-primary"
+									class="card subject-card card-border bg-base-100"
 									href={resolve('/chapter/[id]', { id: chapter.id })}
 								>
-									<div class="card-body gap-2">
-										<strong class="text-lg">{chapter.title}</strong>
-										{#if session.isChild}
-											<TallyLine {tally} />
-										{:else}
-											<span class="text-sm text-base-content/70">{t.sheets(tally.total)}</span>
-										{/if}
+									<div class="card-body flex-row items-center gap-4">
+										<span
+											class={[
+												'grid size-11 shrink-0 place-items-center rounded-full text-lg font-bold',
+												SUBJECT_TILE[subject.color]
+											]}
+										>
+											{numbers.get(chapter.id)}
+										</span>
+										<div class="flex min-w-0 flex-1 flex-col gap-2">
+											<strong class="text-lg leading-tight">{chapter.title}</strong>
+											{#if session.isChild}
+												<TallyLine tally={chapterTally} barClass={SUBJECT_TEXT[subject.color]} />
+											{:else}
+												<span class="text-sm text-base-content/70">
+													{t.sheets(chapterTally.total)}
+												</span>
+											{/if}
+										</div>
+										<Icon paths={UI_ICONS.chevronRight} class="size-5 text-base-content/40" />
 									</div>
 								</a>
 							{/each}
