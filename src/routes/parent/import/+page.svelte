@@ -75,14 +75,17 @@
 
 	// Pre-tick the profiles that already have this path, once per path (cancelled if it changes).
 	// Children are read untracked: a child added meanwhile must not reset the parent's ticks.
+	// The answer may arrive after the parent already ticked: their choice wins.
+	let ticked = false;
 	$effect(() => {
 		const familyId = session.familyId;
 		const id = pathId;
 		if (!familyId || !id || !childrenReady) return;
 		const ids = untrack(() => childIds);
+		ticked = false;
 		let cancelled = false;
 		profilesAssignedTo(familyId, id, ids)
-			.then((assigned) => !cancelled && (selected = assigned))
+			.then((assigned) => !cancelled && !ticked && (selected = assigned))
 			.catch((error) => console.error('[import] assignments', error));
 		return () => (cancelled = true);
 	});
@@ -225,6 +228,7 @@
 							type="checkbox"
 							value={child.id}
 							bind:group={selected}
+							onchange={() => (ticked = true)}
 						/>
 						<span>{child.firstName}</span>
 						<span class="badge badge-ghost badge-sm">{child.grade}</span>
