@@ -91,6 +91,8 @@ export const fr = {
 		notFound: "Cette fiche n'existe pas (ou plus).",
 		loadFailed: 'Impossible de charger la fiche.',
 		keyPoints: "L'essentiel",
+		tags: 'Mots-clés',
+		searchTag: (tag: string) => `Chercher « ${tag} » dans mes fiches vues`,
 		example: (n: number) => `Exemple ${n}`,
 		showSolution: 'Voir la solution',
 		section: (n: number, total: number) => `Partie ${n} / ${total}`,

@@ -18,6 +18,11 @@ Mis à jour le 24 novembre 2026. Le détail de chaque choix technique est dans
   première partie qui en parle.
 - **Mes fiches vues** : l'enfant retrouve les fiches qu'il a ouvertes (les plus récentes
   d'abord), avec une recherche sans accents, un filtre par matière et un tirage au hasard.
+- **Tags sur les fiches** : mots-clés écrits par l'IA dans le JSON, cherchables dans « Mes
+  fiches vues » ; sur une fiche, toucher un tag lance la recherche.
+- **Mot de passe parent** : rattaché au compte Google (même famille), connexion par e-mail et
+  mot de passe, « mot de passe oublié ». À confirmer sur la vraie app (l'emulator bloque le
+  rattachement).
 - **Mode test enfant** : le parent utilise l'app comme un enfant choisi (son classeur), avec
   ses propres données de test, remises à zéro quand il veut.
 - **Remarques** : l'enfant écrit une remarque sur une fiche ; le parent les voit toutes
@@ -51,7 +56,6 @@ existe déjà ou signale ce qu'il faudra trancher.
 
 | Idée | À savoir |
 | --- | --- |
-| Des tags (mots-clés) sur les fiches, pour la recherche. | Conclusion du « procès » du 23 novembre : les mettre sur chaque fiche (pas sur la matière), écrits par l'IA dans le JSON de la fiche. |
 
 ### Remarques et photos
 

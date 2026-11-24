@@ -111,6 +111,26 @@
 					</span>
 				{/if}
 				<h1>{@html renderInline(concept.title)}</h1>
+				{#if concept.tags?.length}
+					<!-- Keywords; in child view each one searches « Mes fiches vues ». -->
+					<ul class="flex flex-wrap gap-1.5" aria-label={t.tags}>
+						{#each concept.tags as tag (tag)}
+							<li>
+								{#if session.childView}
+									<a
+										class="badge badge-outline hover:badge-primary"
+										href="{resolve('/me/sheets')}?q={encodeURIComponent(tag)}"
+										title={t.searchTag(tag)}
+									>
+										{tag}
+									</a>
+								{:else}
+									<span class="badge badge-outline">{tag}</span>
+								{/if}
+							</li>
+						{/each}
+					</ul>
+				{/if}
 			</header>
 
 			<!-- Key points are numbered: the sections below refer to them by number. -->

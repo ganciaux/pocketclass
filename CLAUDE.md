@@ -320,6 +320,14 @@ made.
   account's own (`EMAIL_EXISTS` on any existing e-mail): test that step on the real project;
   sign-in, change and reset were checked on the emulators.
 
+- 2026-11-24 — **Sheet tags**: optional `tags` in `sheet@1` (and the sheets of `chapter@1`),
+  no format version change (an optional field breaks no old file): max 10, 1–30 characters,
+  duplicates ignoring case and accents dropped silently (Zod transform). The prompt asks for
+  3–8 lower-case French keywords a pupil would type. Stored on `concepts/{id}.tags` (replaced on
+  re-import; absent on older sheets = none). Searched by « Mes fiches vues » (`searchText`). The
+  sheet page shows them as badges; in child view each links to `/me/sheets?q=<tag>`, which
+  prefills the search.
+
 ## Firestore model
 
 ```
@@ -331,7 +339,7 @@ families/{familyId}                            { name, admins: [uid], createdAt 
                                                  extraSubjects? }
   subjects/{subjectId}                         { name, grade, color, order, archived, icon?, image? }   (auto id)
   chapters/{chapterId}                         { subjectId, title, group|null, order, archived }   (auto id)
-  concepts/{conceptId}                         { subjectId, chapterId, title, order, prerequisites, keyPoints,
+  concepts/{conceptId}                         { subjectId, chapterId, title, order, tags?, prerequisites, keyPoints,
                                                  sheet, summaryInstruction, version, updatedAt, archived }   (a sheet)
   concepts/{conceptId}/exercises/{exerciseId}  { usage, type, keyPoint, difficulty, ...type fields, archived }
   assessments/{assessmentId}                   { chapterId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }   (id = sheet id)

@@ -12,6 +12,7 @@
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 
 	// The sheets the child already opened (or the parent, testing as a child): latest first,
 	// searchable, filterable by subject, or one at random to revise.
@@ -21,7 +22,8 @@
 		() => session.familyId && ownerId && watchBinder(session.familyId, ownerId)
 	);
 
-	let query = $state('');
+	// A tag of a sheet links here with `?q=<tag>`: the search starts filled in.
+	let query = $state(page.url.searchParams.get('q') ?? '');
 	let subjectId = $state<string | null>(null);
 
 	function openRandom(ids: string[]) {
