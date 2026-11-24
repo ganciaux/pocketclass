@@ -359,6 +359,11 @@ engine, `fractions.*` generators, attempts. Phase 3: assessments, scoring, point
 Phase 4: summary photo flow. Phase 5: child-side extras (QR code if needed). Phase 6:
 spaced repetition, in-app AI prompts, quick lesson entry (`lesson@1`).
 
+Phase 2 is paused, and the user's ideas set aside (no decision yet: hide the grade from the
+child, key point links, seen-sheets page, tags on sheets, notes anywhere, photo upload, mind
+maps with a no-repeat draw, "acquired" stamp, points / 70 % assessments / activity history)
+are in [docs/backlog.md](docs/backlog.md) (French). Keep it in sync when one is done or decided.
+
 ## Git
 
 Conventional Commits in English, short one-line messages, no attribution lines.
