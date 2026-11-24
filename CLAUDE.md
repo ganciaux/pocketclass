@@ -46,13 +46,13 @@ ids already used), the parent pastes it into any AI, gets JSON back, pastes it i
 
 Layers, from the outside in. A layer only imports from layers below it.
 
-| Layer      | Where                                                                                                       | Rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ---------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Routes     | `src/routes/**`                                                                                             | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                                                                                                                                                                                                                                                                                                                                           |
-| Components | `src/lib/components/`                                                                                       | Reusable UI: `LoadState`, `SessionGate` (+ `LinkDeviceForm`), `Avatar`, `ProfileLookForm`, `SubjectCards` (binder + progress, child home and parent view), `TallyLine`, `SheetStateBadge`, `NoteForm` / `NoteList` / `ProfileNotes`, `ConfirmDelete` (type « SUPPRIMER »), `ChildDevices`. Parent binder tools: `OrderActions` (↑ ↓ hide), `SubjectForm`, `ChapterForm` / `ChapterSettings`, `ExtraSubjects`, import flow = `PromptCopy` + `JsonPaste` (any Zod schema) + `ImportPreview` + `ImportResult`. Shared components take `familyId` / `profileId` props. |
-| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`)                                           | Runes singletons. `session.profile` is live; use `session.profileId` / `session.childId` (primitives) in `live()` sources; `isAdmin` / `isChild`.                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Data       | `src/lib/data/`                                                                                             | The only code touching Firestore. `refs.ts` builds every path (names in `collections.ts`). `sources.ts`: `Subscribe` sources (`docSource`, `querySource`) and cache-first one-shot reads (`firstSnapshot`, `getDocCacheFirst`). Domain sources are named `watchX` (`catalog.ts`, `family.ts`, `devices.ts`, `progress.ts`, `notes.ts`); `combine()` merges sources for one `<LoadState>` (`watchBinder`, `watchSubjectContent`…). Parent binder edits in `catalogEdit.ts`. Executors of pure plans live here (`importSheets.ts`).                                  |
-| Pure logic | `schemas/`, `import/`, `binder/`, `prompts/`, `math/`, `render/`, `i18n/`, `linking/`, `profile/`, `notes/` | No **runtime** Firebase import: unit-tested with Vitest. May import types from `data/types.ts` and names from `data/collections.ts` (both pure). Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                                                                                                                                                                                                                                      |
+| Layer      | Where                                                                                                       | Rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routes     | `src/routes/**`                                                                                             | No `firebase/*` import, no refs or queries. Read data with `live(() => … && watchX(…))`, render states with `<LoadState>`. Parent pages go under `routes/parent/` (admin guard in its `+layout.svelte`).                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Components | `src/lib/components/`                                                                                       | Reusable UI: `LoadState`, `BackLink`, `SubjectBadge`, `SessionGate` (+ `LinkDeviceForm`), `Avatar`, `ProfileLookForm`, `SubjectCards` (binder + progress, child home and parent view), `TallyLine`, `SheetStateBadge`, `NoteForm` / `NoteList` / `ProfileNotes`, `ConfirmDelete` (type « SUPPRIMER »; `ConfirmDeleteDialog` = same in a modal), `ChildDevices`. Parent binder tools: `OrderActions` (↑ ↓ hide), `SubjectForm`, `ChapterForm` / `ChapterSettings`, `ExtraSubjects`, import flow = `PromptCopy` + `JsonPaste` (any Zod schema) + `ImportPreview` + `ImportResult`. Shared components take `familyId` / `profileId` props. |
+| App state  | `auth.svelte.ts` (`session`), `online.svelte.ts` (`connectivity`)                                           | Runes singletons. `session.profile` is live; use `session.profileId` / `session.childId` (primitives) in `live()` sources; `isAdmin` / `isChild`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Data       | `src/lib/data/`                                                                                             | The only code touching Firestore. `refs.ts` builds every path (names in `collections.ts`). `sources.ts`: `Subscribe` sources (`docSource`, `querySource`) and cache-first one-shot reads (`firstSnapshot`, `getDocCacheFirst`). Domain sources are named `watchX` (`catalog.ts`, `family.ts`, `devices.ts`, `progress.ts`, `notes.ts`); `combine()` merges sources for one `<LoadState>` (`watchBinder`, `watchSubjectContent`…). Parent binder edits in `catalogEdit.ts`, deletions in `catalogDelete.ts`. Executors of pure plans live here (`importSheets.ts`).                                                                      |
+| Pure logic | `schemas/`, `import/`, `binder/`, `prompts/`, `math/`, `render/`, `i18n/`, `linking/`, `profile/`, `notes/` | No **runtime** Firebase import: unit-tested with Vitest. May import types from `data/types.ts` and names from `data/collections.ts` (both pure). Phase 2 practice engine goes here too (`src/lib/practice/`).                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 - **Pattern for Firestore features**: pure planner in a pure module (unit-tested) + thin
   executor in `data/` (e.g. `import/sheetPlan.ts` + `data/importSheets.ts`). Keep it for
@@ -224,7 +224,9 @@ made.
   The page background is base-200 through daisyUI's `--root-bg`.
 - 2026-11-24 — Service worker in `registerType: 'prompt'`: `src/lib/update.svelte.ts`
   (`appUpdate`) + `<UpdateToast>` offer "Mettre à jour" when a version is waiting, and check
-  for updates every hour. PWA `base` / `buildBase` / `scope` forced to `/`: with Kit's
+  for updates every hour. "Mettre à jour" reloads on `controllerchange` itself (+ 3 s
+  fallback): the plugin only reloads when this page installed the new version, so a version
+  found at launch or by the hourly check was activated without a reload. PWA `base` / `buildBase` / `scope` forced to `/`: with Kit's
   relative base the app registered `./sw.js` from the current page (opened on `/concept/x`
   it had no service worker at all). The Playwright browser used here blocks service workers:
   check SW behaviour on a phone or a normal Chrome.
@@ -240,8 +242,8 @@ made.
   plus an optional display-only `group` on chapters. Subjects are **per grade** (auto ids); a
   child sees the active subjects of their grade plus `profile.extraSubjects` (set by the
   parent): no assignments any more. Chapters are independent (no map, no order constraint for
-  the child); order is an integer renumbered by `moveItem` (↑ ↓). Nothing is deleted: subjects,
-  chapters and sheets are hidden with `archived`.
+  the child); order is an integer renumbered by `moveItem` (↑ ↓). Subjects, chapters and sheets
+  are hidden with `archived` (reversible); deletion was added the same day (entry below).
   - Formats: `pocketclass/sheet@1` (one sheet, added to the chapter it is pasted in; same id =
     update: next `version`, same place, missing exercises / assessment archived) and
     `pocketclass/chapter@1` (title, group, sheets: creates a chapter at the end of a subject).
@@ -256,6 +258,32 @@ made.
     theme colours (several of ours are identical).
   - No migration: old `paths` / `assignments` data is ignored; content is re-imported (the
     sample is now `static/samples/maths-3e-revisions.json`, a `chapter@1`).
+- 2026-11-24 — **The parent can delete the catalogue** (user's request: "je dois pouvoir tout
+  supprimer"; supersedes "never delete"). `data/catalogDelete.ts`: `deleteSheet`,
+  `deleteChapter`, `deleteSubject` (online, awaited, typed « SUPPRIMER »). A sheet goes with its
+  exercises, assessment and every child's progress and notes on it; a subject also leaves the
+  children's `extraSubjects`, and takes every sheet with its `subjectId` (also the old path
+  import's sheets, which have no chapter). Subject and chapter: `<ConfirmDelete>` at the bottom
+  of their page; list rows: `OrderActions` `ondelete` + `<ConfirmDeleteDialog>` (modal).
+  Subjects without a known grade (left by the old import) are listed under "Sans niveau" and
+  their page has no import (the prompt needs a grade). Re-import still archives (never deletes)
+  missing exercises. Old `paths` / `assignments` documents stay (invisible).
+- 2026-11-24 — Parent home: « Classeurs », one shelf per grade (`SubjectCards` without a
+  profile); "Gérer les classeurs". **Motion**: Svelte transitions in `src/lib/motion.ts` (`row`
+  in/out on parent list rows, `reorder` = flip on ↑ ↓, `toast`), CSS tokens `--ease-out` /
+  `--ease-in-out` in `app.css` `@theme`, page changes with the View Transitions API
+  (`onNavigate` in the root layout, CSS `::view-transition-*`, header pinned with
+  `view-transition-name`), `.subject-card` press feedback. Strong ease-out curves, exits faster
+  than entrances, ≤ 280 ms; `prefers-reduced-motion`: short fades only. No motion library.
+- 2026-11-24 — Every page but home starts with `<BackLink href label>`: a 44 px pill with an
+  SVG chevron and the parent page's name (a link to the parent page, not `history.back()`:
+  deep links and PWA launches have no history). No arrows in the French labels any more.
+- 2026-11-24 — **Subject picture** (`<SubjectBadge>`): `subject.image` (data URL from
+  `imageFileToAvatar`, like a profile avatar) wins over `subject.icon`; without an icon, one is
+  suggested from the name (`binder/icons.ts`: `suggestIcon`, unit-tested). Icons are our own
+  24 × 24 line drawings (no icon package: adding a dependency was refused by the permission
+  system; ask the user before adding one). Parent list rows wrap their actions under the
+  title on narrow screens (title `basis-*` + `flex-wrap`, actions `ms-auto`).
 
 ## Firestore model
 
@@ -266,7 +294,7 @@ families/{familyId}                            { name, admins: [uid], createdAt 
   devices/{uid}                                { profileId, code, linkedAt }      (child phone, anonymous uid)
   profiles/{profileId}                         { firstName, role: admin|child, grade, points, nickname?, avatar?,
                                                  extraSubjects? }
-  subjects/{subjectId}                         { name, grade, color, order, archived }   (auto id)
+  subjects/{subjectId}                         { name, grade, color, order, archived, icon?, image? }   (auto id)
   chapters/{chapterId}                         { subjectId, title, group|null, order, archived }   (auto id)
   concepts/{conceptId}                         { subjectId, chapterId, title, order, prerequisites, keyPoints,
                                                  sheet, summaryInstruction, version, updatedAt, archived }   (a sheet)
@@ -283,7 +311,7 @@ families/{familyId}                            { name, admins: [uid], createdAt 
 - Stable ids from the import: concept (sheet) id = JSON id; exercise id = JSON id (unique per
   sheet). Subject and chapter ids are generated.
 - Re-import of a sheet = upsert, `version` increments, missing exercises get `archived: true`.
-  **Never delete** (catalogue).
+  Only an explicit parent deletion removes catalogue documents (`data/catalogDelete.ts`).
 - Writes go through `writeBatch`, max 450 operations per batch.
 
 ## JSON formats (`src/lib/schemas/`)
