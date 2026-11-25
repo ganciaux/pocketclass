@@ -154,7 +154,25 @@ export const fr = {
 		last: (score: string) => `Dernier : ${score}`,
 		parentTitle: 'Entraînement',
 		noScores: "Aucune série d'entraînement pour l'instant.",
-		bestLabel: 'meilleur'
+		bestLabel: 'meilleur',
+		challengeRecord: (n: number) => `Défi : ${n}`
+	},
+	challenge: {
+		title: 'Défi 60 s',
+		help: (seconds: number) =>
+			`Réponds juste au plus grand nombre de questions en ${seconds} secondes. Une erreur ne fait pas perdre de point.`,
+		tooFew: (min: number) =>
+			`Il faut au moins ${min} questions rapides (QCM, vrai/faux, calcul) sur cette fiche pour le défi.`,
+		record: (n: number) => `Ton record : ${plural(n, 'bonne réponse', 'bonnes réponses')}`,
+		noRecord: 'Pas encore de record : à toi de jouer !',
+		start: "C'est parti !",
+		timeLeft: (s: number) => `${s} s`,
+		right: (n: number) => `${n} juste${n > 1 ? 's' : ''}`,
+		done: 'Temps écoulé !',
+		result: (correct: number, total: number) =>
+			`${plural(correct, 'bonne réponse', 'bonnes réponses')} sur ${total}`,
+		newRecord: 'Nouveau record !',
+		again: 'Rejouer'
 	},
 	profiles: {
 		title: 'Profils',

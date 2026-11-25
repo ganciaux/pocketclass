@@ -57,10 +57,10 @@ Tout est poussé sur `main`, rien n'est déployé depuis le mot de passe parent.
 
 Fait (2026-11-25) : séries de 10 questions (formule A) avec score, « Refaire mes erreurs »,
 nouveaux types (relier, vrai/faux, classer) et explication après chaque réponse, dernier et
-meilleur score sur la fiche, carte « Entraînement » sur la page de l'enfant côté parent.
+meilleur score sur la fiche, carte « Entraînement » sur la page de l'enfant côté parent ;
+défi chronométré de 60 s (formule C) avec record par fiche.
 
 Ensuite :
-- défi chronométré de 60 s (formule C) ;
 - « jusqu'à maîtrise » (formule B, plus tard) ;
 - générateurs `fractions.*` (entraînement illimité) ;
 - trous à choisir dans une liste (aujourd'hui saisis au clavier).

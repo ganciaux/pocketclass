@@ -157,7 +157,7 @@ describe('solutionOf', () => {
 					answer: true
 				})
 			)
-		).toEqual(['Vrai']);
+		).toEqual([]);
 		expect(
 			solutionOf(
 				ex<Extract<Exercise, { type: 'categorize' }>>({

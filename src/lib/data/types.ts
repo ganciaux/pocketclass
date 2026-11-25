@@ -75,6 +75,9 @@ export interface ProgressRecord {
 	practiceLast?: PracticeScore;
 	practiceBest?: PracticeScore;
 	practicedAt?: Timestamp | null;
+	/** Timed challenge: record (right answers in 60 s) and time of the last challenge. */
+	challengeBest?: number;
+	challengedAt?: Timestamp | null;
 }
 
 export interface PracticeScore {

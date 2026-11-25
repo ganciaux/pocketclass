@@ -74,7 +74,6 @@
 		if (index < series.length || retrying || !session.familyId || !profileId) return;
 		saveSeries(session.familyId, profileId, {
 			sheet,
-			mode: 'series',
 			results: $state.snapshot(results),
 			best: progressLive.data?.practiceBest
 		});

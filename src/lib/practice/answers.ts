@@ -1,5 +1,4 @@
 import { equals, isIrreducible, parseFraction } from '#lib/math/fraction.ts';
-import { fr } from '#lib/i18n/fr.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
 
 /**
@@ -119,14 +118,10 @@ export function checkAnswer<E extends PlayableExercise>(exercise: E, response: R
 
 /**
  * The right answer as lines of inline Markdown, shown after a wrong answer. Empty when the child
- * already saw it (pair, paper: self-assessed after seeing the answer).
+ * already sees it (choice buttons) or saw it (pair, paper: self-assessed after seeing the answer).
  */
 export function solutionOf(exercise: PlayableExercise): string[] {
 	switch (exercise.type) {
-		case 'mcq':
-			return [exercise.answer];
-		case 'true_false':
-			return [exercise.answer ? fr.practice.true : fr.practice.false];
 		case 'calculation':
 			return [String(exercise.answer)];
 		case 'cloze':
@@ -145,6 +140,9 @@ export function solutionOf(exercise: PlayableExercise): string[] {
 						.map((item) => item.text)
 						.join(', ')}`
 			);
+		// Choice buttons already show the right one in green; pair / paper were revealed.
+		case 'mcq':
+		case 'true_false':
 		case 'pair':
 		case 'paper':
 			return [];

@@ -364,6 +364,15 @@ describe('child writes', () => {
 			)
 		);
 
+		const record = { ...where, challengeBest: 12, challengedAt: serverTimestamp() };
+		await assertSucceeds(setDoc(at(kid, `${lea}/progress/c2`), record, { merge: true }));
+		await assertFails(
+			setDoc(at(kid, `${lea}/progress/c2`), { ...where, challengeBest: 101 }, { merge: true })
+		);
+		await assertFails(
+			setDoc(at(kid, `${lea}/progress/c2`), { ...where, challengeBest: 'x' }, { merge: true })
+		);
+
 		const attempt = {
 			conceptId: 'c2',
 			...where,
@@ -377,6 +386,7 @@ describe('child writes', () => {
 			createdAt: serverTimestamp()
 		};
 		await assertSucceeds(setDoc(at(kid, `${lea}/attempts/a1`), attempt));
+		await assertSucceeds(setDoc(at(kid, `${lea}/attempts/a3`), { ...attempt, mode: 'timed' }));
 		await assertSucceeds(getDoc(at(kid, `${lea}/attempts/a1`)));
 		await assertFails(updateDoc(at(kid, `${lea}/attempts/a1`), { correct: 2 }));
 		await assertFails(deleteDoc(at(kid, `${lea}/attempts/a1`)));

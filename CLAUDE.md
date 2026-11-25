@@ -369,6 +369,15 @@ made.
   are cleared by `resetTestData`, profile deletion and catalogue deletion. The sheet button
   shows last and best; the parent's child page has an « Entraînement » card (best % per sheet,
   most recent first).
+- 2026-11-25 — **Timed challenge, formula C**: `/concept/[id]/challenge`, 60 s of quick
+  questions (`mcq`, `true_false`, `calculation`: `practice/challenge.ts` `challengePool`), drawn
+  from an endless queue (whole pool before repeating, never twice in a row), needs at least 4.
+  No explanation; next question after 0.45 s (right) or 1.5 s (wrong, to read the right answer);
+  no penalty. Timer from a deadline (`Date.now()`), not a tick count. Record = most right answers:
+  `challengeBest` (int ≤ 100) + `challengedAt` on progress, and an `attempts` doc with
+  `mode: 'timed'` (`saveChallenge`, same batch helper as `saveSeries`). Shown on the sheet
+  (« Défi : n ») and in the parent's « Entraînement » card. Choice buttons (mcq, true / false)
+  no longer repeat « La bonne réponse » (the green button shows it).
 
 ## Firestore model
 
@@ -386,8 +395,9 @@ families/{familyId}                            { name, admins: [uid], createdAt 
   concepts/{conceptId}/exercises/{exerciseId}  { usage, type, keyPoint, difficulty, ...type fields, archived }
   assessments/{assessmentId}                   { chapterId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }   (id = sheet id)
   profiles/{profileId}/progress/{conceptId}    { subjectId, chapterId, openedAt?, readAt?, acquiredAt?, practiceLast?,
-                                                 practiceBest?, practicedAt? }   (sheet opened / read; acquiredAt =
-                                                 parent's « Acquise » stamp; practice* = { correct, total })
+                                                 practiceBest?, practicedAt?, challengeBest?, challengedAt? }
+                                                 (sheet opened / read; acquiredAt = parent's « Acquise » stamp;
+                                                 practice* = { correct, total }; challengeBest = right answers in 60 s)
   profiles/{profileId}/attempts/{attemptId}    { conceptId, subjectId, chapterId, mode: series|timed, correct, total,
                                                  answers: [{ exerciseId, correct }], createdAt }   (create only)
   profiles/{profileId}/notes/{noteId}          { conceptId|null, chapterId|null, subjectId?|null, exerciseId, text,
@@ -438,8 +448,8 @@ Firebase project id: `pocketclass-bd866`. App: https://pocketclass-bd866.web.app
 Phase 1 (done): skeleton, import, map, sheet. Done after phase 1: child device linking
 (one-time code), nickname / avatar, "sheet read" progress + dashboard, notes, binder
 (subjects / chapters / sheets, replaces paths; a curated "path" may come back later as a
-selection of sheets). Phase 2 (in progress): practice series done (player, 10 playable
-types, attempts, scores); next the timed challenge, then `fractions.*` generators. Phase 3: assessments, scoring, pointsLedger.
+selection of sheets). Phase 2 (in progress): practice series and 60 s timed challenge
+done (player, 10 playable types, attempts, scores); next `fractions.*` generators. Phase 3: assessments, scoring, pointsLedger.
 Phase 4: summary photo flow. Phase 5: child-side extras (QR code if needed). Phase 6:
 spaced repetition, in-app AI prompts, quick lesson entry (`lesson@1`).
 

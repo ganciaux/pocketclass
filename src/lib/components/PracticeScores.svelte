@@ -9,7 +9,7 @@
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 
-	/** Parent view of a child: last and best practice score of each sheet practised. */
+	/** Parent view of a child: series scores and challenge record of each sheet practised. */
 	let { familyId, profileId }: { familyId: string; profileId: string } = $props();
 
 	const t = fr.practice;
@@ -37,14 +37,18 @@
 							<span class="flex min-w-0 flex-1 flex-col">
 								<strong class="truncate">{@html renderInline(row.sheet.title)}</strong>
 								<span class="text-sm text-base-content/60">
-									{t.last(t.score(row.last.correct, row.last.total))}
+									{#if row.last}{t.last(t.score(row.last.correct, row.last.total))}{/if}
+									{#if row.last && row.record !== null}·{/if}
+									{#if row.record !== null}{t.challengeRecord(row.record)}{/if}
 									{#if row.at}· {formatDate(new Date(row.at))}{/if}
 								</span>
 							</span>
-							<span class="flex flex-col items-end">
-								<span class="text-lg font-bold text-primary">{percent(row.best)} %</span>
-								<span class="text-xs text-base-content/60">{t.bestLabel}</span>
-							</span>
+							{#if row.best}
+								<span class="flex flex-col items-end">
+									<span class="text-lg font-bold text-primary">{percent(row.best)} %</span>
+									<span class="text-xs text-base-content/60">{t.bestLabel}</span>
+								</span>
+							{/if}
 						</a>
 					</li>
 				{/each}

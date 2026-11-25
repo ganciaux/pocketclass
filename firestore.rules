@@ -149,19 +149,19 @@ service cloud.firestore {
         }
 
         // Sheet opened / read (id = concept id).
-        // Opened / read by the child, with the last and best practice scores. `acquiredAt` (the « Acquise » stamp) is the parent's:
+        // Opened / read by the child, with the practice scores and the challenge record. `acquiredAt` (the « Acquise » stamp) is the parent's:
         // the child keeps writing a stamped document but never sets, changes or removes it.
         match /progress/{conceptId} {
           allow create: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys().hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt',
-              'practiceLast', 'practiceBest', 'practicedAt'])
+              'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt'])
             && request.resource.data.subjectId is string
             && request.resource.data.chapterId is string
             && validPracticeScores();
           allow update: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys()
               .hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt',
-                'practiceLast', 'practiceBest', 'practicedAt'])
+                'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt'])
             && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['acquiredAt'])
             && request.resource.data.subjectId is string
             && request.resource.data.chapterId is string
@@ -235,7 +235,11 @@ service cloud.firestore {
 
     function validPracticeScores() {
       return optionalScore(request.resource.data, 'practiceLast')
-        && optionalScore(request.resource.data, 'practiceBest');
+        && optionalScore(request.resource.data, 'practiceBest')
+        && (!('challengeBest' in request.resource.data)
+          || (request.resource.data.challengeBest is int
+            && request.resource.data.challengeBest >= 0
+            && request.resource.data.challengeBest <= 100));
     }
 
     function validNoteText() {

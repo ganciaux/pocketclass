@@ -46,6 +46,7 @@
 	const acquired = $derived(isAcquired(readLive.data ?? undefined));
 	const practiceBest = $derived(readLive.data?.practiceBest);
 	const practiceLast = $derived(readLive.data?.practiceLast);
+	const challengeBest = $derived(readLive.data?.challengeBest);
 
 	// Opening the sheet clears its "new" / "updated" badge (again if it is re-imported while open).
 	$effect(() => {
@@ -329,7 +330,20 @@
 						</small>
 					{/if}
 				</a>
-				<button class="btn" disabled>{t.assessment} <small>({fr.app.soon})</small></button>
+				<a
+					class="btn h-auto min-h-12 flex-col gap-0 py-1 btn-outline btn-secondary"
+					href={resolve('/concept/[id]/challenge', { id: concept.id })}
+				>
+					<span>{fr.challenge.title}</span>
+					{#if challengeBest !== undefined}
+						<small class="font-normal opacity-80">
+							{fr.practice.challengeRecord(challengeBest)}
+						</small>
+					{/if}
+				</a>
+				<button class="btn col-span-2" disabled>
+					{t.assessment} <small>({fr.app.soon})</small>
+				</button>
 			</div>
 		{/snippet}
 	</LoadState>

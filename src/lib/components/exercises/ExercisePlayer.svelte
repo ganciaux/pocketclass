@@ -16,8 +16,16 @@
 	 * One exercise of any type, then the feedback. Recreate it for each question (`{#key}`): the
 	 * shuffles and inputs belong to one showing. `onanswer` fires once.
 	 */
-	let { exercise, onanswer }: { exercise: PlayableExercise; onanswer: (correct: boolean) => void } =
-		$props();
+	let {
+		exercise,
+		onanswer,
+		explain = true
+	}: {
+		exercise: PlayableExercise;
+		onanswer: (correct: boolean) => void;
+		/** False (timed challenge): right / wrong and the right answer only. */
+		explain?: boolean;
+	} = $props();
 
 	const t = fr.practice;
 	let result = $state<boolean | null>(null);
@@ -120,7 +128,7 @@
 		<AnswerFeedback
 			correct={selfAssessed ? null : result}
 			solution={solutionOf(exercise)}
-			explanation={exercise.explanation}
+			explanation={explain ? exercise.explanation : undefined}
 		/>
 	{/if}
 </div>
