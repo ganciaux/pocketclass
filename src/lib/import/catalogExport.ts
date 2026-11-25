@@ -49,6 +49,7 @@ export function sheetDoc({ concept, exercises, assessment }: StoredSheet): Sheet
 		tags: concept.tags ?? [],
 		prerequisites: concept.prerequisites,
 		keyPoints: concept.keyPoints,
+		mindMap: concept.mindMap,
 		sheet: concept.sheet,
 		summaryInstruction: concept.summaryInstruction,
 		// Stored flat: `{ id, ...record }` is the JSON exercise again, `archived` aside.

@@ -37,6 +37,38 @@ describe('sheetSchema', () => {
 		expect(errorsOf({ ...minimalSheet(), tags: ['  '] })).not.toEqual([]);
 	});
 
+	it('accepts a mind map: a few short leaves per key point', () => {
+		const mindMap = [
+			{ keyPoint: 'kp-simplify', leaves: ['diviser haut et bas', '$\\frac{2}{4} = \\frac{1}{2}$'] },
+			{ keyPoint: 'kp-add', leaves: ['même dénominateur'] }
+		];
+		const result = validate(sheetSchema, { ...minimalSheet(), mindMap });
+		expect((result as { data: SheetImport }).data.mindMap).toEqual(mindMap);
+		expect((validate(sheetSchema, minimalSheet()) as { data: SheetImport }).data.mindMap).toBe(
+			undefined
+		);
+	});
+
+	it('rejects a mind map branch on an unknown or repeated key point', () => {
+		const branch = (keyPoint: string) => ({ keyPoint, leaves: ['x'] });
+		expect(errorsOf({ ...minimalSheet(), mindMap: [branch('kp-nope')] }).join()).toContain(
+			'kp-nope'
+		);
+		expect(
+			errorsOf({ ...minimalSheet(), mindMap: [branch('kp-add'), branch('kp-add')] }).join()
+		).toContain('kp-add');
+	});
+
+	it('rejects empty, too many or too long mind map leaves', () => {
+		const leaves = (list: string[]) => ({
+			...minimalSheet(),
+			mindMap: [{ keyPoint: 'kp-add', leaves: list }]
+		});
+		expect(errorsOf(leaves([]))).not.toEqual([]);
+		expect(errorsOf(leaves(['a', 'b', 'c', 'd', 'e']))).not.toEqual([]);
+		expect(errorsOf(leaves(['x'.repeat(61)]))).not.toEqual([]);
+	});
+
 	it('rejects a generator name that is not in the catalogue', () => {
 		const data = minimalSheet();
 		const base = { usage: 'practice', keyPoint: 'kp-add', type: 'generator' };

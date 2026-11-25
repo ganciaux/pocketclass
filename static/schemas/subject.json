@@ -118,6 +118,33 @@
 										]
 									}
 								},
+								"mindMap": {
+									"maxItems": 8,
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"keyPoint": {
+												"type": "string",
+												"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+											},
+											"leaves": {
+												"minItems": 1,
+												"maxItems": 4,
+												"type": "array",
+												"items": {
+													"type": "string",
+													"minLength": 1,
+													"maxLength": 60
+												}
+											}
+										},
+										"required": [
+											"keyPoint",
+											"leaves"
+										]
+									}
+								},
 								"sheet": {
 									"type": "object",
 									"properties": {

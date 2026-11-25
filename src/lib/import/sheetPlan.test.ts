@@ -66,6 +66,14 @@ describe('planSheets', () => {
 		});
 	});
 
+	it('stores the mind map, and none when the JSON has none', () => {
+		const mindMap = [{ keyPoint: fractions.keyPoints[0].id, leaves: ['a/b'] }];
+		const withMap = planSheets([{ ...fractions, mindMap }], target, {});
+		expect(dataOf(find(withMap.ops, 'concepts/maths-3e-fractions'))).toMatchObject({ mindMap });
+		const without = planSheets([{ ...fractions, mindMap: undefined }], target, {});
+		expect(dataOf(find(without.ops, 'concepts/maths-3e-fractions'))?.mindMap).toBeUndefined();
+	});
+
 	it('stamps the sheet (server updatedAt) but not its exercises', () => {
 		const plan = planSheets([fractions], target, {});
 		const touched = plan.ops.filter((op) => op.kind === 'set' && op.touch).map(key);

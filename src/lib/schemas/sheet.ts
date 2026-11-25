@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { fr } from '#lib/i18n/fr.ts';
 import {
 	ASSESSMENT_TYPES,
 	checkRef,
@@ -51,6 +52,14 @@ const tagsSchema = z
 		tags.filter((tag, i) => tags.findIndex((t) => tagKey(t) === tagKey(tag)) === i)
 	);
 
+/**
+ * Mind map of the sheet (written by the AI): for some key points, 1 to 4 very short leaves
+ * (a word, a formula, a pitfall). Optional: without it the app builds one from the sections.
+ */
+const mindMapSchema = z
+	.array(z.object({ keyPoint: slug, leaves: z.array(text.max(60)).min(1).max(4) }))
+	.max(8);
+
 /** One revision sheet (a "concept"): key points, study sheet, exercises, assessment. */
 export const sheetBodySchema = z.object({
 	id: slug,
@@ -58,6 +67,7 @@ export const sheetBodySchema = z.object({
 	tags: tagsSchema,
 	prerequisites: z.array(slug).default([]),
 	keyPoints: z.array(keyPointSchema).min(1).max(8),
+	mindMap: mindMapSchema.optional(),
 	sheet: z.object({
 		sections: z.array(sectionSchema).min(1),
 		pitfalls: z.array(text).default([])
@@ -88,6 +98,19 @@ export function checkSheet(sheet: SheetDoc, at: (string | number)[], ctx: z.Refi
 	sheet.exercises.forEach((exercise, e) =>
 		keyPoint(exercise.keyPoint, ['exercises', e, 'keyPoint'])
 	);
+	const branches = new Set<string>();
+	sheet.mindMap?.forEach((branch, b) => {
+		const path = [...at, 'mindMap', b, 'keyPoint'];
+		keyPoint(branch.keyPoint, ['mindMap', b, 'keyPoint']);
+		if (branches.has(branch.keyPoint)) {
+			ctx.addIssue({
+				code: 'custom',
+				path,
+				message: fr.validation.duplicateValue(branch.keyPoint)
+			});
+		}
+		branches.add(branch.keyPoint);
+	});
 	sheet.assessment?.exerciseIds?.forEach((id, i) =>
 		checkRef(id, exerciseIds, 'exercises', [...at, 'assessment', 'exerciseIds', i], ctx)
 	);

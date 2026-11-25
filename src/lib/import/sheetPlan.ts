@@ -123,6 +123,7 @@ export function planSheets(
 			tags: sheet.tags,
 			prerequisites: sheet.prerequisites,
 			keyPoints: sheet.keyPoints,
+			mindMap: sheet.mindMap,
 			sheet: sheet.sheet,
 			summaryInstruction: sheet.summaryInstruction,
 			version: (old?.version ?? 0) + 1,

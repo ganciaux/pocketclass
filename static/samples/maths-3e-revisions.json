@@ -14,6 +14,13 @@
 				{ "id": "kp-divide", "label": "Diviser par une fraction, c'est multiplier par son inverse" },
 				{ "id": "kp-irreducible", "label": "Donner toujours le résultat sous forme irréductible" }
 			],
+			"mindMap": [
+				{ "keyPoint": "kp-simplify", "leaves": ["diviser en haut et en bas", "par le même nombre", "$\\frac{6}{8} = \\frac{3}{4}$"] },
+				{ "keyPoint": "kp-add", "leaves": ["même dénominateur", "on additionne les numérateurs", "$\\frac{1}{5} + \\frac{2}{5} = \\frac{3}{5}$"] },
+				{ "keyPoint": "kp-multiply", "leaves": ["haut × haut", "bas × bas", "$\\frac{2}{3} \\times \\frac{4}{5} = \\frac{8}{15}$"] },
+				{ "keyPoint": "kp-divide", "leaves": ["× l'inverse", "$\\frac{3}{4}$ devient $\\frac{4}{3}$"] },
+				{ "keyPoint": "kp-irreducible", "leaves": ["plus rien à simplifier", "piège : s'arrêter trop tôt"] }
+			],
 			"sheet": {
 				"sections": [
 					{

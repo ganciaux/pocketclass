@@ -198,6 +198,8 @@ export interface ConceptRecord {
 	order: number;
 	/** Keywords for the search; absent on sheets imported before tags existed. */
 	tags?: SheetDoc['tags'];
+	/** Absent when the JSON had none (the app then builds the map from the sections). */
+	mindMap?: SheetDoc['mindMap'];
 	prerequisites: SheetDoc['prerequisites'];
 	keyPoints: SheetDoc['keyPoints'];
 	sheet: SheetDoc['sheet'];

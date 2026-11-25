@@ -27,6 +27,12 @@ describe('prompts', () => {
 		expect(prompt).toContain('commence par "mathematiques-3e-"');
 	});
 
+	it('asks for a mind map with short leaves per key point', () => {
+		const prompt = sheetPrompt(ctx);
+		expect(prompt).toContain('"mindMap"');
+		expect(prompt).toContain('1 à 4 feuilles');
+	});
+
 	it('asks for tags a pupil would type', () => {
 		const prompt = sheetPrompt(ctx);
 		expect(prompt).toContain('"tags"');
