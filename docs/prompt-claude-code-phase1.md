@@ -91,7 +91,7 @@ families/{familyId}                          { name, admins: [uid], createdAt }
                                                sheet: { sections: [...], pitfalls: [string] },
                                                summaryInstruction, archived: false }
   concepts/{conceptId}/exercises/{exerciseId} { usage, type, keyPoint, difficulty, ...champs du type, archived: false }
-  assessments/{assessmentId}                 { pathId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }
+  assessments/{assessmentId}                 { pathId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }   (2026-11-25 : scoring remplacé par passRate? / points?)
   profiles/{profileId}/assignments/{pathId}      { since, dueDate? }
   profiles/{profileId}/progress/{conceptId}      (phase 2)
   profiles/{profileId}/attempts/{id}             (phase 2, ajout seulement)
@@ -271,7 +271,7 @@ Fais des **commits atomiques** avec des messages clairs (en anglais, format conv
 ## 10. Hors périmètre (phases suivantes, ne pas coder maintenant)
 
 - Phase 2 : practice (moteur d'exercices, générateurs `fractions.*`, vérification des réponses en valeur), `attempts` et `progress`.
-- Phase 3 : assessments, barème (5 points par bonne réponse, +15 si sans-faute ; rejouer ne rapporte que l'amélioration), `pointsLedger`.
+- Phase 3 : assessments, barème (5 points par bonne réponse, +15 si sans-faute ; rejouer ne rapporte que l'amélioration), `pointsLedger`. (remplacé le 2026-11-25 : seuil de réussite et quota de points par fiche, voir CLAUDE.md)
 - Phase 4 : summary par photo (prompt copié, import `summary@1`, validation par le parent).
 - Phase 5 : liaison des téléphones enfants par QR code et PIN (Auth anonyme et `devices/{uid}`), règles côté enfant.
   > Mis à jour (2026-11-23) : fait en avance, par **code à usage unique** (6 caractères, 10 min) saisi dans l'app, sans QR ni PIN (sur iOS, un QR ouvre Safari, dont le stockage est séparé de la PWA installée). Ajoutés en même temps : pseudo / avatar, suivi « fiche lue » + tableau de bord, remarques de l'enfant. Détails dans `CLAUDE.md`.
