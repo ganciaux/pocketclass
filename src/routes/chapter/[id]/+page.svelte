@@ -3,10 +3,14 @@
 	import {
 		activeOnly,
 		isAcquired,
+		isFailed,
 		progressById,
+		SHEET_STATUSES,
 		sheetState,
+		sheetStatus,
 		tally,
-		type SheetState
+		type SheetState,
+		type SheetStatus
 	} from '#lib/binder/binder.ts';
 	import { SUBJECT_TEXT, SUBJECT_TILE } from '#lib/binder/colors.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
@@ -42,15 +46,28 @@
 	);
 	const color = $derived<SubjectColor>(subjectLive.data?.color ?? 'amber');
 
-	/** Step marker of the sheet path: a star once acquired, a check once read, else its number. */
-	const stepStyle = (state: SheetState | null, acquired: boolean) =>
+	/** Statuses switched on in the filter bar (none = every sheet). Reset in another chapter. */
+	let shown = $derived.by((): SheetStatus[] => {
+		void chapterId;
+		return [];
+	});
+	const toggle = (status: SheetStatus) =>
+		(shown = shown.includes(status) ? shown.filter((s) => s !== status) : [...shown, status]);
+
+	/**
+	 * Step marker of the sheet path: a star once acquired, a sad face after a failed assessment,
+	 * a check once read, else its number.
+	 */
+	const stepStyle = (state: SheetState | null, acquired: boolean, failed: boolean) =>
 		acquired
 			? ['border-4 border-double border-current bg-base-100', SUBJECT_TEXT[color]]
-			: state === 'read'
-				? 'bg-success text-success-content'
-				: state === 'opened'
-					? ['border-2 border-current bg-base-100', SUBJECT_TEXT[color]]
-					: SUBJECT_TILE[color];
+			: failed
+				? 'border-2 border-dashed border-error bg-base-100 text-error'
+				: state === 'read'
+					? 'bg-success text-success-content'
+					: state === 'opened'
+						? ['border-2 border-current bg-base-100', SUBJECT_TEXT[color]]
+						: SUBJECT_TILE[color];
 </script>
 
 <svelte:head>
@@ -92,13 +109,52 @@
 						<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[color]} />
 					{/if}
 
+					{@const statuses = new Map(
+						sheets.map((sheet) => [sheet.id, sheetStatus(sheet, progress.get(sheet.id))])
+					)}
+					{@const counts = SHEET_STATUSES.map(
+						(status) => [status, [...statuses.values()].filter((s) => s === status).length] as const
+					).filter(([, count]) => count > 0)}
+					{@const steps = sheets
+						.map((sheet, i) => ({ sheet, number: i + 1 }))
+						.filter(
+							({ sheet }) =>
+								!asChild || shown.length === 0 || shown.includes(statuses.get(sheet.id)!)
+						)}
+					{#if asChild && counts.length > 1}
+						<div class="flex flex-wrap gap-2" role="group" aria-label={t.filter.label}>
+							<button
+								class={[
+									'btn rounded-full btn-sm',
+									shown.length === 0 ? 'btn-primary' : 'btn-outline'
+								]}
+								aria-pressed={shown.length === 0}
+								onclick={() => (shown = [])}
+							>
+								{t.filter.all}
+							</button>
+							{#each counts as [status, count] (status)}
+								{@const on = shown.includes(status)}
+								<button
+									class={['btn rounded-full btn-sm', on ? 'btn-primary' : 'btn-outline']}
+									aria-pressed={on}
+									onclick={() => toggle(status)}
+								>
+									{t.filter.status[status]}
+									<span class="badge badge-sm">{count}</span>
+								</button>
+							{/each}
+						</div>
+					{/if}
+
 					<!-- The sheets as a path: numbered steps joined by a line, checked once read. -->
 					<ol class="flex flex-col">
-						{#each sheets as sheet, i (sheet.id)}
+						{#each steps as { sheet, number }, i (sheet.id)}
 							{@const state = asChild ? sheetState(sheet, progress.get(sheet.id)) : null}
 							{@const acquired = asChild && isAcquired(progress.get(sheet.id))}
+							{@const failed = asChild && isFailed(progress.get(sheet.id))}
 							<li class="relative flex gap-3 pb-3 last:pb-0">
-								{#if i < sheets.length - 1}
+								{#if i < steps.length - 1}
 									<span
 										class="absolute top-11 bottom-0 left-[1.375rem] w-0.5 -translate-x-1/2 bg-base-300"
 										aria-hidden="true"
@@ -107,13 +163,14 @@
 								<span
 									class={[
 										'relative grid size-11 shrink-0 place-items-center rounded-full font-bold',
-										stepStyle(state, acquired)
+										stepStyle(state, acquired, failed)
 									]}
 									aria-hidden="true"
 								>
 									{#if acquired}<Icon paths={UI_ICONS.star} />
+									{:else if failed}<Icon paths={UI_ICONS.sad} />
 									{:else if state === 'read'}<Icon paths={UI_ICONS.check} />
-									{:else}{i + 1}{/if}
+									{:else}{number}{/if}
 								</span>
 								<a
 									class="group card subject-card card-border min-w-0 flex-1 bg-base-100 hover:border-primary"
@@ -127,13 +184,19 @@
 											<span class={['badge badge-sm shrink-0 badge-outline', SUBJECT_TEXT[color]]}>
 												{fr.stamp.label}
 											</span>
+										{:else if failed}
+											<span class="badge shrink-0 badge-soft badge-sm badge-error">
+												{fr.assessment.failedStamp}
+											</span>
 										{/if}
-										{#if state}<SheetStateBadge {state} />{/if}
+										{#if state && !(acquired && state === 'read')}<SheetStateBadge {state} />{/if}
 									</div>
 								</a>
 							</li>
 						{:else}
-							<li class="text-base-content/70">{t.noSheets}</li>
+							<li class="text-base-content/70">
+								{sheets.length > 0 ? t.filter.empty : t.noSheets}
+							</li>
 						{/each}
 					</ol>
 				{/snippet}

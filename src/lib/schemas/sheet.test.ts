@@ -46,6 +46,27 @@ describe('sheetSchema', () => {
 		expect(errorsOf(data).join(' ')).toContain('générateur « fractions.magic » inconnu');
 	});
 
+	it("rejects an AI's correction left in an answer (« x -> non, y »)", () => {
+		const base = { usage: 'practice', keyPoint: 'kp-add' };
+		const data = minimalSheet();
+		data.exercises.push(
+			...([
+				{
+					...base,
+					id: 'q',
+					type: 'mcq',
+					question: 'Q',
+					answer: 'a -> non, b',
+					distractors: ['c', 'd', 'e']
+				},
+				{ ...base, id: 'c', type: 'cloze', text: "je [[suis -> non, j'oublie]] [[oublie]]" }
+			] as never[])
+		);
+		const errors = errorsOf(data).join(' ');
+		expect(errors).toContain('« a -> non, b » contient « -> »');
+		expect(errors).toContain("« suis -> non, j'oublie » contient « -> »");
+	});
+
 	it('rejects an MCQ whose options repeat, and twin categories', () => {
 		const base = { usage: 'practice', keyPoint: 'kp-add', type: 'mcq', question: 'Q' };
 		const withMcq = (answer: string, distractors: string[]) => {

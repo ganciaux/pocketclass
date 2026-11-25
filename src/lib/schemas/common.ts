@@ -5,9 +5,15 @@ import { fr } from '#lib/i18n/fr.ts';
 const SLUG = /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 const NUMBER_OR_FRACTION = /^-?\d+(?:[.,]\d+)?$|^-?\d+\s*\/\s*-?\d+$/;
 const CLOZE_BLANK = /\[\[(.*?)\]\]/g;
+/** « suis -> non, j'oublie »: an AI's self-correction left in an answer. */
+const DRAFT = /->|→/;
 
 export const slug = z.string().regex(SLUG, { error: fr.validation.slug });
 export const text = z.string().trim().min(1);
+/** An expected answer: never an AI's correction in progress (« applaudissent -> non, crient »). */
+const answerText = text.refine((value) => !DRAFT.test(value), {
+	error: (issue) => fr.validation.draftAnswer(String(issue.input))
+});
 
 export const USAGES = ['practice', 'assessment'] as const;
 export const ASSESSMENT_TYPES = ['brevet', 'test'] as const;
@@ -19,6 +25,8 @@ const clozeText = text.superRefine((value, ctx) => {
 	if (blanks.length === 0) ctx.addIssue({ code: 'custom', message: fr.validation.clozeNoBlank });
 	if (blanks.some((b) => b.trim() === ''))
 		ctx.addIssue({ code: 'custom', message: fr.validation.clozeEmptyBlank });
+	for (const blank of blanks.filter((b) => DRAFT.test(b)))
+		ctx.addIssue({ code: 'custom', message: fr.validation.draftAnswer(blank) });
 });
 
 /** Type-specific fields of each exercise kind (the `type` discriminant included). */
@@ -32,9 +40,9 @@ const exerciseVariants = {
 	mcq: {
 		type: z.literal('mcq'),
 		question: text,
-		answer: text,
+		answer: answerText,
 		distractors: z
-			.array(text)
+			.array(answerText)
 			.length(3)
 			.superRefine((distractors, ctx) => uniqueTexts(distractors, ctx))
 	},
@@ -59,7 +67,7 @@ const exerciseVariants = {
 	open: {
 		type: z.literal('open'),
 		question: text,
-		answers: z.array(text).min(1)
+		answers: z.array(answerText).min(1)
 	},
 	paper: {
 		type: z.literal('paper'),

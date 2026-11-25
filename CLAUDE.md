@@ -456,6 +456,16 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   `passRate` / `points` (now optional in the sheet format). Restore (`<BackupRestore>`, file or
   paste) adds the subjects as new ones at the end of their grade (`planSubject`,
   `importBackup`); a sheet id already used by an active sheet blocks it, as for any import.
+- 2026-11-25 — **Acquired = read, « Raté » and filters on the chapter page** (user's requests). An
+  acquired sheet counts as read everywhere (`isRead`, `sheetState`; even never opened), derived
+  at display time: no extra write, old stamps included; the sheet page hides « non lue » once
+  acquired. The chapter path shows a failed assessment (dashed red step with the sad face,
+  « Raté » badge; `isFailed`). Toggle chips filter the sheets by one status each
+  (`sheetStatus`, priority acquired > failed > new / updated > read > opened; several chips may
+  be on, none = all; counts shown, empty statuses hidden; reset when the chapter changes).
+  Import rejects an answer (MCQ answer / distractors, open answers, cloze blanks) holding
+  « -> »: an AI's self-correction left in the JSON (« suis -> non, j'oublie »); the prompt asks
+  for final answers only.
 
 ## Firestore model
 

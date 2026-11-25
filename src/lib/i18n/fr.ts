@@ -86,6 +86,19 @@ export const fr = {
 		fresh: (count: number) => plural(count, 'nouveauté'),
 		acquired: (count: number) => plural(count, 'acquise'),
 		state: { new: 'Nouveau', updated: 'Mis à jour', read: 'Lue ✓', opened: 'Commencée' },
+		/** Chapter page: toggles to filter the sheets by status (several may be on). */
+		filter: {
+			label: 'Filtrer les fiches',
+			all: 'Toutes',
+			status: {
+				new: 'Nouvelles',
+				opened: 'Commencées',
+				read: 'Lues',
+				acquired: 'Acquises',
+				failed: 'Ratées'
+			},
+			empty: 'Aucune fiche pour ce filtre.'
+		},
 		next: 'Continuer',
 		allRead: 'Toutes les fiches sont lues !',
 		manage: 'Gérer',
@@ -521,6 +534,8 @@ export const fr = {
 			'réponse invalide : un nombre (ex. 3 ou 2,5) ou une fraction « a/b » est attendu',
 		clozeNoBlank: 'le texte doit contenir au moins un trou [[…]]',
 		clozeEmptyBlank: 'un trou [[ ]] est vide',
+		draftAnswer: (value: string) =>
+			`« ${value} » contient « -> » : l'IA a laissé une correction en cours, garde seulement la bonne réponse`,
 		duplicateId: (id: string) => `l'identifiant « ${id} » est utilisé plusieurs fois`,
 		duplicateValue: (value: string) => `« ${value} » apparaît plusieurs fois`,
 		unknownRef: (id: string, where: string) => `« ${id} » n'existe pas dans ${where}`,

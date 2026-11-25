@@ -75,6 +75,7 @@ const RULES = `Règles :
   - "pair" : "front", "back", "direction" ("front_to_back" ou "both") : carte à retourner ;
   - "paper" : "instruction", "answer" et "answerFormat" ("number", "fraction", "text" ou "none") facultatifs.
 - "assessment" (facultatif) : "type" ("test" ou "brevet"), "draw.perKeyPoint", "exerciseIds" (ids d'exercices de la fiche), "paper" ({ "instruction", "rubric": [{ "keyPoint", "criterion" }] }).
+- Relis le JSON : chaque réponse est définitive, sans hésitation ni correction (jamais « x -> non, y »).
 - Si quelque chose est incertain, ajoute une phrase dans "warnings" (tableau de textes) au lieu de l'inventer.`;
 
 /**

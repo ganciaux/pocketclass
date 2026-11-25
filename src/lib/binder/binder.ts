@@ -128,24 +128,57 @@ export interface SheetProgress {
 	openedAt?: Stamp | null;
 	/** Absent: not read. Null: marked as read, write pending. */
 	readAt?: Stamp | null;
-	/** The parent's « Acquise » stamp. Absent: not acquired. Null: stamped, write pending. */
+	/**
+	 * The « Acquise » stamp (by the parent or a passed assessment). Absent: not acquired. Null:
+	 * stamped, write pending. An acquired sheet counts as read.
+	 */
 	acquiredAt?: Stamp | null;
+	/** The « Raté » stamp of a failed assessment (shown only while not acquired). */
+	failedAt?: Stamp | null;
 }
 
-/** Stamped « Acquise » by the parent (independent of read). */
+/** Stamped « Acquise » (by the parent or a passed assessment). */
 export const isAcquired = (progress: SheetProgress | undefined) =>
 	progress?.acquiredAt !== undefined;
+
+/** Failed assessment, not acquired since: the « Raté » stamp. */
+export const isFailed = (progress: SheetProgress | undefined) =>
+	!isAcquired(progress) && progress?.failedAt !== undefined;
+
+/** Marked as read, or acquired (an acquired sheet never needs to be marked by hand). */
+export const isRead = (progress: SheetProgress | undefined) =>
+	progress?.readAt !== undefined || isAcquired(progress);
 
 export function sheetState(
 	sheet: { updatedAt: Stamp | null },
 	progress: SheetProgress | undefined
 ): SheetState {
-	if (!progress || progress.openedAt === undefined) return 'new';
+	if (!progress) return 'new';
 	const { openedAt } = progress;
+	// Stamped by the parent without ever being opened: acquired, so read.
+	if (openedAt === undefined) return isAcquired(progress) ? 'read' : 'new';
 	if (sheet.updatedAt && openedAt && sheet.updatedAt.toMillis() > openedAt.toMillis()) {
 		return 'updated';
 	}
-	return progress.readAt === undefined ? 'opened' : 'read';
+	return isRead(progress) ? 'read' : 'opened';
+}
+
+/**
+ * One status per sheet for the chapter filters, by priority: acquired, failed, new (or
+ * updated), read, opened.
+ */
+export type SheetStatus = 'new' | 'opened' | 'read' | 'acquired' | 'failed';
+
+export const SHEET_STATUSES: SheetStatus[] = ['new', 'opened', 'read', 'acquired', 'failed'];
+
+export function sheetStatus(
+	sheet: { updatedAt: Stamp | null },
+	progress: SheetProgress | undefined
+): SheetStatus {
+	if (isAcquired(progress)) return 'acquired';
+	if (isFailed(progress)) return 'failed';
+	const state = sheetState(sheet, progress);
+	return state === 'updated' ? 'new' : state;
 }
 
 export interface Tally {

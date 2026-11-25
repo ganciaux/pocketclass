@@ -3,12 +3,15 @@ import {
 	freeColor,
 	groupChapters,
 	isAcquired,
+	isFailed,
+	isRead,
 	groupNames,
 	moveItem,
 	nextOrder,
 	nextUnread,
 	reachableSheets,
 	sheetState,
+	sheetStatus,
 	tally,
 	tallyBy,
 	seesSubject,
@@ -156,8 +159,34 @@ describe('sheet states', () => {
 		expect(sheetState({ updatedAt: null }, { openedAt: at(1) })).toBe('opened');
 	});
 
-	it('is still new when only stamped by the parent (never opened)', () => {
-		expect(sheetState(sheet, { acquiredAt: at(50) })).toBe('new');
+	it('is read once acquired, even never opened or not marked', () => {
+		expect(sheetState(sheet, { acquiredAt: at(50) })).toBe('read');
+		expect(sheetState(sheet, { openedAt: at(150), acquiredAt: null })).toBe('read');
+		expect(isRead({ openedAt: at(150), acquiredAt: at(160) })).toBe(true);
+		expect(isRead({ openedAt: at(150) })).toBe(false);
+	});
+});
+
+describe('sheet status (filters)', () => {
+	const sheet = { updatedAt: at(100) };
+
+	it('gives one status by priority: acquired, failed, new, read, opened', () => {
+		expect(sheetStatus(sheet, undefined)).toBe('new');
+		expect(sheetStatus({ updatedAt: at(200) }, { openedAt: at(150), readAt: at(150) })).toBe('new');
+		expect(sheetStatus(sheet, { openedAt: at(150) })).toBe('opened');
+		expect(sheetStatus(sheet, { openedAt: at(150), readAt: at(150) })).toBe('read');
+		expect(sheetStatus(sheet, { openedAt: at(150), readAt: at(150), failedAt: at(160) })).toBe(
+			'failed'
+		);
+		expect(sheetStatus(sheet, { openedAt: at(150), failedAt: at(160), acquiredAt: at(170) })).toBe(
+			'acquired'
+		);
+	});
+
+	it('is failed only while not acquired', () => {
+		expect(isFailed({ failedAt: at(1) })).toBe(true);
+		expect(isFailed({ failedAt: at(1), acquiredAt: at(2) })).toBe(false);
+		expect(isFailed(undefined)).toBe(false);
 	});
 });
 
@@ -184,17 +213,17 @@ describe('progress counts', () => {
 		['s4', { acquiredAt: at(250) }]
 	]);
 
-	it('counts read, fresh (new or updated) and acquired sheets', () => {
-		expect(tally(sheets, progress)).toEqual({ total: 4, read: 1, fresh: 2, acquired: 2 });
+	it('counts read (acquired included), fresh (new or updated) and acquired sheets', () => {
+		expect(tally(sheets, progress)).toEqual({ total: 4, read: 3, fresh: 1, acquired: 2 });
 	});
 
 	it('counts per subject and per chapter', () => {
 		const bySubject = tallyBy(sheets, 'subjectId', progress);
-		expect(bySubject.get('maths')).toEqual({ total: 3, read: 1, fresh: 1, acquired: 1 });
-		expect(bySubject.get('french')).toEqual({ total: 1, read: 0, fresh: 1, acquired: 1 });
+		expect(bySubject.get('maths')).toEqual({ total: 3, read: 2, fresh: 1, acquired: 1 });
+		expect(bySubject.get('french')).toEqual({ total: 1, read: 1, fresh: 0, acquired: 1 });
 		expect(tallyBy(sheets, 'chapterId', progress).get('powers')).toEqual({
 			total: 1,
-			read: 0,
+			read: 1,
 			fresh: 0,
 			acquired: 1
 		});

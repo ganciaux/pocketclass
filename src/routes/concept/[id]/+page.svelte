@@ -2,7 +2,7 @@
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportSheet } from '#lib/data/catalogExport.ts';
 	import { exportFileName } from '#lib/import/catalogExport.ts';
-	import { isAcquired } from '#lib/binder/binder.ts';
+	import { isAcquired, isRead as readOf } from '#lib/binder/binder.ts';
 	import AcquiredStamp from '#lib/components/AcquiredStamp.svelte';
 	import AcquiredStamps from '#lib/components/AcquiredStamps.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
@@ -47,7 +47,8 @@
 			conceptId &&
 			watchConceptProgress(session.familyId, profileId, conceptId)
 	);
-	const isRead = $derived(readLive.data?.readAt !== undefined);
+	// An acquired sheet counts as read (no need to mark it by hand).
+	const isRead = $derived(readOf(readLive.data ?? undefined));
 	// The parent's « Acquise » stamp (a parent testing as a child stamps their own profile).
 	const acquired = $derived(isAcquired(readLive.data ?? undefined));
 	const practiceBest = $derived(readLive.data?.practiceBest);
@@ -286,9 +287,11 @@
 							<Icon paths={UI_ICONS.check} />
 							<strong>{t.isRead}</strong>
 						</p>
-						<button class="btn btn-ghost btn-sm" onclick={() => markRead(concept, false)}>
-							{t.markUnread}
-						</button>
+						{#if !acquired}
+							<button class="btn btn-ghost btn-sm" onclick={() => markRead(concept, false)}>
+								{t.markUnread}
+							</button>
+						{/if}
 					{:else}
 						<button class="btn btn-primary btn-wide" onclick={() => markRead(concept, true)}>
 							<Icon paths={UI_ICONS.check} />
