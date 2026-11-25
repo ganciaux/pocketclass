@@ -46,7 +46,7 @@ describe('planSheets', () => {
 		expect(keys).toContain('set assessments/maths-3e-fractions');
 		expect(plan.ops.some((op) => op.kind === 'archive')).toBe(false);
 		expect(new Set(keys).size).toBe(keys.length);
-		expect(plan.stats).toEqual({ created: 2, updated: 0, exercises: 20, archivedExercises: 0 });
+		expect(plan.stats).toEqual({ created: 2, updated: 0, exercises: 30, archivedExercises: 0 });
 
 		expect(dataOf(find(plan.ops, 'concepts/maths-3e-fractions'))).toMatchObject({
 			subjectId: 'maths-3e',
@@ -156,7 +156,7 @@ describe('planChapter', () => {
 
 describe('sheetStats', () => {
 	it('counts key points and exercises by usage', () => {
-		expect(sheetStats(fractions)).toEqual({ keyPoints: 5, practice: 6, assessment: 10 });
+		expect(sheetStats(fractions)).toEqual({ keyPoints: 5, practice: 16, assessment: 10 });
 	});
 });
 

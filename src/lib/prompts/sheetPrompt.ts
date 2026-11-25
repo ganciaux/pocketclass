@@ -51,7 +51,8 @@ const SHEET_SHAPE = `{
   "summaryInstruction": "<consigne pour que l'élève résume la fiche sur papier>",
   "exercises": [
     { "id": "…", "usage": "practice", "keyPoint": "kp-…", "difficulty": 1, "type": "mcq",
-      "question": "…", "answer": "…", "distractors": ["…", "…", "…"] }
+      "question": "…", "answer": "…", "distractors": ["…", "…", "…"],
+      "explanation": "<pourquoi c'est la bonne réponse>" }
   ],
   "assessment": { "type": "test", "draw": { "perKeyPoint": 2 } }
 }`;
@@ -61,13 +62,16 @@ const RULES = `Règles :
 - Identifiants : minuscules, chiffres, « - » ou « _ » (ex. "kp-simplify", "add-1").
 - "tags" : 3 à 8 mots-clés en français, en minuscules, ceux qu'un élève taperait pour retrouver la fiche (notions, vocabulaire, méthodes), sans répéter le nom de la matière.
 - 3 à 6 points-clés ("keyPoints", 8 au maximum). Chaque section, chaque exercice et chaque critère de "rubric" renvoie à un point-clé existant.
-- Exercices ("exercises") : au moins 2 d'entraînement ("usage": "practice") et 2 de contrôle ("usage": "assessment") par point-clé, "difficulty" de 1 à 3. Types possibles :
+- Exercices ("exercises") : environ 4 exercices d'entraînement ("usage": "practice") par point-clé, de types variés, et au moins 2 de contrôle ("usage": "assessment") par point-clé, "difficulty" de 1 à 3. Ajoute aussi 8 à 10 "true_false" en "practice" (affirmations courtes, vraies ou fausses, pour un défi de rapidité). Chaque exercice a une "explanation" : une phrase qui explique la bonne réponse, affichée après la réponse de l'élève. Types possibles :
   - "mcq" : "question", "answer", "distractors" (exactement 3 mauvaises réponses) ;
   - "calculation" : "statement", "answer" (nombre ou fraction "a/b"), "requireIrreducible" (facultatif). Le calcul à faire est la dernière formule $…$ de l'énoncé ;
   - "cloze" : "text" avec les réponses entre [[ ]], ex. "Nous [[mangeons]]." ;
-  - "pair" : "front", "back", "direction" ("front_to_back" ou "both") ;
+  - "true_false" : "statement", "answer" (true ou false) ;
+  - "match" : "instruction" (facultatif), "pairs" (2 à 6 paires { "left", "right" } à relier, chaque texte une seule fois) ;
+  - "categorize" : "instruction" (facultatif), "categories" (2 à 4), "items" ([{ "text", "category" }], "category" étant l'une des "categories") ;
   - "ordering" : "instruction", "items" (au moins 2, dans le bon ordre) ;
-  - "open" : "question", "answers" (réponses acceptées) ;
+  - "open" : "question", "answers" (réponses courtes acceptées) ;
+  - "pair" : "front", "back", "direction" ("front_to_back" ou "both") : carte à retourner ;
   - "paper" : "instruction", "answer" et "answerFormat" ("number", "fraction", "text" ou "none") facultatifs.
 - "assessment" (facultatif) : "type" ("test" ou "brevet"), "draw.perKeyPoint", "exerciseIds" (ids d'exercices de la fiche), "paper" ({ "instruction", "rubric": [{ "keyPoint", "criterion" }] }).
 - Si quelque chose est incertain, ajoute une phrase dans "warnings" (tableau de textes) au lieu de l'inventer.`;

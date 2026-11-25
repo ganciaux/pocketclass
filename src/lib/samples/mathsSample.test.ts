@@ -152,7 +152,18 @@ describe(`sample ${SAMPLE}`, () => {
 		expect(fractions?.sheet.sections).toHaveLength(4);
 		expect(fractions?.exercises.length).toBeGreaterThanOrEqual(12);
 		const types = new Set(fractions?.exercises.map((e) => e.type));
-		expect([...types].sort()).toEqual(['calculation', 'cloze', 'mcq', 'paper']);
+		expect([...types].sort()).toEqual([
+			'calculation',
+			'categorize',
+			'cloze',
+			'match',
+			'mcq',
+			'open',
+			'ordering',
+			'pair',
+			'paper',
+			'true_false'
+		]);
 		// Every key point has at least two assessment exercises (draw.perKeyPoint = 2).
 		for (const kp of fractions?.keyPoints ?? []) {
 			const drawable = fractions?.exercises.filter(

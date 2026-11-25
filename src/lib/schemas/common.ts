@@ -67,8 +67,63 @@ const exerciseVariants = {
 		type: z.literal('generator'),
 		generator: text,
 		params: z.record(z.string(), z.unknown()).default({})
+	},
+	match: {
+		type: z.literal('match'),
+		instruction: text.optional(),
+		pairs: z
+			.array(z.object({ left: text, right: text }))
+			.min(2)
+			.max(6)
+			.superRefine((pairs, ctx) => {
+				uniqueValues(pairs, 'left', ctx);
+				uniqueValues(pairs, 'right', ctx);
+			})
+	},
+	true_false: {
+		type: z.literal('true_false'),
+		statement: text,
+		answer: z.boolean()
+	},
+	categorize: {
+		type: z.literal('categorize'),
+		instruction: text.optional(),
+		categories: z.array(text).min(2).max(4),
+		items: z.array(z.object({ text, category: text })).min(2)
 	}
 } as const;
+
+/** A match pair side must appear once, or the player could not tell the pairs apart. */
+function uniqueValues(
+	pairs: { left: string; right: string }[],
+	side: 'left' | 'right',
+	ctx: z.RefinementCtx
+): void {
+	const seen = new Set<string>();
+	pairs.forEach((pair, index) => {
+		if (seen.has(pair[side])) {
+			ctx.addIssue({
+				code: 'custom',
+				path: [index, side],
+				message: fr.validation.duplicateValue(pair[side])
+			});
+		}
+		seen.add(pair[side]);
+	});
+}
+
+type CategorizeFields = { categories: string[]; items: { category: string }[] };
+
+/** Every item of a categorize exercise goes into one of its categories. */
+function checkCategories(exercise: CategorizeFields, ctx: z.RefinementCtx): void {
+	const known = new Set(exercise.categories);
+	exercise.items.forEach((item, index) =>
+		checkRef(item.category, known, 'categories', ['items', index, 'category'], ctx)
+	);
+}
+
+/** Common optional field: one sentence shown after the answer (learn from a mistake). */
+const explanation = text.optional();
 
 export const EXERCISE_TYPES = Object.keys(exerciseVariants) as (keyof typeof exerciseVariants)[];
 
@@ -86,7 +141,13 @@ function exerciseUnion<Base extends z.ZodRawShape>(base: Base) {
 		z.object({ ...base, ...v.ordering }),
 		z.object({ ...base, ...v.open }),
 		z.object({ ...base, ...v.paper }),
-		z.object({ ...base, ...v.generator })
+		z.object({ ...base, ...v.generator }),
+		z.object({ ...base, ...v.match }),
+		z.object({ ...base, ...v.true_false }),
+		// The generic `Base` hides the categorize fields from TypeScript here: state them.
+		z
+			.object({ ...base, ...v.categorize })
+			.superRefine((exercise, ctx) => checkCategories(exercise as CategorizeFields, ctx))
 	]);
 }
 
@@ -94,14 +155,16 @@ export const exerciseSchema = exerciseUnion({
 	id: slug,
 	usage: z.enum(USAGES),
 	keyPoint: slug,
-	difficulty
+	difficulty,
+	explanation
 });
 
 export const lessonExerciseSchema = exerciseUnion({
 	id: slug.optional(),
 	usage: z.enum(USAGES).optional(),
 	keyPoint: slug.optional(),
-	difficulty
+	difficulty,
+	explanation
 });
 
 export type Exercise = z.infer<typeof exerciseSchema>;

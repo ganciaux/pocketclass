@@ -55,6 +55,10 @@
 									3
 								]
 							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
 							"type": {
 								"type": "string",
 								"const": "pair"
@@ -108,6 +112,10 @@
 									2,
 									3
 								]
+							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
 							},
 							"type": {
 								"type": "string",
@@ -165,6 +173,10 @@
 									3
 								]
 							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
 							"type": {
 								"type": "string",
 								"const": "calculation"
@@ -221,6 +233,10 @@
 									3
 								]
 							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
 							"type": {
 								"type": "string",
 								"const": "cloze"
@@ -261,6 +277,10 @@
 									2,
 									3
 								]
+							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
 							},
 							"type": {
 								"type": "string",
@@ -312,6 +332,10 @@
 									3
 								]
 							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
 							"type": {
 								"type": "string",
 								"const": "open"
@@ -361,6 +385,10 @@
 									2,
 									3
 								]
+							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
 							},
 							"type": {
 								"type": "string",
@@ -415,6 +443,10 @@
 									3
 								]
 							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
 							"type": {
 								"type": "string",
 								"const": "generator"
@@ -435,6 +467,198 @@
 						"required": [
 							"type",
 							"generator"
+						]
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+							},
+							"usage": {
+								"type": "string",
+								"enum": [
+									"practice",
+									"assessment"
+								]
+							},
+							"keyPoint": {
+								"type": "string",
+								"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+							},
+							"difficulty": {
+								"default": 1,
+								"type": "number",
+								"enum": [
+									1,
+									2,
+									3
+								]
+							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
+							"type": {
+								"type": "string",
+								"const": "match"
+							},
+							"instruction": {
+								"type": "string",
+								"minLength": 1
+							},
+							"pairs": {
+								"minItems": 2,
+								"maxItems": 6,
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"left": {
+											"type": "string",
+											"minLength": 1
+										},
+										"right": {
+											"type": "string",
+											"minLength": 1
+										}
+									},
+									"required": [
+										"left",
+										"right"
+									]
+								}
+							}
+						},
+						"required": [
+							"type",
+							"pairs"
+						]
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+							},
+							"usage": {
+								"type": "string",
+								"enum": [
+									"practice",
+									"assessment"
+								]
+							},
+							"keyPoint": {
+								"type": "string",
+								"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+							},
+							"difficulty": {
+								"default": 1,
+								"type": "number",
+								"enum": [
+									1,
+									2,
+									3
+								]
+							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
+							"type": {
+								"type": "string",
+								"const": "true_false"
+							},
+							"statement": {
+								"type": "string",
+								"minLength": 1
+							},
+							"answer": {
+								"type": "boolean"
+							}
+						},
+						"required": [
+							"type",
+							"statement",
+							"answer"
+						]
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+							},
+							"usage": {
+								"type": "string",
+								"enum": [
+									"practice",
+									"assessment"
+								]
+							},
+							"keyPoint": {
+								"type": "string",
+								"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+							},
+							"difficulty": {
+								"default": 1,
+								"type": "number",
+								"enum": [
+									1,
+									2,
+									3
+								]
+							},
+							"explanation": {
+								"type": "string",
+								"minLength": 1
+							},
+							"type": {
+								"type": "string",
+								"const": "categorize"
+							},
+							"instruction": {
+								"type": "string",
+								"minLength": 1
+							},
+							"categories": {
+								"minItems": 2,
+								"maxItems": 4,
+								"type": "array",
+								"items": {
+									"type": "string",
+									"minLength": 1
+								}
+							},
+							"items": {
+								"minItems": 2,
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"text": {
+											"type": "string",
+											"minLength": 1
+										},
+										"category": {
+											"type": "string",
+											"minLength": 1
+										}
+									},
+									"required": [
+										"text",
+										"category"
+									]
+								}
+							}
+						},
+						"required": [
+							"type",
+							"categories",
+							"items"
 						]
 					}
 				]

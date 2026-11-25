@@ -384,6 +384,7 @@ export const fr = {
 		clozeNoBlank: 'le texte doit contenir au moins un trou [[…]]',
 		clozeEmptyBlank: 'un trou [[ ]] est vide',
 		duplicateId: (id: string) => `l'identifiant « ${id} » est utilisé plusieurs fois`,
+		duplicateValue: (value: string) => `« ${value} » apparaît plusieurs fois`,
 		unknownRef: (id: string, where: string) => `« ${id} » n'existe pas dans ${where}`,
 		scoreTooHigh: 'score.acquired ne peut pas dépasser score.total',
 		root: 'document',

@@ -58,6 +58,69 @@ describe('sheetSchema', () => {
 		expect(errorsOf(data)).toEqual([]);
 	});
 
+	it('accepts the match, true/false and categorize types, and an explanation on any type', () => {
+		const data = minimalSheet();
+		const base = { usage: 'practice', keyPoint: 'kp-add' };
+		data.exercises.push(
+			{
+				...base,
+				id: 'm',
+				type: 'match',
+				pairs: [
+					{ left: '1/2', right: '0,5' },
+					{ left: '1/4', right: '0,25' }
+				],
+				explanation: 'Diviser le numérateur par le dénominateur.'
+			} as never,
+			{ ...base, id: 'tf', type: 'true_false', statement: '1/2 = 2/4', answer: true } as never,
+			{
+				...base,
+				id: 'c',
+				type: 'categorize',
+				instruction: 'Range ces fractions',
+				categories: ['Irréductible', 'Simplifiable'],
+				items: [
+					{ text: '1/2', category: 'Irréductible' },
+					{ text: '2/4', category: 'Simplifiable' }
+				]
+			} as never
+		);
+		const result = validate(sheetSchema, data);
+		expect(result.success).toBe(true);
+		const exercises = (result as { data: SheetImport }).data.exercises;
+		expect(exercises.find((e) => e.id === 'm')?.explanation).toMatch(/^Diviser/);
+	});
+
+	it('rejects a categorize item outside the categories and a duplicated match side', () => {
+		const data = minimalSheet();
+		const base = { usage: 'practice', keyPoint: 'kp-add' };
+		data.exercises.push(
+			{
+				...base,
+				id: 'c',
+				type: 'categorize',
+				categories: ['Pair', 'Impair'],
+				items: [
+					{ text: '2', category: 'Pair' },
+					{ text: '3', category: 'Premier' }
+				]
+			} as never,
+			{
+				...base,
+				id: 'm',
+				type: 'match',
+				pairs: [
+					{ left: 'a', right: 'x' },
+					{ left: 'a', right: 'y' }
+				]
+			} as never
+		);
+		expect(errorsOf(data)).toEqual([
+			"exercises[2].items[1].category : « Premier » n'existe pas dans categories",
+			'exercises[3].pairs[1].left : « a » apparaît plusieurs fois'
+		]);
+	});
+
 	it('reports unknown references with their French message and path', () => {
 		const data = minimalSheet();
 		data.exercises[0].keyPoint = 'kp-xyz';

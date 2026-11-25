@@ -33,6 +33,16 @@ describe('prompts', () => {
 		expect(prompt).toContain('3 à 8 mots-clés');
 	});
 
+	it('asks for enough varied practice, true/false items and explanations', () => {
+		const prompt = sheetPrompt(ctx);
+		expect(prompt).toContain(
+			'environ 4 exercices d\'entraînement ("usage": "practice") par point-clé'
+		);
+		expect(prompt).toContain('8 à 10 "true_false"');
+		expect(prompt).toContain('"explanation"');
+		for (const type of ['"match"', '"true_false"', '"categorize"']) expect(prompt).toContain(type);
+	});
+
 	it('leaves a placeholder when the request is empty and skips empty lists', () => {
 		const prompt = sheetPrompt({
 			...ctx,
