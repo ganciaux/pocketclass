@@ -202,7 +202,7 @@
 									{:else}{number}{/if}
 								</a>
 								<a
-									class="link-card card card-border min-w-0 flex-1 bg-base-100 group-hover:border-primary"
+									class="link-card card card-border min-w-0 flex-1 bg-base-100 group-hover:border-primary group-hover:shadow-md motion-safe:group-hover:-translate-y-0.5"
 									href={resolve('/concept/[id]', { id: sheet.id })}
 								>
 									<div class="card-body flex-row items-center gap-3 py-3">

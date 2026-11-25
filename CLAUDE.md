@@ -93,8 +93,8 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   a pale highlighter hover (`hover:bg-primary/15`, title underlined).
 - **Links and hovers** (2026-11-25, user's rules, apply them everywhere; classes in `app.css`):
   nothing is underlined on hover; only links inside running text (`a:not([class])`, Markdown)
-  stay underlined. A whole card that opens a page = `.link-card` (mustard border under a mouse
-  or keyboard focus, pressed in on tap); a row of a list inside a card (parent lists, key points,
+  stay underlined. A whole card that opens a page = `.link-card` (mustard border and a 2px lift with a
+  shadow under a mouse or keyboard focus, pressed in on tap); a row of a list inside a card (parent lists, key points,
   a child's name on « Remarques ») = `.link-row` (same mustard border, stretched link
   `after:absolute after:inset-0`, actions `relative` above it); a short link in a card (where a
   note was written) = `.link-text` (highlighter swipe); a subject picture that is a link =
@@ -103,8 +103,8 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   in mustard. Hide / show: the eye shows the **current state**, as in
   layer panels (open `UI_ICONS.eye` = visible to children, `eyeOff` = hidden; the click
   toggles), the `title` / text names the action (« Masquer » / « Afficher »); icon-only in list
-  rows. The home binders (`.binder-card`) are the one hover motion: they slide
-  up and their picture tilts. They keep their subject-coloured frame. Gotcha: daisyUI 5 puts
+  rows. The home binders (`.binder-card`) have the strongest motion: they slide
+  up 4px and their picture tilts. They keep their subject-coloured frame. Gotcha: daisyUI 5 puts
   `.card-border` in the **utilities** layer, so a border colour set in `@layer components` never
   shows on a card: the `.link-card` hover border lives in `@layer utilities`. No other hover animation.
 - **Child writes** (progress, notes, profile look) and **parent binder edits** (subjects,

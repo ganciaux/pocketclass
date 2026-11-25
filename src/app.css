@@ -203,8 +203,8 @@ header.navbar {
 	 * with a mustard border; a tap presses a card in.
 	 */
 
-	/* A whole card that opens a page: mustard border under a mouse or keyboard focus (the
-	   border colour is in the utilities layer, below). */
+	/* A whole card that opens a page: pressed in on tap. Its hover (mustard border, small lift)
+	   is in the utilities layer, at the end of this file. */
 	.link-card {
 		transition:
 			transform 160ms var(--ease-out),
@@ -382,19 +382,42 @@ header.navbar {
 }
 
 /*
- * The mustard border of a .link-card lives in the utilities layer: daisyUI 5 puts `.card-border`
- * (grey border) in the utilities layer, which beats anything in `components`. Home binders keep
- * their subject-coloured frame (their hover is the slide up).
+ * Hover of a .link-card: mustard border, and the card rises a little off the page (2px and a
+ * shadow), like a sheet picked up from the desk. It lives in the utilities layer: daisyUI 5 puts
+ * `.card-border` (grey border) in the utilities layer, which beats anything in `components`.
+ * The lift uses `translate` (not `transform`) so the chapter path can raise the same card with
+ * `group-hover:-translate-y-0.5` without doubling it, and the tap keeps its `transform` press.
+ * Home binders have their own, stronger motion and keep their subject-coloured frame.
  */
 @layer utilities {
 	.link-card:not(.binder-card) {
+		transition:
+			transform 160ms var(--ease-out),
+			translate 200ms var(--ease-out),
+			border-color 160ms ease,
+			box-shadow 200ms ease;
+
 		&:focus-visible {
 			border-color: var(--color-primary);
+			box-shadow: var(--shadow-md);
 		}
 
 		@media (hover: hover) and (pointer: fine) {
 			&:hover {
 				border-color: var(--color-primary);
+				box-shadow: var(--shadow-md);
+			}
+		}
+
+		@media (prefers-reduced-motion: no-preference) {
+			&:focus-visible {
+				translate: 0 -2px;
+			}
+
+			@media (hover: hover) and (pointer: fine) {
+				&:hover {
+					translate: 0 -2px;
+				}
 			}
 		}
 	}
