@@ -1,9 +1,17 @@
 import type { Grade } from '#lib/data/types.ts';
+import { algebraGenerators } from './algebra.ts';
 import { calculationGenerators } from './calculation.ts';
+import { geometryGenerators } from './geometry.ts';
 import type { Generator } from './types.ts';
+import { unitsGenerators } from './units.ts';
 
 /** Every generator a sheet may name, by id. */
-export const GENERATORS: readonly Generator[] = [...calculationGenerators];
+export const GENERATORS: readonly Generator[] = [
+	...calculationGenerators,
+	...algebraGenerators,
+	...geometryGenerators,
+	...unitsGenerators
+];
 
 const byId = new Map(GENERATORS.map((g) => [g.id, g]));
 
