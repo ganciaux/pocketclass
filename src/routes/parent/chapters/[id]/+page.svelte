@@ -1,4 +1,7 @@
 <script lang="ts">
+	import ExportButton from '#lib/components/ExportButton.svelte';
+	import { exportChapter } from '#lib/data/catalogExport.ts';
+	import { exportFileName } from '#lib/import/catalogExport.ts';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import { activeOnly, groupNames, moveItem } from '#lib/binder/binder.ts';
@@ -224,6 +227,11 @@
 
 				{#key chapter.id}
 					<ChapterSettings {familyId} {chapter} groups={groupNames(siblingsLive.data ?? [])} />
+					<ExportButton
+						label={fr.export.chapter}
+						fileName={exportFileName('chapitre', chapter.title)}
+						load={() => exportChapter(familyId, chapter.id)}
+					/>
 				{/key}
 				<ConfirmDelete
 					title={t.deleteChapterTitle}

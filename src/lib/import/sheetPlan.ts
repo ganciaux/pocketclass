@@ -3,12 +3,14 @@ import type {
 	AssessmentRecord,
 	AssessmentSettingsRecord,
 	Chapter,
+	Subject,
 	ConceptRecord,
 	ExerciseRecord
 } from '#lib/data/types.ts';
-import type { ChapterImport } from '#lib/schemas/chapter.ts';
+import type { ChapterDoc } from '#lib/schemas/chapter.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
 import type { SheetDoc } from '#lib/schemas/sheet.ts';
+import type { SubjectDoc } from '#lib/schemas/subject.ts';
 
 /** What already exists in Firestore for one sheet id (read before planning). */
 export interface ExistingSheet {
@@ -146,7 +148,8 @@ export function planSheets(
 		// Every sheet has an assessment (its questions may all be generated).
 		const assessment: AssessmentRecord = {
 			...(sheet.assessment ?? DEFAULT_ASSESSMENT),
-			...old?.assessmentSettings,
+			// The parent's settings already in the family win (a value they never set is undefined).
+			...definedOnly(old?.assessmentSettings),
 			chapterId: target.chapterId,
 			conceptIds: [sheet.id],
 			archived: false
@@ -162,7 +165,7 @@ export function planSheets(
 
 /** A new chapter (`chapterId` chosen by the caller) at `order` in its subject, with its sheets. */
 export function planChapter(
-	chapter: ChapterImport,
+	chapter: ChapterDoc,
 	target: { subjectId: string; chapterId: string; order: number },
 	existing: ExistingSheets
 ): ImportPlan {
@@ -188,4 +191,50 @@ export function chunk<T>(items: T[], size: number): T[][] {
 	const chunks: T[][] = [];
 	for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size));
 	return chunks;
+}
+
+/** The fields that have a value (an `undefined` must not overwrite one when spread). */
+function definedOnly<T extends object>(value: T | undefined): Partial<T> {
+	return Object.fromEntries(
+		Object.entries(value ?? {}).filter(([, field]) => field !== undefined)
+	) as Partial<T>;
+}
+
+/**
+ * A new subject (backup restore) with its chapters and sheets. Ids are chosen by the caller:
+ * `chapterIds[i]` for `subject.chapters[i]`; chapters keep the document's order.
+ */
+export function planSubject(
+	subject: SubjectDoc,
+	target: { subjectId: string; order: number; color: Subject['color']; chapterIds: string[] },
+	existing: ExistingSheets
+): ImportPlan {
+	const record: Subject = {
+		name: subject.name,
+		grade: subject.grade,
+		color: target.color,
+		order: target.order,
+		archived: false,
+		...(subject.icon ? { icon: subject.icon } : {}),
+		...(subject.image ? { image: subject.image } : {})
+	};
+	const ops: WriteOp[] = [
+		{ kind: 'set', path: [COLLECTIONS.subjects, target.subjectId], data: { ...record } }
+	];
+	const stats = { created: 0, updated: 0, exercises: 0, archivedExercises: 0 };
+	subject.chapters.forEach((chapter, order) => {
+		const plan = planChapter(
+			chapter,
+			{ subjectId: target.subjectId, chapterId: target.chapterIds[order], order },
+			existing
+		);
+		ops.push(...plan.ops);
+		addStats(stats, plan.stats);
+	});
+	return { ops, stats };
+}
+
+/** Adds the counts of one plan to a running total. */
+export function addStats(total: ImportPlan['stats'], add: ImportPlan['stats']): void {
+	for (const key of Object.keys(total) as (keyof ImportPlan['stats'])[]) total[key] += add[key];
 }

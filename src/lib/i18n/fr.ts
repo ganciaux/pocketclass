@@ -220,6 +220,24 @@ export const fr = {
 		reset: 'Valeurs par défaut',
 		saved: 'Réglages enregistrés.'
 	},
+	export: {
+		sheet: 'Exporter la fiche (JSON)',
+		chapter: 'Exporter le chapitre (JSON)',
+		subject: 'Exporter la matière (JSON)',
+		binder: 'Exporter tous les classeurs (JSON)',
+		failed: "L'export a échoué. Vérifie ta connexion et réessaie.",
+		restoreTitle: 'Restaurer une sauvegarde',
+		restoreHelp:
+			"Un fichier « matière » ou « classeurs » exporté par PocketClass : ses matières sont ajoutées comme nouvelles matières. Une fiche déjà présente (même identifiant) bloque l'import : supprime-la ou masque-la d'abord.",
+		chooseFile: 'Choisir un fichier',
+		fileFailed: 'Impossible de lire ce fichier.',
+		pasteLabel: 'Ou colle le contenu du fichier (JSON)',
+		placeholder: '{ "format": "pocketclass/binder@1", … }',
+		summary: (subjects: number, chapters: number, sheets: number) =>
+			`${plural(subjects, 'matière')}, ${plural(chapters, 'chapitre')}, ${plural(sheets, 'fiche')}`,
+		submit: 'Restaurer',
+		done: (subjects: number) => `${plural(subjects, 'matière ajoutée', 'matières ajoutées')}.`
+	},
 	points: {
 		count: (n: number) => plural(n, 'point')
 	},

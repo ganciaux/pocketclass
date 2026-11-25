@@ -443,6 +443,19 @@ canPractise)`). Rules tests added (default 70 % without an assessment document, 
 btn-error`) with a trash icon; the child home links are big rows (icon, title, hint, count);
   points per subject (`pointsBySubject`, summed from `progress.assessmentPoints`) on the subject
   cards and banner, total on the home (`<PointsBadge>`).
+- 2026-11-25 — **Navigation style and export / restore** (user's choices). Navigation buttons
+  (`<BackLink>`, « Retour à la fiche ») are `btn-soft btn-primary`: pale mustard, dark text,
+  hover deepens the tint (rules outside the CSS layers in `app.css`, since daisyUI's soft style
+  writes mustard on mustard and turns solid on hover); ghost buttons hover in light mustard.
+  Child chapter / sheet cards: mustard border and underlined title on hover. « Notion acquise »
+  lists only the children who see the sheet (`seesSubject`, also used by `visibleSubjects`).
+  Export (`<ExportButton>`, JSON download) of a sheet (`sheet@1`, on the sheet page), a chapter
+  (`chapter@1`), a subject (`subject@1`) and every binder (`binder@1`, on « Gérer les
+  classeurs »): pure builders in `import/catalogExport.ts` (import → export round trip tested),
+  reads in `data/catalogExport.ts`; hidden items left out; the assessment keeps the parent's
+  `passRate` / `points` (now optional in the sheet format). Restore (`<BackupRestore>`, file or
+  paste) adds the subjects as new ones at the end of their grade (`planSubject`,
+  `importBackup`); a sheet id already used by an active sheet blocks it, as for any import.
 
 ## Firestore model
 
@@ -487,7 +500,7 @@ families/{familyId}                            { name, admins: [uid], createdAt 
 
 ## JSON formats (`src/lib/schemas/`)
 
-`pocketclass/sheet@1`, `pocketclass/chapter@1`, `pocketclass/lesson@1`, `pocketclass/summary@1`. JSON Schemas are exported
+`pocketclass/sheet@1`, `pocketclass/chapter@1`, `pocketclass/subject@1` and `pocketclass/binder@1` (backups, exported by the app), `pocketclass/lesson@1`, `pocketclass/summary@1`. JSON Schemas are exported
 to `static/schemas/` by `npm run schemas`. Loose parsing (code fences, text around the JSON) in
 `src/lib/import/parseJsonLoose.ts`.
 

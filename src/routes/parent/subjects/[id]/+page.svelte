@@ -1,4 +1,7 @@
 <script lang="ts">
+	import ExportButton from '#lib/components/ExportButton.svelte';
+	import { exportSubject } from '#lib/data/catalogExport.ts';
+	import { exportFileName } from '#lib/import/catalogExport.ts';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
@@ -269,6 +272,11 @@
 				{/if}
 
 				{#key subject.id}<SubjectForm {familyId} {subject} />{/key}
+				<ExportButton
+					label={fr.export.subject}
+					fileName={exportFileName('matiere', `${subject.name} ${subject.grade}`)}
+					load={() => exportSubject(familyId, subject.id)}
+				/>
 				<ConfirmDelete
 					title={t.deleteSubjectTitle}
 					help={t.deleteSubjectHelp(chaptersLive.data?.length ?? 0, sheetsLive.data?.length ?? 0)}

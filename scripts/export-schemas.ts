@@ -6,13 +6,16 @@ import { chapterSchema } from '#lib/schemas/chapter.ts';
 import { lessonSchema } from '#lib/schemas/lesson.ts';
 import { sheetSchema } from '#lib/schemas/sheet.ts';
 import { summarySchema } from '#lib/schemas/summary.ts';
+import { binderSchema, subjectSchema } from '#lib/schemas/subject.ts';
 
 const outDir = 'static/schemas';
 const schemas = {
 	sheet: sheetSchema,
 	chapter: chapterSchema,
 	lesson: lessonSchema,
-	summary: summarySchema
+	summary: summarySchema,
+	subject: subjectSchema,
+	binder: binderSchema
 };
 
 mkdirSync(outDir, { recursive: true });

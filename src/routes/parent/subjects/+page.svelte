@@ -1,5 +1,9 @@
 <script lang="ts">
 	import BackLink from '#lib/components/BackLink.svelte';
+	import BackupRestore from '#lib/components/BackupRestore.svelte';
+	import ExportButton from '#lib/components/ExportButton.svelte';
+	import { exportBinder } from '#lib/data/catalogExport.ts';
+	import { exportFileName } from '#lib/import/catalogExport.ts';
 	import { session } from '#lib/auth.svelte.ts';
 	import { freeColor, moveItem, nextOrder } from '#lib/binder/binder.ts';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
@@ -126,4 +130,15 @@
 			</form>
 		{/snippet}
 	</LoadState>
+
+	{#if session.familyId}
+		{@const familyId = session.familyId}
+		<!-- Backup: every binder in one file, and its restore. -->
+		<ExportButton
+			label={fr.export.binder}
+			fileName={exportFileName('classeurs', '')}
+			load={() => exportBinder(familyId)}
+		/>
+		<BackupRestore {familyId} />
+	{/if}
 </main>

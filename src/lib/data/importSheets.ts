@@ -8,7 +8,7 @@ import {
 	writeBatch
 } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
-import { nextOrder } from '#lib/binder/binder.ts';
+import { freeColor, nextOrder } from '#lib/binder/binder.ts';
 import { MAX_BATCH_OPS } from './batches.ts';
 import {
 	assessmentRef,
@@ -16,15 +16,20 @@ import {
 	conceptRef,
 	conceptsCol,
 	exercisesCol,
-	familyDoc
+	familyDoc,
+	subjectsCol
 } from './refs.ts';
 import type { ChapterImport } from '#lib/schemas/chapter.ts';
 import type { SheetDoc } from '#lib/schemas/sheet.ts';
+import { subjectsOf, type BackupImport } from '#lib/schemas/subject.ts';
+import type { SubjectColor } from './types.ts';
 import {
 	chunk,
 	findSheetConflicts,
 	planChapter,
 	planSheets,
+	planSubject,
+	addStats,
 	type ExistingSheets,
 	type ImportPlan,
 	type SheetConflict,
@@ -135,4 +140,45 @@ export async function importChapter(
 	const plan = planChapter(chapter, { subjectId, chapterId, order }, existing);
 	await run(familyId, plan.ops);
 	return { chapterId, plan };
+}
+
+/**
+ * Restores a backup (`subject@1` or `binder@1`) as NEW subjects, each at the end of its grade,
+ * with their chapters and sheets. Throws `ImportConflictError` if a sheet id is already used by
+ * an active sheet (sheet ids are family-wide: delete or hide those sheets first).
+ */
+export async function importBackup(
+	familyId: string,
+	backup: BackupImport
+): Promise<{ subjectIds: string[]; plan: ImportPlan }> {
+	const subjects = subjectsOf(backup);
+	const sheets = subjects.flatMap((s) => s.chapters.flatMap((c) => c.sheets));
+	// No target chapter exists yet: any active sheet with one of these ids is a conflict.
+	const existing = await checkConflicts(familyId, sheets, '');
+	const known = (await getDocs(subjectsCol(familyId))).docs.map((d) => d.data());
+
+	const ops: WriteOp[] = [];
+	const stats = { created: 0, updated: 0, exercises: 0, archivedExercises: 0 };
+	const subjectIds: string[] = [];
+	for (const subject of subjects) {
+		const subjectId = doc(subjectsCol(familyId)).id;
+		const color: SubjectColor = subject.color ?? freeColor(known);
+		const order = nextOrder(known.filter((s) => s.grade === subject.grade));
+		const plan = planSubject(
+			subject,
+			{
+				subjectId,
+				order,
+				color,
+				chapterIds: subject.chapters.map(() => doc(chaptersCol(familyId)).id)
+			},
+			existing
+		);
+		ops.push(...plan.ops);
+		addStats(stats, plan.stats);
+		known.push({ name: subject.name, grade: subject.grade, color, order, archived: false });
+		subjectIds.push(subjectId);
+	}
+	await run(familyId, ops);
+	return { subjectIds, plan: { ops, stats } };
 }

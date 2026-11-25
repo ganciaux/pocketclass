@@ -13,11 +13,14 @@
 		schema,
 		value = $bindable(''),
 		placeholder,
+		label = fr.import.paste,
 		children
 	}: {
 		schema: z.ZodType<T>;
 		value?: string;
 		placeholder: string;
+		/** Field label (default: the AI's answer). */
+		label?: string;
 		children: Snippet<[T]>;
 	} = $props();
 
@@ -32,7 +35,7 @@
 </script>
 
 <label class="fieldset">
-	<span class="fieldset-legend">{t.paste}</span>
+	<span class="fieldset-legend">{label}</span>
 	<textarea
 		class="textarea w-full resize-y font-mono text-sm"
 		rows="6"

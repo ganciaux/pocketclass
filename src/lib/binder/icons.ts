@@ -67,6 +67,8 @@ export const UI_ICONS = {
 	bookmark: paths('M6 3h12v18l-6-4-6 4z'),
 	message: paths('M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),
+	download: paths('M12 3v12', 'm7 10 5 5 5-5', 'M5 21h14'),
+	upload: paths('M12 21V9', 'm7 14 5-5 5 5', 'M5 3h14'),
 	pencil: paths('M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z', 'm15 5 4 4'),
 	trash: paths('M3 6h18', 'M8 6V4h8v2', 'M19 6l-1 14H6L5 6', 'M10 11v6', 'M14 11v6'),
 	/** Open book: sheets seen. */

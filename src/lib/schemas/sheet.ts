@@ -29,7 +29,10 @@ const assessmentSchema = z.object({
 			instruction: text,
 			rubric: z.array(z.object({ keyPoint: slug, criterion: text })).min(1)
 		})
-		.optional()
+		.optional(),
+	/** The parent's settings, in an exported backup (the AI prompt does not ask for them). */
+	passRate: z.int().min(1).max(100).optional(),
+	points: z.int().min(0).max(1000).optional()
 });
 
 /** Same tag whatever the case or accents (« Fractión » = « fraction »). */

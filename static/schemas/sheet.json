@@ -809,7 +809,7 @@
 						"perKeyPoint": {
 							"type": "integer",
 							"minimum": 1,
-							"maximum": 9007199254740991
+							"maximum": 15
 						}
 					},
 					"required": [
@@ -856,6 +856,16 @@
 						"instruction",
 						"rubric"
 					]
+				},
+				"passRate": {
+					"type": "integer",
+					"minimum": 1,
+					"maximum": 100
+				},
+				"points": {
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 1000
 				}
 			},
 			"required": [

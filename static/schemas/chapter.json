@@ -2,10 +2,6 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"type": "object",
 	"properties": {
-		"format": {
-			"type": "string",
-			"const": "pocketclass/chapter@1"
-		},
 		"title": {
 			"type": "string",
 			"minLength": 1
@@ -827,7 +823,7 @@
 									"perKeyPoint": {
 										"type": "integer",
 										"minimum": 1,
-										"maximum": 9007199254740991
+										"maximum": 15
 									}
 								},
 								"required": [
@@ -874,6 +870,16 @@
 									"instruction",
 									"rubric"
 								]
+							},
+							"passRate": {
+								"type": "integer",
+								"minimum": 1,
+								"maximum": 100
+							},
+							"points": {
+								"type": "integer",
+								"minimum": 0,
+								"maximum": 1000
 							}
 						},
 						"required": [
@@ -890,6 +896,10 @@
 				]
 			}
 		},
+		"format": {
+			"type": "string",
+			"const": "pocketclass/chapter@1"
+		},
 		"warnings": {
 			"type": "array",
 			"items": {
@@ -898,8 +908,8 @@
 		}
 	},
 	"required": [
-		"format",
 		"title",
-		"sheets"
+		"sheets",
+		"format"
 	]
 }

@@ -1,4 +1,7 @@
 <script lang="ts">
+	import ExportButton from '#lib/components/ExportButton.svelte';
+	import { exportSheet } from '#lib/data/catalogExport.ts';
+	import { exportFileName } from '#lib/import/catalogExport.ts';
 	import { isAcquired } from '#lib/binder/binder.ts';
 	import AcquiredStamp from '#lib/components/AcquiredStamp.svelte';
 	import AcquiredStamps from '#lib/components/AcquiredStamps.svelte';
@@ -319,6 +322,12 @@
 			{#if session.isAdmin && !session.childView && session.familyId}
 				<AcquiredStamps familyId={session.familyId} sheet={concept} />
 				<AssessmentSettings familyId={session.familyId} sheet={concept} />
+				{@const familyId = session.familyId}
+				<ExportButton
+					label={fr.export.sheet}
+					fileName={exportFileName('fiche', concept.title)}
+					load={() => exportSheet(familyId, concept.id)}
+				/>
 			{/if}
 
 			<div class="grid grid-cols-2 gap-2">
