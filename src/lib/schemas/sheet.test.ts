@@ -46,6 +46,31 @@ describe('sheetSchema', () => {
 		expect(errorsOf(data).join(' ')).toContain('générateur « fractions.magic » inconnu');
 	});
 
+	it('rejects an MCQ whose options repeat, and twin categories', () => {
+		const base = { usage: 'practice', keyPoint: 'kp-add', type: 'mcq', question: 'Q' };
+		const withMcq = (answer: string, distractors: string[]) => {
+			const data = minimalSheet();
+			data.exercises.push({ ...base, id: 'q', answer, distractors } as never);
+			return errorsOf(data).join(' ');
+		};
+		expect(withMcq('A', ['B', 'C', 'D'])).toBe('');
+		expect(withMcq('A', ['A', 'C', 'D'])).toContain('« A » apparaît plusieurs fois');
+		expect(withMcq('A', ['B', 'B', 'D'])).toContain('« B » apparaît plusieurs fois');
+		const data = minimalSheet();
+		data.exercises.push({
+			usage: 'practice',
+			keyPoint: 'kp-add',
+			id: 'c',
+			type: 'categorize',
+			categories: ['x', 'x'],
+			items: [
+				{ text: 'a', category: 'x' },
+				{ text: 'b', category: 'x' }
+			]
+		} as never);
+		expect(errorsOf(data).join(' ')).toContain('« x » apparaît plusieurs fois');
+	});
+
 	it('accepts every exercise type', () => {
 		const data = minimalSheet();
 		const base = { usage: 'practice', keyPoint: 'kp-add' };

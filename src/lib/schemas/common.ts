@@ -33,7 +33,10 @@ const exerciseVariants = {
 		type: z.literal('mcq'),
 		question: text,
 		answer: text,
-		distractors: z.array(text).length(3)
+		distractors: z
+			.array(text)
+			.length(3)
+			.superRefine((distractors, ctx) => uniqueTexts(distractors, ctx))
 	},
 	calculation: {
 		type: z.literal('calculation'),
@@ -91,10 +94,23 @@ const exerciseVariants = {
 	categorize: {
 		type: z.literal('categorize'),
 		instruction: text.optional(),
-		categories: z.array(text).min(2).max(4),
+		categories: z
+			.array(text)
+			.min(2)
+			.max(4)
+			.superRefine((categories, ctx) => uniqueTexts(categories, ctx)),
 		items: z.array(z.object({ text, category: text })).min(2)
 	}
 } as const;
+
+/** Each text once (categories, distractors): the player could not tell twins apart. */
+function uniqueTexts(values: string[], ctx: z.RefinementCtx): void {
+	values.forEach((value, index) => {
+		if (values.indexOf(value) !== index) {
+			ctx.addIssue({ code: 'custom', path: [index], message: fr.validation.duplicateValue(value) });
+		}
+	});
+}
 
 /** A match pair side must appear once, or the player could not tell the pairs apart. */
 function uniqueValues(
@@ -138,7 +154,18 @@ function exerciseUnion<Base extends z.ZodRawShape>(base: Base) {
 	const v = exerciseVariants;
 	return z.discriminatedUnion('type', [
 		z.object({ ...base, ...v.pair }),
-		z.object({ ...base, ...v.mcq }),
+		z.object({ ...base, ...v.mcq }).superRefine((exercise, ctx) => {
+			// A distractor equal to the answer would be a right answer marked wrong.
+			const e = exercise as { answer: string; distractors: string[] };
+			const index = e.distractors.indexOf(e.answer);
+			if (index !== -1) {
+				ctx.addIssue({
+					code: 'custom',
+					path: ['distractors', index],
+					message: fr.validation.duplicateValue(e.answer)
+				});
+			}
+		}),
 		z.object({ ...base, ...v.calculation }),
 		z.object({ ...base, ...v.cloze }),
 		z.object({ ...base, ...v.ordering }),

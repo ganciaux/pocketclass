@@ -16,8 +16,9 @@
 	} = $props();
 
 	// Scrambled once, when the exercise is shown (the player recreates it for each question).
+	// Keyed by position: the same text may appear twice (« -e » for je and il).
 	// svelte-ignore state_referenced_locally
-	let order = $state(scramble(items));
+	let order = $state(scramble(items.map((text, index) => ({ text, index }))));
 	let done = $state(false);
 	const reduce =
 		typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -30,20 +31,20 @@
 
 	function submit() {
 		done = true;
-		onanswer(check(order));
+		onanswer(check(order.map((item) => item.text)));
 	}
 </script>
 
 <div class="flex flex-col gap-3">
 	<p class="text-sm text-base-content/60">{fr.practice.orderHelp}</p>
 	<ol class="flex flex-col gap-2">
-		{#each order as item, i (item)}
+		{#each order as item, i (item.index)}
 			<li
 				class="flex items-center gap-2 rounded-box border border-base-300 bg-base-100 p-2"
 				animate:flip={{ duration: reduce ? 0 : 180 }}
 			>
 				<span class="badge badge-ghost font-bold">{i + 1}</span>
-				<span class="flex-1">{@html renderInline(item)}</span>
+				<span class="flex-1">{@html renderInline(item.text)}</span>
 				{#if !done}
 					<button
 						type="button"

@@ -50,7 +50,8 @@
 	const ex = exercise;
 	const choices =
 		ex.type === 'mcq'
-			? shuffle([ex.answer, ...ex.distractors]).map((c) => ({ label: c, value: c }))
+			? // Distinct values: a distractor repeating the answer would break the buttons.
+				shuffle([...new Set([ex.answer, ...ex.distractors])]).map((c) => ({ label: c, value: c }))
 			: [];
 	const flipped = ex.type === 'pair' && ex.direction === 'both' && Math.random() < 0.5;
 
