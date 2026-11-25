@@ -203,22 +203,13 @@ header.navbar {
 	 * with a mustard border; a tap presses a card in.
 	 */
 
-	/* A whole card that opens a page: mustard border under a mouse or keyboard focus. */
+	/* A whole card that opens a page: mustard border under a mouse or keyboard focus (the
+	   border colour is in the utilities layer, below). */
 	.link-card {
 		transition:
 			transform 160ms var(--ease-out),
 			border-color 160ms ease,
 			box-shadow 200ms ease;
-
-		&:focus-visible {
-			border-color: var(--color-primary);
-		}
-
-		@media (hover: hover) and (pointer: fine) {
-			&:hover {
-				border-color: var(--color-primary);
-			}
-		}
 
 		@media (prefers-reduced-motion: no-preference) {
 			&:active {
@@ -387,5 +378,24 @@ header.navbar {
 @media (hover: hover) {
 	.btn.btn-ghost:hover {
 		background-color: color-mix(in oklab, var(--color-primary) 18%, transparent);
+	}
+}
+
+/*
+ * The mustard border of a .link-card lives in the utilities layer: daisyUI 5 puts `.card-border`
+ * (grey border) in the utilities layer, which beats anything in `components`. Home binders keep
+ * their subject-coloured frame (their hover is the slide up).
+ */
+@layer utilities {
+	.link-card:not(.binder-card) {
+		&:focus-visible {
+			border-color: var(--color-primary);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			&:hover {
+				border-color: var(--color-primary);
+			}
+		}
 	}
 }
