@@ -13,7 +13,7 @@
 
 <!-- Size in rem through a CSS variable: any size without one class per size. -->
 <span
-	class="inline-grid flex-none place-items-center overflow-hidden rounded-full bg-primary font-bold text-primary-content ring-2 ring-primary/40"
+	class="link-lead inline-grid flex-none place-items-center overflow-hidden rounded-full bg-primary font-bold text-primary-content ring-2 ring-primary/40"
 	style:width="{size}rem"
 	style:height="{size}rem"
 	style:font-size="{size * 0.45}rem"

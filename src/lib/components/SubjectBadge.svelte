@@ -16,7 +16,7 @@
 
 {#if subject.image}
 	<img
-		class="shrink-0 rounded-box object-cover"
+		class="link-lead shrink-0 rounded-box object-cover"
 		style:width="{size}rem"
 		style:height="{size}rem"
 		src={subject.image}
@@ -24,7 +24,7 @@
 	/>
 {:else}
 	<span
-		class={['grid shrink-0 place-items-center rounded-box', SUBJECT_TILE[subject.color]]}
+		class={['link-lead grid shrink-0 place-items-center rounded-box', SUBJECT_TILE[subject.color]]}
 		style:width="{size}rem"
 		style:height="{size}rem"
 		aria-hidden="true"

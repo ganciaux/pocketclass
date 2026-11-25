@@ -262,20 +262,32 @@ header.navbar {
 		}
 	}
 
-	/* A binder on the home shelf (with .link-card): under a mouse or keyboard focus it also
-	   slides up as if pulled off the shelf, and its picture tilts. The app's one hover motion. */
-	.binder-badge {
-		display: inline-flex;
-		transition: transform 260ms var(--ease-out);
+	/* The picture at the left of a clickable card or row (subject badge, avatar, chapter number,
+	   home link icon: class `.link-lead`, set by <SubjectBadge> and <Avatar> themselves) tilts
+	   under a mouse or keyboard focus, like a sticker lifted by a corner (as `.link-icon`). */
+	.link-lead {
+		transition: transform 220ms var(--ease-out);
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
+		:is(.link-card, .link-row):focus-visible .link-lead,
+		.link-row:focus-within .link-lead {
+			transform: rotate(-6deg);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			:is(.link-card, .link-row):hover .link-lead {
+				transform: rotate(-6deg);
+			}
+		}
+
+		/* A binder on the home shelf slides up as if pulled off the shelf, its picture tilts more. */
 		.binder-card:focus-visible {
 			transform: translateY(-4px);
 			box-shadow: var(--shadow-lg);
 		}
 
-		.binder-card:focus-visible .binder-badge {
+		.binder-card:focus-visible .link-lead {
 			transform: rotate(-8deg) scale(1.08);
 		}
 
@@ -285,7 +297,7 @@ header.navbar {
 				box-shadow: var(--shadow-lg);
 			}
 
-			.binder-card:hover .binder-badge {
+			.binder-card:hover .link-lead {
 				transform: rotate(-8deg) scale(1.08);
 			}
 		}

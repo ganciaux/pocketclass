@@ -98,13 +98,15 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   a child's name on « Remarques ») = `.link-row` (same mustard border, stretched link
   `after:absolute after:inset-0`, actions `relative` above it); a short link in a card (where a
   note was written) = `.link-text` (highlighter swipe); a subject picture that is a link =
-  `.link-icon` (tilts). Several things opening the same page light up together (chapter path:
+  `.link-icon` (tilts). The picture at the left of a clickable card or row tilts too
+  (`.link-lead`: set by `<SubjectBadge>` and `<Avatar>` themselves, add it to any other leading
+  icon or number). Several things opening the same page light up together (chapter path:
   the step bubble is a link too, `group-hover` on the card and a ring on the bubble). Tags fill
   in mustard. Hide / show: the eye shows the **current state**, as in
   layer panels (open `UI_ICONS.eye` = visible to children, `eyeOff` = hidden; the click
   toggles), the `title` / text names the action (« Masquer » / « Afficher »); icon-only in list
   rows. The home binders (`.binder-card`) have the strongest motion: they slide
-  up 4px and their picture tilts. They keep their subject-coloured frame. Gotcha: daisyUI 5 puts
+  up 4px and their picture tilts more. They keep their subject-coloured frame. Gotcha: daisyUI 5 puts
   `.card-border` in the **utilities** layer, so a border colour set in `@layer components` never
   shows on a card: the `.link-card` hover border lives in `@layer utilities`. No other hover animation.
 - **Child writes** (progress, notes, profile look) and **parent binder edits** (subjects,

@@ -194,7 +194,9 @@
 										href="#section-{section}"
 										onclick={(event) => goToSection(event, section)}
 									>
-										<span class="badge badge-primary badge-sm mt-0.5 rounded-full font-bold">
+										<span
+											class="link-lead badge badge-primary badge-sm mt-0.5 rounded-full font-bold"
+										>
 											{i + 1}
 										</span>
 										<span>

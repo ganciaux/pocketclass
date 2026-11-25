@@ -87,7 +87,9 @@
 	)}
 		<a class="link-card card card-border bg-base-100" {href}>
 			<div class="card-body flex-row items-center gap-3 p-4">
-				<span class="grid size-11 shrink-0 place-items-center rounded-full bg-secondary/15">
+				<span
+					class="link-lead grid size-11 shrink-0 place-items-center rounded-full bg-secondary/15"
+				>
 					<Icon paths={icon} class="size-5 text-secondary" />
 				</span>
 				<span class="flex min-w-0 flex-1 flex-col">

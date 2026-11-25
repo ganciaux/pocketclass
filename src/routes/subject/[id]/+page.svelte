@@ -110,7 +110,9 @@
 							href={resolve('/concept/[id]', { id: next.id })}
 						>
 							<div class="card-body flex-row items-center gap-3">
-								<span class="grid size-10 place-items-center rounded-full bg-primary-content/15">
+								<span
+									class="link-lead grid size-10 place-items-center rounded-full bg-primary-content/15"
+								>
 									<Icon paths={UI_ICONS.play} />
 								</span>
 								<span class="flex min-w-0 flex-1 flex-col">
@@ -136,42 +138,45 @@
 									{group}
 								</h2>
 							{/if}
-							{#each list as chapter (chapter.id)}
-								{@const chapterTally = tallies.get(chapter.id) ?? {
-									total: 0,
-									read: 0,
-									fresh: 0,
-									acquired: 0
-								}}
-								<a
-									class="link-card card card-border bg-base-100"
-									href={resolve('/chapter/[id]', { id: chapter.id })}
-								>
-									<div class="card-body flex-row items-center gap-4">
-										<span
-											class={[
-												'grid size-11 shrink-0 place-items-center rounded-full text-lg font-bold',
-												SUBJECT_TILE[subject.color]
-											]}
-										>
-											{numbers.get(chapter.id)}
-										</span>
-										<div class="flex min-w-0 flex-1 flex-col gap-2">
-											<strong class="text-lg leading-tight">
-												{chapter.title}
-											</strong>
-											{#if asChild}
-												<TallyLine tally={chapterTally} barClass={SUBJECT_TEXT[subject.color]} />
-											{:else}
-												<span class="text-sm text-base-content/70">
-													{t.sheets(chapterTally.total)}
-												</span>
-											{/if}
+							<!-- Two chapters per row from tablets on, like the binders of the home page. -->
+							<div class="grid gap-2 sm:grid-cols-2">
+								{#each list as chapter (chapter.id)}
+									{@const chapterTally = tallies.get(chapter.id) ?? {
+										total: 0,
+										read: 0,
+										fresh: 0,
+										acquired: 0
+									}}
+									<a
+										class="link-card card card-border bg-base-100"
+										href={resolve('/chapter/[id]', { id: chapter.id })}
+									>
+										<div class="card-body flex-row items-center gap-3 p-4">
+											<span
+												class={[
+													'link-lead grid size-10 shrink-0 place-items-center rounded-full text-lg font-bold',
+													SUBJECT_TILE[subject.color]
+												]}
+											>
+												{numbers.get(chapter.id)}
+											</span>
+											<div class="flex min-w-0 flex-1 flex-col gap-2">
+												<strong class="leading-tight">
+													{chapter.title}
+												</strong>
+												{#if asChild}
+													<TallyLine tally={chapterTally} barClass={SUBJECT_TEXT[subject.color]} />
+												{:else}
+													<span class="text-sm text-base-content/70">
+														{t.sheets(chapterTally.total)}
+													</span>
+												{/if}
+											</div>
+											<Icon paths={UI_ICONS.chevronRight} class="size-5 text-base-content/40" />
 										</div>
-										<Icon paths={UI_ICONS.chevronRight} class="size-5 text-base-content/40" />
-									</div>
-								</a>
-							{/each}
+									</a>
+								{/each}
+							</div>
 						</section>
 					{:else}
 						<p class="text-base-content/70">{t.noChapters}</p>
