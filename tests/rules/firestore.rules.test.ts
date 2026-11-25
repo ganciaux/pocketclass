@@ -339,6 +339,17 @@ describe('child writes', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), opened));
 	});
 
+	it('remember the mind map questions already drawn (a bounded list)', async () => {
+		const kid = as('kid-phone');
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		const path = `${lea}/progress/c4`;
+		await assertSucceeds(setDoc(at(kid, path), { ...where, mapDrawn: ['ex-1', 'ex-2'] }));
+		await assertSucceeds(setDoc(at(kid, path), { ...where, mapDrawn: [] }, { merge: true }));
+		await assertFails(setDoc(at(kid, path), { ...where, mapDrawn: 'ex-1' }, { merge: true }));
+		const tooMany = Array.from({ length: 201 }, (_, i) => `ex-${i}`);
+		await assertFails(setDoc(at(kid, path), { ...where, mapDrawn: tooMany }, { merge: true }));
+	});
+
 	it('record practice scores and create (never change) their attempts', async () => {
 		const kid = as('kid-phone');
 		const where = { subjectId: 'maths', chapterId: 'ch1' };

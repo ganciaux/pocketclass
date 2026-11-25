@@ -264,7 +264,7 @@ service cloud.firestore {
       return ['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt',
         'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt',
         'assessmentLast', 'assessmentBest', 'assessedAt', 'failedAt', 'retakeLocked',
-        'assessmentPoints'];
+        'assessmentPoints', 'mapDrawn'];
     }
 
     function validProgress(familyId, profileId, conceptId) {
@@ -273,7 +273,10 @@ service cloud.firestore {
         && validPracticeScores()
         && optionalScore(request.resource.data, 'assessmentLast')
         && optionalScore(request.resource.data, 'assessmentBest')
-        && request.resource.data.get('retakeLocked', false) is bool;
+        && request.resource.data.get('retakeLocked', false) is bool
+        // Mind map « Me tester »: ids of the practice questions already drawn.
+        && request.resource.data.get('mapDrawn', []) is list
+        && request.resource.data.get('mapDrawn', []).size() <= 200;
     }
 
     function assessmentPath(familyId, conceptId) {
