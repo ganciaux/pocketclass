@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { fr } from '#lib/i18n/fr.ts';
-	import { checkAnswer, solutionOf, type PlayableExercise } from '#lib/practice/answers.ts';
+	import {
+		checkAnswer,
+		exercisePrompt,
+		solutionOf,
+		type PlayableExercise
+	} from '#lib/practice/answers.ts';
 	import { shuffle } from '#lib/practice/series.ts';
 	import { renderMarkdown } from '#lib/render/markdown.ts';
 	import AnswerFeedback from './AnswerFeedback.svelte';
@@ -46,26 +51,7 @@
 			: [];
 	const flipped = ex.type === 'pair' && ex.direction === 'both' && Math.random() < 0.5;
 
-	const prompt = $derived.by(() => {
-		switch (exercise.type) {
-			case 'mcq':
-			case 'open':
-				return exercise.question;
-			case 'true_false':
-			case 'calculation':
-				return exercise.statement;
-			case 'ordering':
-			case 'paper':
-				return exercise.instruction;
-			case 'match':
-			case 'categorize':
-				return exercise.instruction ?? '';
-			case 'pair':
-				return flipped ? exercise.back : exercise.front;
-			case 'cloze':
-				return '';
-		}
-	});
+	const prompt = $derived(exercisePrompt(exercise, flipped));
 </script>
 
 <div class="flex flex-col gap-4">

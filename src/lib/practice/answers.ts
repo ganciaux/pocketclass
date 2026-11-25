@@ -1,3 +1,4 @@
+import { fr } from '#lib/i18n/fr.ts';
 import { equals, isIrreducible, parseFraction } from '#lib/math/fraction.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
 
@@ -119,6 +120,36 @@ export function checkAnswer<E extends PlayableExercise>(exercise: E, response: R
 		case 'paper':
 			return r === true;
 	}
+}
+
+/** The question as the child reads it (Markdown); `flipped`: a two-way card shown back first. */
+export function exercisePrompt(exercise: PlayableExercise, flipped = false): string {
+	switch (exercise.type) {
+		case 'mcq':
+		case 'open':
+			return exercise.question;
+		case 'true_false':
+		case 'calculation':
+			return exercise.statement;
+		case 'ordering':
+		case 'paper':
+			return exercise.instruction;
+		case 'match':
+		case 'categorize':
+			return exercise.instruction ?? '';
+		case 'pair':
+			return flipped ? exercise.back : exercise.front;
+		case 'cloze':
+			return '';
+	}
+}
+
+/** The right answer in a correction list, where no choice button shows it (assessment). */
+export function correctionOf(exercise: PlayableExercise): string[] {
+	if (exercise.type === 'mcq') return [exercise.answer];
+	if (exercise.type === 'true_false')
+		return [exercise.answer ? fr.practice.true : fr.practice.false];
+	return solutionOf(exercise);
 }
 
 /**

@@ -1,6 +1,6 @@
 import { generatorById } from '#lib/generators/catalog.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
-import type { PlayableExercise } from './answers.ts';
+import { exercisePrompt, type PlayableExercise } from './answers.ts';
 import { buildSeries, playable, SERIES_SIZE, shuffle, type Random } from './series.ts';
 
 /**
@@ -52,10 +52,6 @@ export function instantiate(
 	return { ...base, ...made, id: `${exercise.id}~${n}` } as PlayableExercise;
 }
 
-/** What the child reads: two questions with the same text are the same question. */
-const promptOf = (e: PlayableExercise) =>
-	'statement' in e ? e.statement : 'question' in e ? e.question : e.id;
-
 /**
  * Draws generated questions, avoiding a text already in `seen` (a few tries: a small generator
  * may have few different questions).
@@ -65,10 +61,10 @@ export function generatedDraw(random: Random = Math.random) {
 	return (exercise: GeneratorExercise, seen: Set<string>): PlayableExercise => {
 		drawn++;
 		let question = instantiate(exercise, drawn, random);
-		for (let i = 0; i < 5 && seen.has(promptOf(question)); i++) {
+		for (let i = 0; i < 5 && seen.has(exercisePrompt(question)); i++) {
 			question = instantiate(exercise, drawn, random);
 		}
-		seen.add(promptOf(question));
+		seen.add(exercisePrompt(question));
 		return question;
 	};
 }
