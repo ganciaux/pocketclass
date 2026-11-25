@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
-	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import { UI_ICONS, type IconPath } from '#lib/binder/icons.ts';
 	import Icon from '#lib/components/Icon.svelte';
+	import PointsBadge from '#lib/components/PointsBadge.svelte';
 	import SubjectCards from '#lib/components/SubjectCards.svelte';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { watchNotes } from '#lib/data/notes.ts';
@@ -28,10 +29,7 @@
 	</h1>
 	{#if session.childView && session.profile}
 		<!-- Points earned by passed assessments (the owner's profile, also in test mode). -->
-		<p class="badge badge-warning badge-lg gap-1.5 self-start font-bold">
-			<Icon paths={UI_ICONS.star} class="size-4" />
-			{fr.points.count(session.profile.points ?? 0)}
-		</p>
+		<p class="self-start"><PointsBadge points={session.profile.points ?? 0} size="lg" /></p>
 	{/if}
 
 	{#if session.isAdmin && !session.childView}
@@ -66,19 +64,44 @@
 	{/if}
 
 	{#if session.childView}
+		{@const open = openCount(notesLive.data ?? [])}
 		<div class="grid gap-3 sm:grid-cols-2">
-			<a
-				class="card card-border bg-base-100 transition-colors hover:border-secondary"
-				href={resolve('/me/sheets')}
-			>
-				<div class="card-body">{fr.seen.title}</div>
-			</a>
-			<a
-				class="card card-border bg-base-100 transition-colors hover:border-secondary"
-				href={resolve('/me/notes')}
-			>
-				<div class="card-body">{fr.notes.link(openCount(notesLive.data ?? []))}</div>
-			</a>
+			{@render homeLink(resolve('/me/sheets'), UI_ICONS.book, fr.home.seenTitle, fr.home.seenHint)}
+			{@render homeLink(
+				resolve('/me/notes'),
+				UI_ICONS.message,
+				fr.home.notesTitle,
+				fr.home.notesHint,
+				open > 0 ? fr.home.notesOpen(open) : null
+			)}
 		</div>
 	{/if}
+
+	<!-- A big tappable row: icon, title, one line of help, optional count, chevron. -->
+	{#snippet homeLink(
+		href: string,
+		icon: IconPath[],
+		title: string,
+		hint: string,
+		badge: string | null = null
+	)}
+		<a
+			class="subject-card card card-border bg-base-100 transition-colors hover:border-secondary"
+			{href}
+		>
+			<div class="card-body flex-row items-center gap-3 p-4">
+				<span class="grid size-11 shrink-0 place-items-center rounded-full bg-secondary/15">
+					<Icon paths={icon} class="size-5 text-secondary" />
+				</span>
+				<span class="flex min-w-0 flex-1 flex-col">
+					<span class="flex items-center gap-2 text-base font-bold">
+						{title}
+						{#if badge}<span class="badge badge-warning badge-sm">{badge}</span>{/if}
+					</span>
+					<span class="text-sm text-base-content/70">{hint}</span>
+				</span>
+				<Icon paths={UI_ICONS.chevronRight} class="size-5 text-base-content/40" />
+			</div>
+		</a>
+	{/snippet}
 </main>

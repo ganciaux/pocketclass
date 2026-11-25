@@ -9,6 +9,8 @@
 	} from '#lib/binder/binder.ts';
 	import { SUBJECT_BORDER } from '#lib/binder/colors.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import PointsBadge from '#lib/components/PointsBadge.svelte';
+	import { pointsBySubject } from '#lib/practice/assessment.ts';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import TallyLine from '#lib/components/TallyLine.svelte';
 	import { watchBinder } from '#lib/data/catalog.ts';
@@ -55,6 +57,7 @@
 			'subjectId',
 			progressById(binder.progress)
 		)}
+		{@const points = pointsBySubject(binder.progress)}
 		{#each shelves(binder.subjects) as shelf (shelf.grade)}
 			<section class="flex flex-col gap-2">
 				{#if shelf.grade}<h3 class="text-lg font-bold">{shelf.grade}</h3>{/if}
@@ -75,6 +78,9 @@
 										<strong class="flex-1 text-lg">{subject.name}</strong>
 										{#if view && subject.grade !== view.grade}
 											<span class="badge badge-ghost badge-sm">{subject.grade}</span>
+										{/if}
+										{#if view && points.get(subject.id)}
+											<PointsBadge points={points.get(subject.id) ?? 0} size="sm" />
 										{/if}
 									</span>
 									{#if view}

@@ -14,7 +14,9 @@
 	import BackLink from '#lib/components/BackLink.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import PointsBadge from '#lib/components/PointsBadge.svelte';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
+	import { pointsBySubject } from '#lib/practice/assessment.ts';
 	import TallyLine from '#lib/components/TallyLine.svelte';
 	import { watchSubject, watchSubjectContent } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
@@ -74,6 +76,10 @@
 									{/if}
 									<h1>{subject.name}</h1>
 								</div>
+								{#if asChild}
+									{@const points = pointsBySubject(content.progress).get(subject.id) ?? 0}
+									{#if points > 0}<PointsBadge {points} size="lg" />{/if}
+								{/if}
 							</div>
 							{#if asChild}
 								<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[subject.color]} />

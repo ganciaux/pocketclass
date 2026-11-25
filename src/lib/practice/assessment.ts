@@ -165,3 +165,14 @@ export function assessmentOutcome(
 		earned: firstPass ? settings.points : 0
 	};
 }
+
+/** Points earned by assessments, per subject id (summed from the progress documents). */
+export function pointsBySubject(
+	progress: Iterable<{ subjectId: string; assessmentPoints?: number }>
+): Map<string, number> {
+	const points = new Map<string, number>();
+	for (const { subjectId, assessmentPoints } of progress) {
+		if (assessmentPoints) points.set(subjectId, (points.get(subjectId) ?? 0) + assessmentPoints);
+	}
+	return points;
+}

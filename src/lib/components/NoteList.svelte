@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import ConfirmDialog from '#lib/components/ConfirmDialog.svelte';
+	import Icon from '#lib/components/Icon.svelte';
 	import { deleteNote, setNoteStatus, updateNoteText } from '#lib/data/notes.ts';
 	import type { Note, NoteStatus, WithId } from '#lib/data/types.ts';
 	import { formatDate, fr } from '#lib/i18n/fr.ts';
@@ -41,9 +44,8 @@
 		editingId = null;
 	}
 
-	function remove(noteId: string) {
-		if (confirm(t.deleteConfirm)) deleteNote(familyId, profileId, noteId);
-	}
+	/** The note waiting for « Supprimer » to be confirmed in the modal. */
+	let deletingId = $state<string | null>(null);
 
 	function review(noteId: string, status: NoteStatus) {
 		setNoteStatus(familyId, profileId, noteId, status);
@@ -110,9 +112,11 @@
 					</p>
 					<div class="flex flex-wrap gap-1">
 						{#if mode === 'child'}
-							<button class="btn btn-ghost btn-xs" onclick={() => startEdit(note)}>{t.edit}</button>
-							<button class="btn btn-ghost btn-xs" onclick={() => remove(note.id)}>
-								{t.delete}
+							<button class="btn btn-ghost btn-sm" onclick={() => startEdit(note)}>
+								<Icon paths={UI_ICONS.pencil} class="size-4" />{t.edit}
+							</button>
+							<button class="btn btn-soft btn-error btn-sm" onclick={() => (deletingId = note.id)}>
+								<Icon paths={UI_ICONS.trash} class="size-4" />{t.delete}
 							</button>
 						{:else}
 							{#each reviewActions(note.status) as status (status)}
@@ -129,3 +133,15 @@
 		<li class="text-base-content/70">{t.empty}</li>
 	{/each}
 </ul>
+
+{#if deletingId}
+	{@const noteId = deletingId}
+	<ConfirmDialog
+		title={t.deleteConfirm}
+		message={notes.find((n) => n.id === noteId)?.text}
+		confirmLabel={t.delete}
+		danger
+		onconfirm={() => deleteNote(familyId, profileId, noteId)}
+		onclose={() => (deletingId = null)}
+	/>
+{/if}

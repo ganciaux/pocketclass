@@ -1,5 +1,6 @@
 <script lang="ts">
 	import BackLink from '#lib/components/BackLink.svelte';
+	import ConfirmDialog from '#lib/components/ConfirmDialog.svelte';
 	import { resolve } from '$app/paths';
 	import { session } from '#lib/auth.svelte.ts';
 	import PasswordForm from '#lib/components/PasswordForm.svelte';
@@ -11,9 +12,9 @@
 
 	let unlinking = $state(false);
 	let unlinkError = $state(false);
+	let asking = $state(false);
 
 	async function unlink() {
-		if (!confirm(t.unlinkThisConfirm)) return;
 		unlinking = true;
 		unlinkError = false;
 		try {
@@ -53,12 +54,22 @@
 				{/if}
 				<button
 					class="btn btn-outline btn-error self-start"
-					onclick={unlink}
+					onclick={() => (asking = true)}
 					disabled={unlinking || !connectivity.online}
 				>
 					{t.unlinkThis}
 				</button>
 			</div>
 		</section>
+	{/if}
+	{#if asking}
+		<ConfirmDialog
+			title={t.unlinkThisConfirm}
+			message={t.unlinkThisConfirmHelp}
+			confirmLabel={t.unlinkThis}
+			danger
+			onconfirm={unlink}
+			onclose={() => (asking = false)}
+		/>
 	{/if}
 </main>

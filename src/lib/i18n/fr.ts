@@ -66,7 +66,12 @@ export const fr = {
 		manageProfiles: 'Gérer les profils',
 		childrenNotes: 'Remarques des enfants',
 		myBinder: 'Mon classeur',
-		familyBinder: 'Classeurs'
+		familyBinder: 'Classeurs',
+		seenTitle: 'Mes fiches vues',
+		seenHint: 'Retrouve les fiches que tu as ouvertes.',
+		notesTitle: 'Mes remarques',
+		notesHint: 'Ce que tu as trouvé difficile.',
+		notesOpen: (n: number) => `${n} à voir`
 	},
 	binder: {
 		loadFailed: 'Impossible de charger le classeur.',
@@ -370,7 +375,8 @@ export const fr = {
 		unlinkThis: 'Délier cet appareil',
 		unlinkThisHelp:
 			'Pour revenir, il faudra un nouveau code de ton parent. Ta progression et tes remarques sont conservées.',
-		unlinkThisConfirm: 'Délier cet appareil ? Il faudra un nouveau code pour revenir.'
+		unlinkThisConfirm: 'Délier cet appareil ?',
+		unlinkThisConfirmHelp: 'Il faudra un nouveau code pour revenir.'
 	},
 	parent: {
 		adminOnly: 'Cette page est réservée aux parents.'

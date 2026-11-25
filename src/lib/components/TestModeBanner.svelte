@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
 	import { resetTestData } from '#lib/data/family.ts';
+	import ConfirmDialog from '#lib/components/ConfirmDialog.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { connectivity } from '#lib/online.svelte.ts';
 	import { goto } from '$app/navigation';
@@ -10,12 +11,13 @@
 	const t = fr.testMode;
 
 	let resetting = $state(false);
+	let asking = $state(false);
 	let resetError = $state(false);
 
 	async function reset() {
 		const familyId = session.familyId;
 		const profileId = session.profileId;
-		if (!familyId || !profileId || !confirm(t.resetConfirm)) return;
+		if (!familyId || !profileId) return;
 		resetting = true;
 		resetError = false;
 		try {
@@ -40,7 +42,7 @@
 			<strong class="flex-1 basis-48">{t.banner(session.childView.name)}</strong>
 			<button
 				class="btn btn-ghost btn-sm"
-				onclick={reset}
+				onclick={() => (asking = true)}
 				disabled={resetting || !connectivity.online}
 			>
 				{t.reset}
@@ -51,4 +53,13 @@
 			<p role="alert" class="alert alert-error alert-soft">{t.resetFailed}</p>
 		{/if}
 	</div>
+	{#if asking}
+		<ConfirmDialog
+			title={t.resetConfirm}
+			confirmLabel={t.reset}
+			danger
+			onconfirm={reset}
+			onclose={() => (asking = false)}
+		/>
+	{/if}
 {/if}

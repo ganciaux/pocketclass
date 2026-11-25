@@ -9,6 +9,7 @@ import {
 	assessmentStatus,
 	buildAssessment,
 	passed,
+	pointsBySubject,
 	settingsOf
 } from './assessment.ts';
 import { storedGenerator, storedMcq } from './testing.ts';
@@ -156,5 +157,18 @@ describe('review fixes', () => {
 		const failed = { failedAt: 1, retakeLocked: true };
 		expect(assessmentStatus(failed, false)).toMatchObject({ failed: true, locked: false });
 		expect(assessmentStatus(failed, true).locked).toBe(true);
+	});
+});
+
+describe('pointsBySubject', () => {
+	it('adds the points earned per subject', () => {
+		const points = pointsBySubject([
+			{ subjectId: 'maths', assessmentPoints: 30 },
+			{ subjectId: 'maths', assessmentPoints: 20 },
+			{ subjectId: 'maths' },
+			{ subjectId: 'fr', assessmentPoints: 0 },
+			{ subjectId: 'fr', assessmentPoints: 10 }
+		]);
+		expect(Object.fromEntries(points)).toEqual({ maths: 50, fr: 10 });
 	});
 });
