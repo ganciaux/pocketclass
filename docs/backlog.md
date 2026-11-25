@@ -96,8 +96,8 @@ existe déjà ou signale ce qu'il faudra trancher.
 
 | Idée | À savoir |
 | --- | --- |
-| Un compteur de points sur le profil. | Le champ `points` existe déjà sur le profil. |
-| Chaque fiche a un quota de points. | |
-| Un contrôle est validé à 70 % de réussite minimum, et rapporte alors ses points. | Le brief prévoyait autre chose : 5 points par bonne réponse, +15 si sans-faute, et rejouer ne rapporte que l'amélioration. À réconcilier. |
+| ~~Un compteur de points sur le profil.~~ | **Fait (2026-11-25)** : affiché sur l'accueil de l'enfant et sur sa page côté parent. |
+| ~~Chaque fiche a un quota de points.~~ | **Fait** : 10 points par point-clé par défaut, réglable par fiche. |
+| ~~Un contrôle est validé à 70 % de réussite minimum, et rapporte alors ses points.~~ | **Fait** : seuil réglable par fiche, points gagnés une seule fois (première réussite), tampon « Acquise » automatique, tampon « Raté » et nouvel essai après une série d'entraînement (conception : `docs/superpowers/specs/2026-11-25-assessment-design.md`). |
 | Réviser une fiche rapporte des points ; on peut la revoir, mais elle ne rapporte plus rien pendant une semaine. | |
 | Garder l'historique des points comme un historique des activités (exercice, révision, contrôle…). | Le journal des points (`pointsLedger`) était prévu ; il deviendrait un journal d'activité. Il doit marcher hors ligne (écritures groupées, déjà prévu). |

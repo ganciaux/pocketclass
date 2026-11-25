@@ -89,8 +89,8 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
 
 ### To plan in later phases (not coded on purpose)
 
-- Phase 3: points: batch with deterministic ledger ids + `increment()` (transactions do not work
-  offline). Notes on exercises: `NoteTarget.exerciseId` already exists.
+- Phase 3 (rest): more points (revision, activity history) on the same ledger (deterministic ids +
+  `increment()`, transactions do not work offline). Notes on exercises: `NoteTarget.exerciseId` already exists.
 - Device linking: a QR code was left out on purpose (on iOS a QR opens Safari, whose storage
   is separate from the installed PWA). Expired link codes are never deleted (harmless, could
   be cleaned by the parent later). Converting an anonymous account (`linkWithCredential`)
@@ -398,6 +398,27 @@ made.
   is possible with one generator (`canChallenge`), and never asks the same generated text twice
   when it can avoid it. Generated id `<generator exercise id>~<n>` (stored in `attempts`).
   The calculation checker also accepts spaced thousands (« 3 500 ») and « x = 2 ».
+- 2026-11-25 — **Assessment « Contrôle »** (phase 3, user's choices; design in
+  `docs/superpowers/specs/2026-11-25-assessment-design.md`). Page `/concept/[id]/assessment`.
+  Draw (`practice/assessment.ts`): per key point `draw.perKeyPoint` (2) questions, generated
+  when the key point has a generator (any usage; new questions at each try, so a retake cannot
+  be memorised), else written `assessment` exercises (`exerciseIds` if given); `pair` /
+  `paper` excluded (self-assessed). No feedback while playing (`ExercisePlayer feedback={false}`),
+  correction at the end (`correctionOf`). Pass at `passRate` (70 %); points
+  `points` (10 per key point); both set by the parent per sheet (`AssessmentSettings` card,
+  stored only when changed, kept by a new import, `settingsOf` gives the defaults). Every sheet
+  now gets an assessment document at import (default `{ type: 'test', draw: { perKeyPoint: 2 } }`);
+  the unused `scoring` field is gone. Outcome (`assessmentOutcome`, pure): first pass stamps
+  `acquiredAt` (kept for good, the parent can still remove it) and earns the points **once**
+  (`assessmentPoints` on progress + `pointsLedger/assessment-<sheet>` + `profile.points`
+  `increment()` + `lastEarningId`, one offline batch `saveAssessment`); later tries only update
+  `assessmentBest`. A fail while not acquired stamps `failedAt` (« Raté », sad face drawn,
+  `FailedStamp`) and sets `retakeLocked`, cleared by the next finished practice series
+  (`saveSeries`). Rules: the child may set `acquiredAt` only with a passing `assessmentLast`
+  (pass rate read from the assessment, 70 by default); the points line is created once, by the
+  sheet's amount, after a pass; the profile counter only grows by the line named in
+  `lastEarningId`, created in the same batch. Points shown on the child home and the parent's
+  child page. `resetTestData` clears the points lines and sets the parent's points to 0.
 
 ## Firestore model
 
@@ -407,23 +428,29 @@ linkCodes/{code}                               { familyId, profileId, expiresAt 
 families/{familyId}                            { name, admins: [uid], createdAt }   (familyId = parent uid)
   devices/{uid}                                { profileId, code, linkedAt }      (child phone, anonymous uid)
   profiles/{profileId}                         { firstName, role: admin|child, grade, points, nickname?, avatar?,
-                                                 extraSubjects? }
+                                                 extraSubjects?, lastEarningId? }
   subjects/{subjectId}                         { name, grade, color, order, archived, icon?, image? }   (auto id)
   chapters/{chapterId}                         { subjectId, title, group|null, order, archived }   (auto id)
   concepts/{conceptId}                         { subjectId, chapterId, title, order, tags?, prerequisites, keyPoints,
                                                  sheet, summaryInstruction, version, updatedAt, archived }   (a sheet)
   concepts/{conceptId}/exercises/{exerciseId}  { usage, type, keyPoint, difficulty, ...type fields, archived }
-  assessments/{assessmentId}                   { chapterId, conceptIds, type, draw?, exerciseIds?, paper?, scoring, archived }   (id = sheet id)
+  assessments/{assessmentId}                   { chapterId, conceptIds, type, draw?, exerciseIds?, paper?, passRate?, points?,
+                                                 archived }   (id = sheet id; passRate / points set by the parent)
   profiles/{profileId}/progress/{conceptId}    { subjectId, chapterId, openedAt?, readAt?, acquiredAt?, practiceLast?,
-                                                 practiceBest?, practicedAt?, challengeBest?, challengedAt? }
-                                                 (sheet opened / read; acquiredAt = parent's « Acquise » stamp;
-                                                 practice* = { correct, total }; challengeBest = right answers in 60 s)
-  profiles/{profileId}/attempts/{attemptId}    { conceptId, subjectId, chapterId, mode: series|timed, correct, total,
-                                                 answers: [{ exerciseId, correct }], createdAt }   (create only)
+                                                 practiceBest?, practicedAt?, challengeBest?, challengedAt?,
+                                                 assessmentLast?, assessmentBest?, assessedAt?, failedAt?, retakeLocked?,
+                                                 assessmentPoints? }
+                                                 (sheet opened / read; acquiredAt = « Acquise » stamp, by the parent or
+                                                 a passed assessment; practice* / assessment* = { correct, total };
+                                                 challengeBest = right answers in 60 s; failedAt = « Raté » stamp)
+  profiles/{profileId}/attempts/{attemptId}    { conceptId, subjectId, chapterId, mode: series|timed|assessment, correct,
+                                                 total, answers: [{ exerciseId, correct }], createdAt }   (create only)
+  profiles/{profileId}/pointsLedger/{entryId}  { kind: assessment, conceptId, subjectId, chapterId, amount, createdAt }
+                                                 (id assessment-<sheet>: once per sheet; create only)
   profiles/{profileId}/notes/{noteId}          { conceptId|null, chapterId|null, subjectId?|null, exerciseId, text,
                                                  status: open|seen|resolved,
                                                  createdAt, updatedAt }
-  profiles/{profileId}/summaries|pointsLedger   (phases 3–4)
+  profiles/{profileId}/summaries               (phase 4)
 ```
 
 - Catalogue (subjects, chapters, concepts, exercises, assessments) belongs to the family;
@@ -469,7 +496,7 @@ Phase 1 (done): skeleton, import, map, sheet. Done after phase 1: child device l
 (one-time code), nickname / avatar, "sheet read" progress + dashboard, notes, binder
 (subjects / chapters / sheets, replaces paths; a curated "path" may come back later as a
 selection of sheets). Phase 2 (in progress): practice series and 60 s timed challenge
-done (player, 10 playable types, attempts, scores), exercise generators done (25, four families). Phase 3: assessments, scoring, pointsLedger.
+done (player, 10 playable types, attempts, scores), exercise generators done (25, four families). Phase 3 (in progress): sheet assessment with pass rate, stamps and points done; next: other ways to earn points (revision, activity history).
 Phase 4: summary photo flow. Phase 5: child-side extras (QR code if needed). Phase 6:
 spaced repetition, in-app AI prompts, quick lesson entry (`lesson@1`).
 
