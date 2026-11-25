@@ -154,7 +154,7 @@
 										<span class="text-sm text-base-content/70">
 											{fr.binder.read(stats.read, stats.sheets)}
 											{#if stats.acquired}· {fr.binder.acquired(stats.acquired)}{/if}
-											{#if stats.failed}· {stats.failed} {t.failedBadge}{/if}
+											{#if stats.failed}· {t.failed(stats.failed)}{/if}
 										</span>
 									</div>
 								</div>
@@ -183,8 +183,11 @@
 				<div class="flex flex-col">
 					<h2>{subject.name}</h2>
 					<span class="text-sm text-base-content/70">
-						{fr.binder.read(stats.read, stats.sheets)} · {t.opens(stats.opens)} ·
-						{t.lastActivity.toLowerCase()} : {when(stats.lastActivity)}
+						{t.binderLine(
+							fr.binder.read(stats.read, stats.sheets),
+							t.opens(stats.opens),
+							when(stats.lastActivity)
+						)}
 					</span>
 				</div>
 			</header>
@@ -237,12 +240,13 @@
 				{:else}
 					<div class="card card-border overflow-x-auto bg-base-100">
 						<table class="table table-sm">
+							<caption class="sr-only">{t.recent}</caption>
 							<thead>
 								<tr>
-									<th>{t.when}</th>
-									<th>{t.sheet}</th>
-									<th>{t.kind}</th>
-									<th class="text-end">{t.score}</th>
+									<th scope="col">{t.when}</th>
+									<th scope="col">{t.sheet}</th>
+									<th scope="col">{t.kind}</th>
+									<th scope="col" class="text-end">{t.score}</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -251,7 +255,7 @@
 										<td class="whitespace-nowrap">
 											{run.createdAt ? formatDateTime(run.createdAt.toDate()) : t.pending}
 										</td>
-										<td>{@html renderInline(titles.get(run.conceptId) ?? '')}</td>
+										<td>{@html renderInline(titles.get(run.conceptId) ?? t.hiddenSheet)}</td>
 										<td>{t.mode[run.mode]}</td>
 										<td class="text-end font-bold whitespace-nowrap">
 											{fr.practice.score(run.correct, run.total)}

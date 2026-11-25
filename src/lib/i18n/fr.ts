@@ -337,7 +337,6 @@ export const fr = {
 	},
 	stats: {
 		title: 'Statistiques',
-		ofChild: (name: string) => `Statistiques de ${name}`,
 		who: 'Enfant',
 		myTests: 'Mes tests',
 		noChildren: "Ajoute d'abord un enfant dans « Gérer les profils ».",
@@ -366,6 +365,11 @@ export const fr = {
 		record: (n: number) => `record ${n}`,
 		acquiredBadge: 'Acquise',
 		failedBadge: 'Raté',
+		failed: (n: number) => plural(n, 'ratée'),
+		/** Under a binder's name: « 2 / 6 fiches lues · 5 ouvertures · dernière activité : 25 novembre ». */
+		binderLine: (read: string, opens: string, when: string) =>
+			`${read} · ${opens} · dernière activité : ${when}`,
+		hiddenSheet: 'Fiche masquée ou supprimée',
 		lastScore: (score: string) => `dernier ${score}`,
 		best: (n: number) => `meilleur ${n} %`,
 		recent: 'Derniers essais',

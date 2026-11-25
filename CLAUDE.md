@@ -106,7 +106,8 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   layer panels (open `UI_ICONS.eye` = visible to children, `eyeOff` = hidden; the click
   toggles), the `title` / text names the action (« Masquer » / « Afficher »); icon-only in list
   rows. The home binders (`.binder-card`) have the strongest motion: they slide
-  up 4px and their picture tilts more. They keep their subject-coloured frame. Gotcha: daisyUI 5 puts
+  up 4px and their picture tilts more. They keep their subject-coloured frame, and a card with a subject stripe (`border-l-8`) keeps
+  its stripe on hover. Gotcha: daisyUI 5 puts
   `.card-border` in the **utilities** layer, so a border colour set in `@layer components` never
   shows on a card: the `.link-card` hover border lives in `@layer utilities`. No other hover animation.
 - **Child writes** (progress, notes, profile look) and **parent binder edits** (subjects,

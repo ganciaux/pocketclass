@@ -39,7 +39,9 @@
 		{@const ownId = session.profileId}
 		<LoadState source={childrenLive} failed={fr.profiles.loadFailed}>
 			{#snippet children(list)}
-				{@const who = chosen ?? list[0]?.id ?? ownId}
+				<!-- An unknown `?child=` (deleted profile, old link) falls back to the first child. -->
+				{@const known = chosen === ownId || list.some((c) => c.id === chosen)}
+				{@const who = (known ? chosen : null) ?? list[0]?.id ?? ownId}
 				{@const child = list.find((c) => c.id === who)}
 				<nav class="flex flex-wrap gap-2" aria-label={t.who}>
 					{#each list as item (item.id)}

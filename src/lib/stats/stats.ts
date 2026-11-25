@@ -1,5 +1,5 @@
 import { isAcquired, isFailed, isRead, type SheetProgress } from '#lib/binder/binder.ts';
-import type { AttemptMode } from '#lib/data/types.ts';
+import type { AttemptMode, ProgressRecord } from '#lib/data/types.ts';
 
 /**
  * A child's statistics for the parent (`/parent/stats`). Pure module (unit-tested).
@@ -10,13 +10,10 @@ import type { AttemptMode } from '#lib/data/types.ts';
 /** Firestore Timestamp (null while pending): only `toMillis` is used. */
 type Time = { toMillis(): number };
 
-export interface StatsProgress extends SheetProgress {
-	openCount?: number;
-	seriesStarted?: number;
-	challengeStarted?: number;
-	assessmentStarted?: number;
-	challengeBest?: number;
-}
+/** The counters of a progress document (statistics). */
+type Counter = 'openCount' | 'seriesStarted' | 'challengeStarted' | 'assessmentStarted';
+
+export type StatsProgress = SheetProgress & Pick<ProgressRecord, Counter | 'challengeBest'>;
 
 export interface StatsAttempt {
 	conceptId: string;
@@ -60,7 +57,7 @@ export const STARTED_FIELD = {
 	series: 'seriesStarted',
 	timed: 'challengeStarted',
 	assessment: 'assessmentStarted'
-} as const satisfies Record<AttemptMode, keyof StatsProgress>;
+} as const satisfies Record<AttemptMode, Counter>;
 
 /** Statistics of a set of sheets (one sheet, a chapter, a subject or the whole binder). */
 export function groupStats(
@@ -71,8 +68,7 @@ export function groupStats(
 	const ids = new Set(sheetIds);
 	const own = attempts.filter((a) => ids.has(a.conceptId));
 	const docs = sheetIds.map((id) => progress.get(id));
-	const sum = (field: keyof StatsProgress) =>
-		docs.reduce((total, p) => total + ((p?.[field] as number | undefined) ?? 0), 0);
+	const sum = (field: Counter) => docs.reduce((total, p) => total + (p?.[field] ?? 0), 0);
 	const runsOf = (mode: AttemptMode) =>
 		runs(sum(STARTED_FIELD[mode]), own.filter((a) => a.mode === mode).length);
 

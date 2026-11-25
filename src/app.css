@@ -355,14 +355,19 @@ header.navbar {
 	background-position: -1px -1px;
 }
 
-/* The notion at the centre of a mind map, swiped with a yellow highlighter. */
+/*
+ * The notion at the centre of a mind map: one block of highlighter yellow, the same on every
+ * line (an inline, see-through swipe made darker bands where two lines overlapped). Opaque and
+ * a single box, whatever the length of the title.
+ */
 .highlighter {
-	padding: 0.05em 0.35em;
+	display: inline-block;
+	max-width: 100%;
+	padding: 0.25em 0.5em;
 	border-radius: 0.6em 0.25em 0.5em 0.3em;
+	line-height: 1.15;
 	color: var(--color-primary-content);
-	background: color-mix(in oklab, var(--color-primary) 75%, transparent);
-	box-decoration-break: clone;
-	-webkit-box-decoration-break: clone;
+	background: color-mix(in oklab, var(--color-primary) 80%, var(--color-base-100));
 }
 
 /* Button tweaks outside the layers, so they win over daisyUI (which sits in its own layers). */
@@ -399,10 +404,12 @@ header.navbar {
  * `.card-border` (grey border) in the utilities layer, which beats anything in `components`.
  * The lift uses `translate` (not `transform`) so the chapter path can raise the same card with
  * `group-hover:-translate-y-0.5` without doubling it, and the tap keeps its `transform` press.
- * Home binders have their own, stronger motion and keep their subject-coloured frame.
+ * Home binders have their own, stronger motion and keep their subject-coloured frame. A card
+ * with a subject stripe (`border-l-8`: « Mes fiches vues », statistics) keeps its stripe.
  */
 @layer utilities {
 	.link-card:not(.binder-card) {
+		--link-edge: var(--color-primary);
 		transition:
 			transform 160ms var(--ease-out),
 			translate 200ms var(--ease-out),
@@ -410,14 +417,24 @@ header.navbar {
 			box-shadow 200ms ease;
 
 		&:focus-visible {
-			border-color: var(--color-primary);
+			border-block-color: var(--link-edge);
+			border-inline-end-color: var(--link-edge);
 			box-shadow: var(--shadow-md);
+
+			&:not(.border-l-8) {
+				border-inline-start-color: var(--link-edge);
+			}
 		}
 
 		@media (hover: hover) and (pointer: fine) {
 			&:hover {
-				border-color: var(--color-primary);
+				border-block-color: var(--link-edge);
+				border-inline-end-color: var(--link-edge);
 				box-shadow: var(--shadow-md);
+
+				&:not(.border-l-8) {
+					border-inline-start-color: var(--link-edge);
+				}
 			}
 		}
 

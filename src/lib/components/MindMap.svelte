@@ -107,7 +107,9 @@
 >
 	<!-- Phones: the notion on top, the branches going down a hand-drawn line. -->
 	<div class="lg:hidden">
-		<h1 class="text-base-content"><span class="highlighter">{@html renderInline(title)}</span></h1>
+		<h1 class="text-balance text-base-content">
+			<span class="highlighter">{@html renderInline(title)}</span>
+		</h1>
 		<ul class="mt-1 ms-3">
 			{#each branches as branch (branch.keyPoint)}
 				<li
@@ -122,7 +124,7 @@
 	<!-- Wide screens: the notion in the middle, the branches around it. -->
 	<div
 		bind:this={wide}
-		class="relative hidden grid-cols-[1fr_minmax(10rem,14rem)_1fr] items-center gap-x-12 lg:grid"
+		class="relative hidden grid-cols-[1fr_minmax(12rem,17rem)_1fr] items-center gap-x-12 lg:grid"
 	>
 		<svg
 			class="pointer-events-none absolute inset-0 overflow-visible"
@@ -146,7 +148,7 @@
 			{#each left as branch (branch.keyPoint)}{@render branchNode(branch)}{/each}
 		</div>
 		<div bind:this={centre} class="relative text-center">
-			<h1 class="text-base-content">
+			<h1 class="text-2xl text-balance text-base-content">
 				<span class="highlighter">{@html renderInline(title)}</span>
 			</h1>
 		</div>
