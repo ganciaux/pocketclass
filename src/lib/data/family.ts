@@ -21,6 +21,7 @@ import {
 	profilesCol,
 	progressCol,
 	attemptsCol,
+	pointsLedgerCol,
 	userRef
 } from './refs.ts';
 import type { Grade, Profile, ProfileLook, UserIndex, WithId } from './types.ts';
@@ -117,7 +118,8 @@ export async function deleteChildProfile(familyId: string, profileId: string): P
 		getDocs(query(devicesCol(familyId), where('profileId', '==', profileId))),
 		getDocs(progressCol(familyId, profileId)),
 		getDocs(notesCol(familyId, profileId)),
-		getDocs(attemptsCol(familyId, profileId))
+		getDocs(attemptsCol(familyId, profileId)),
+		getDocs(pointsLedgerCol(familyId, profileId))
 	]);
 	await deleteInBatches([
 		...devices.docs.map((d) => d.ref),
@@ -129,13 +131,15 @@ export async function deleteChildProfile(familyId: string, profileId: string): P
 /**
  * Parent action (online): clears what the parent did while testing as a child (child test
  * mode writes on the parent's own profile). Reads from the server, like a profile deletion.
- * Phase 3: add the parent's points here when they exist.
+ * Also takes back the points earned in test (points lines and the profile counter).
  */
 export async function resetTestData(familyId: string, profileId: string): Promise<void> {
 	const owned = await Promise.all([
 		getDocs(progressCol(familyId, profileId)),
 		getDocs(notesCol(familyId, profileId)),
-		getDocs(attemptsCol(familyId, profileId))
+		getDocs(attemptsCol(familyId, profileId)),
+		getDocs(pointsLedgerCol(familyId, profileId))
 	]);
 	await deleteInBatches(owned.flatMap((snap) => snap.docs.map((d) => d.ref)));
+	await updateDoc(profileRef(familyId, profileId), { points: 0, lastEarningId: deleteField() });
 }

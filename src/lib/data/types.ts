@@ -48,6 +48,8 @@ export interface Profile {
 	role: ProfileRole;
 	grade: Grade | null;
 	points: number;
+	/** The points line counted last (`pointsLedger` id), checked by the rules. */
+	lastEarningId?: string;
 	/** Chosen by the child; shown instead of the first name. */
 	nickname?: string;
 	/** Small square image as a data URL (resized in the browser, see profile/avatar.ts). */
@@ -78,6 +80,16 @@ export interface ProgressRecord {
 	/** Timed challenge: record (right answers in 60 s) and time of the last challenge. */
 	challengeBest?: number;
 	challengedAt?: Timestamp | null;
+	/** Assessment (phase 3): last and best score, time of the last one. */
+	assessmentLast?: PracticeScore;
+	assessmentBest?: PracticeScore;
+	assessedAt?: Timestamp | null;
+	/** The « Raté » stamp (failed, not acquired since). */
+	failedAt?: Timestamp | null;
+	/** After a fail: a new try waits for a finished practice series. */
+	retakeLocked?: boolean;
+	/** Points earned by this sheet's assessment (set once, at the first pass). */
+	assessmentPoints?: number;
 }
 
 export interface PracticeScore {
@@ -85,7 +97,7 @@ export interface PracticeScore {
 	total: number;
 }
 
-export const ATTEMPT_MODES = ['series', 'timed'] as const;
+export const ATTEMPT_MODES = ['series', 'timed', 'assessment'] as const;
 export type AttemptMode = (typeof ATTEMPT_MODES)[number];
 
 /**
@@ -205,11 +217,31 @@ export interface ConceptRecord {
 export type ExerciseRecord = DistributiveOmit<Exercise, 'id'> & { archived: boolean };
 
 /** families/{familyId}/assessments/{assessmentId} (id = concept id) */
-export interface AssessmentRecord extends AssessmentDoc {
+export interface AssessmentRecord extends AssessmentDoc, AssessmentSettingsRecord {
 	chapterId: string;
 	conceptIds: string[];
-	scoring: { pointsPerCorrect: number; perfectBonus: number };
 	archived: boolean;
+}
+
+/** Set by the parent only (absent: defaults of `practice/assessment.ts` `settingsOf`). */
+export interface AssessmentSettingsRecord {
+	/** Minimum success rate, in %. */
+	passRate?: number;
+	/** Points earned by the first pass. */
+	points?: number;
+}
+
+/**
+ * families/{familyId}/profiles/{profileId}/pointsLedger/{entryId}
+ * One line per earning; id `assessment-<conceptId>` (once per sheet). Create only.
+ */
+export interface PointsLedgerRecord {
+	kind: 'assessment';
+	conceptId: string;
+	subjectId: string;
+	chapterId: string;
+	amount: number;
+	createdAt: Timestamp | null;
 }
 
 /** A Firestore document with its id. */

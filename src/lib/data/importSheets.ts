@@ -61,7 +61,11 @@ export async function readExistingSheets(
 				version: data.version,
 				archived: data.archived,
 				exerciseIds: exercises.docs.filter((d) => !d.data().archived).map((d) => d.id),
-				hasAssessment: assessment.exists() && !assessment.data().archived
+				// The parent's settings survive a new import.
+				assessmentSettings: {
+					passRate: assessment.data()?.passRate,
+					points: assessment.data()?.points
+				}
 			};
 			return [id, existing] as const;
 		})

@@ -17,6 +17,7 @@ import type {
 	Family,
 	LinkCode,
 	Note,
+	PointsLedgerRecord,
 	Profile,
 	ProgressRecord,
 	Subject,
@@ -68,6 +69,23 @@ export const noteRef = (familyId: string, profileId: string, noteId: string) =>
 
 export const attemptsCol = (familyId: string, profileId: string) =>
 	familyCol<AttemptRecord>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.attempts);
+
+export const pointsLedgerCol = (familyId: string, profileId: string) =>
+	familyCol<PointsLedgerRecord>(
+		familyId,
+		COLLECTIONS.profiles,
+		profileId,
+		COLLECTIONS.pointsLedger
+	);
+
+export const pointsLedgerRef = (familyId: string, profileId: string, entryId: string) =>
+	typedDoc<PointsLedgerRecord>(
+		familyId,
+		COLLECTIONS.profiles,
+		profileId,
+		COLLECTIONS.pointsLedger,
+		entryId
+	);
 
 export const subjectsCol = (familyId: string) => familyCol<Subject>(familyId, COLLECTIONS.subjects);
 export const subjectRef = (familyId: string, subjectId: string) =>

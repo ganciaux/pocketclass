@@ -13,6 +13,7 @@ import {
 	doc,
 	getDoc,
 	getDocs,
+	increment,
 	serverTimestamp,
 	setDoc,
 	Timestamp,
@@ -396,7 +397,105 @@ describe('child writes', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/attempts/a2`), attempt));
 	});
 
-	it('only the parent stamps a sheet as acquired; the child still opens and reads it', async () => {
+	it('a passed assessment stamps the sheet and earns its points once, by the right amount', async () => {
+		await env.withSecurityRulesDisabled(async (ctx) => {
+			const db = ctx.firestore();
+			await setDoc(doc(db, `families/${FAMILY}/concepts/c4`), {
+				title: 'C4',
+				keyPoints: [{ id: 'a' }, { id: 'b' }],
+				archived: false
+			});
+			await setDoc(doc(db, `families/${FAMILY}/assessments/c4`), { type: 'test', passRate: 80 });
+			await updateDoc(doc(db, lea), { points: 5 });
+		});
+		const kid = as('kid-phone');
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		const progressPath = `${lea}/progress/c4`;
+		const scored = (correct: number) => ({
+			...where,
+			assessmentLast: { correct, total: 10 },
+			assessmentBest: { correct, total: 10 },
+			assessedAt: serverTimestamp()
+		});
+
+		// A fail (7/10 < 80 %): the « Raté » stamp and the lock are the child's, « Acquise » is not.
+		await assertSucceeds(
+			setDoc(
+				at(kid, progressPath),
+				{ ...scored(7), failedAt: serverTimestamp(), retakeLocked: true },
+				{ merge: true }
+			)
+		);
+		await assertFails(
+			setDoc(
+				at(kid, progressPath),
+				{ ...scored(7), acquiredAt: serverTimestamp() },
+				{ merge: true }
+			)
+		);
+
+		/** The pass batch: stamp, points line, profile points (as `data/assessment.ts`). */
+		const pass = (correct: number, amount = 20) => {
+			const batch = writeBatch(kid);
+			batch.set(
+				at(kid, progressPath),
+				{
+					...scored(correct),
+					acquiredAt: serverTimestamp(),
+					failedAt: deleteField(),
+					retakeLocked: deleteField(),
+					assessmentPoints: amount
+				},
+				{ merge: true }
+			);
+			batch.set(at(kid, `${lea}/pointsLedger/assessment-c4`), {
+				kind: 'assessment',
+				conceptId: 'c4',
+				...where,
+				amount,
+				createdAt: serverTimestamp()
+			});
+			batch.update(at(kid, lea), { points: increment(amount), lastEarningId: 'assessment-c4' });
+			return batch.commit();
+		};
+		await assertFails(pass(7)); // under the pass rate
+		await assertFails(pass(8, 50)); // not the sheet's amount (10 per key point)
+		await assertSucceeds(pass(8));
+		const profile = await getDoc(at(kid, lea));
+		if (profile.data()?.points !== 25) throw new Error(`points: ${profile.data()?.points}`);
+		// Once per sheet; a later try only updates the scores.
+		await assertFails(pass(10));
+		await assertSucceeds(setDoc(at(kid, progressPath), scored(10), { merge: true }));
+		await assertFails(
+			setDoc(at(kid, progressPath), { ...where, assessmentPoints: 99 }, { merge: true })
+		);
+		// Points never move on their own.
+		await assertFails(updateDoc(at(kid, lea), { points: 1000 }));
+		await assertFails(updateDoc(at(kid, lea), { points: 1000, lastEarningId: 'assessment-c4' }));
+		await assertFails(
+			setDoc(at(kid, `${lea}/pointsLedger/assessment-c1`), {
+				kind: 'assessment',
+				conceptId: 'c1',
+				...where,
+				amount: 0,
+				createdAt: serverTimestamp()
+			})
+		);
+		// The attempt history accepts the assessment mode.
+		await assertSucceeds(
+			setDoc(at(kid, `${lea}/attempts/x1`), {
+				conceptId: 'c4',
+				...where,
+				mode: 'assessment',
+				correct: 1,
+				total: 1,
+				answers: [{ exerciseId: 'e1', correct: true }],
+				createdAt: serverTimestamp()
+			})
+		);
+	});
+
+	it('only the parent stamps a sheet without a passed assessment; the child still opens and reads it', async () => {
 		const kid = as('kid-phone');
 		const parent = as('alice');
 		const path = `${lea}/progress/c1`;

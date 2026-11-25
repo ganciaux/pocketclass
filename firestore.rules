@@ -143,33 +143,60 @@ service cloud.firestore {
           && optionalString(request.resource.data, 'avatar', 60000)
           && (!('avatar' in request.resource.data)
             || request.resource.data.avatar.matches('^data:image/(webp|jpeg|png);base64,.*'));
+        // Points: only by the amount of a points line created in the same batch, named by
+        // `lastEarningId` (so a line is counted once).
+        allow update: if isOwnDevice(familyId, profileId)
+          && onlyChanges(['points', 'lastEarningId'])
+          && request.resource.data.lastEarningId is string
+          && !exists(ledgerPath(familyId, profileId, request.resource.data.lastEarningId))
+          && existsAfter(ledgerPath(familyId, profileId, request.resource.data.lastEarningId))
+          && request.resource.data.points == resource.data.points
+            + getAfter(ledgerPath(familyId, profileId, request.resource.data.lastEarningId)).data.amount;
 
         match /{document=**} {
           allow read: if isOwnDevice(familyId, profileId);
         }
 
-        // Sheet opened / read (id = concept id).
-        // Opened / read by the child, with the practice scores and the challenge record. `acquiredAt` (the « Acquise » stamp) is the parent's:
-        // the child keeps writing a stamped document but never sets, changes or removes it.
+        // Sheet opened / read (id = concept id), with the practice scores, the challenge record
+        // and the assessment. `acquiredAt` (the « Acquise » stamp) is set by the parent, or by
+        // the child's own passed assessment (`assessmentLast` at the pass rate); the child
+        // never changes or removes it. `assessmentPoints` is set once, with its points line.
         match /progress/{conceptId} {
           allow create: if isOwnDevice(familyId, profileId)
-            && request.resource.data.keys().hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt',
-              'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt'])
-            && request.resource.data.subjectId is string
-            && request.resource.data.chapterId is string
-            && validPracticeScores();
+            && request.resource.data.keys().hasOnly(progressKeys())
+            && validProgress(familyId, profileId, conceptId)
+            && (!('acquiredAt' in request.resource.data)
+              || childStamp(familyId, conceptId))
+            && (!('assessmentPoints' in request.resource.data)
+              || pointsRecorded(familyId, profileId, conceptId));
           allow update: if isOwnDevice(familyId, profileId)
-            && request.resource.data.keys()
-              .hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt',
-                'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt'])
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['acquiredAt'])
-            && request.resource.data.subjectId is string
-            && request.resource.data.chapterId is string
-            && validPracticeScores();
+            && request.resource.data.keys().hasOnly(progressKeys())
+            && validProgress(familyId, profileId, conceptId)
+            && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['acquiredAt'])
+              || (!('acquiredAt' in resource.data) && childStamp(familyId, conceptId)))
+            && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['assessmentPoints'])
+              || (!('assessmentPoints' in resource.data)
+                && pointsRecorded(familyId, profileId, conceptId)));
           allow delete: if isOwnDevice(familyId, profileId) && !('acquiredAt' in resource.data);
         }
 
-        // One finished practice series (history): created once, never changed by the child.
+        // Points earned (phase 3): one line per sheet assessment, id `assessment-<sheet>`,
+        // created once by a passed assessment, of the sheet's amount.
+        match /pointsLedger/{entryId} {
+          allow create: if isOwnDevice(familyId, profileId)
+            && request.resource.data.keys().hasOnly(['kind', 'conceptId', 'subjectId', 'chapterId',
+              'amount', 'createdAt'])
+            && request.resource.data.kind == 'assessment'
+            && entryId == 'assessment-' + request.resource.data.conceptId
+            && request.resource.data.subjectId is string
+            && request.resource.data.chapterId is string
+            && request.resource.data.amount == assessmentPoints(familyId, request.resource.data.conceptId)
+            && request.resource.data.createdAt == request.time
+            && passedAfter(familyId, profileId, request.resource.data.conceptId);
+        }
+
+        // One finished practice series, challenge or assessment (history): created once, never
+        // changed by the child.
         match /attempts/{attemptId} {
           allow create: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys().hasOnly(['conceptId', 'subjectId', 'chapterId', 'mode',
@@ -177,7 +204,7 @@ service cloud.firestore {
             && request.resource.data.conceptId is string
             && request.resource.data.subjectId is string
             && request.resource.data.chapterId is string
-            && request.resource.data.mode in ['series', 'timed']
+            && request.resource.data.mode in ['series', 'timed', 'assessment']
             && validScore(request.resource.data)
             && request.resource.data.answers is list
             && request.resource.data.answers.size() == request.resource.data.total
@@ -231,6 +258,71 @@ service cloud.firestore {
       return !(field in data)
         || (data[field] is map && data[field].keys().hasOnly(['correct', 'total'])
           && validScore(data[field]));
+    }
+
+    function progressKeys() {
+      return ['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt',
+        'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt',
+        'assessmentLast', 'assessmentBest', 'assessedAt', 'failedAt', 'retakeLocked',
+        'assessmentPoints'];
+    }
+
+    function validProgress(familyId, profileId, conceptId) {
+      return request.resource.data.subjectId is string
+        && request.resource.data.chapterId is string
+        && validPracticeScores()
+        && optionalScore(request.resource.data, 'assessmentLast')
+        && optionalScore(request.resource.data, 'assessmentBest')
+        && request.resource.data.get('retakeLocked', false) is bool;
+    }
+
+    function assessmentPath(familyId, conceptId) {
+      return /databases/$(database)/documents/families/$(familyId)/assessments/$(conceptId);
+    }
+
+    function ledgerPath(familyId, profileId, entryId) {
+      return /databases/$(database)/documents/families/$(familyId)/profiles/$(profileId)/pointsLedger/$(entryId);
+    }
+
+    // The parent's pass rate, else 70 % (also for a sheet imported before assessments).
+    function passRate(familyId, conceptId) {
+      return exists(assessmentPath(familyId, conceptId))
+        ? get(assessmentPath(familyId, conceptId)).data.get('passRate', 70)
+        : 70;
+    }
+
+    // The parent's amount, else 10 points per key point of the sheet.
+    function assessmentPoints(familyId, conceptId) {
+      return exists(assessmentPath(familyId, conceptId))
+          && 'points' in get(assessmentPath(familyId, conceptId)).data
+        ? get(assessmentPath(familyId, conceptId)).data.points
+        : 10 * get(/databases/$(database)/documents/families/$(familyId)/concepts/$(conceptId)).data.keyPoints.size();
+    }
+
+    function passes(score, rate) {
+      return score.total > 0 && score.correct * 100 >= rate * score.total;
+    }
+
+    // The child stamps « Acquise » at the time of an assessment passed in this very write.
+    function childStamp(familyId, conceptId) {
+      return request.resource.data.acquiredAt == request.time
+        && 'assessmentLast' in request.resource.data
+        && passes(request.resource.data.assessmentLast, passRate(familyId, conceptId));
+    }
+
+    // The progress document after this batch records a passed assessment.
+    function passedAfter(familyId, profileId, conceptId) {
+      let progress = getAfter(/databases/$(database)/documents/families/$(familyId)/profiles/$(profileId)/progress/$(conceptId)).data;
+      return 'assessmentLast' in progress
+        && passes(progress.assessmentLast, passRate(familyId, conceptId));
+    }
+
+    // `assessmentPoints` is the amount of the sheet's points line, created in the same batch.
+    function pointsRecorded(familyId, profileId, conceptId) {
+      return !exists(ledgerPath(familyId, profileId, 'assessment-' + conceptId))
+        && existsAfter(ledgerPath(familyId, profileId, 'assessment-' + conceptId))
+        && request.resource.data.assessmentPoints
+          == getAfter(ledgerPath(familyId, profileId, 'assessment-' + conceptId)).data.amount;
     }
 
     function validPracticeScores() {

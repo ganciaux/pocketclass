@@ -1,5 +1,11 @@
 import { COLLECTIONS } from '#lib/data/collections.ts';
-import type { AssessmentRecord, Chapter, ConceptRecord, ExerciseRecord } from '#lib/data/types.ts';
+import type {
+	AssessmentRecord,
+	AssessmentSettingsRecord,
+	Chapter,
+	ConceptRecord,
+	ExerciseRecord
+} from '#lib/data/types.ts';
 import type { ChapterImport } from '#lib/schemas/chapter.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
 import type { SheetDoc } from '#lib/schemas/sheet.ts';
@@ -12,8 +18,8 @@ export interface ExistingSheet {
 	archived: boolean;
 	/** Active exercise ids. */
 	exerciseIds: string[];
-	/** An active assessment exists (assessment id = sheet id). */
-	hasAssessment: boolean;
+	/** The parent's assessment settings (assessment id = sheet id), kept by a new import. */
+	assessmentSettings: AssessmentSettingsRecord;
 }
 
 /** Existing sheets by id (ids missing from the map are new). */
@@ -50,8 +56,8 @@ export interface ImportPlan {
 	};
 }
 
-/** Phase 3 scoring rule, stored with each assessment. */
-export const DEFAULT_SCORING = { pointsPerCorrect: 5, perfectBonus: 15 } as const;
+/** The assessment of a sheet whose JSON has none. */
+export const DEFAULT_ASSESSMENT = { type: 'test', draw: { perKeyPoint: 2 } } as const;
 
 export function toExerciseRecord(exercise: Exercise): ExerciseRecord {
 	const { id: _id, ...record } = exercise;
@@ -87,7 +93,8 @@ export function findSheetConflicts(
 /**
  * Upserts `sheets` into a chapter: each sheet with its exercises and assessment. An existing
  * sheet keeps its place in the chapter and gets the next version; new ones go to the end.
- * Exercises (and the assessment) missing from the new JSON are archived, never deleted.
+ * Exercises missing from the new JSON are archived, never deleted; the assessment is rewritten
+ * (keeping the parent's settings).
  * Conflicts (`findSheetConflicts`) must be checked by the caller before.
  */
 export function planSheets(
@@ -136,19 +143,19 @@ export function planSheets(
 			stats.archivedExercises++;
 		}
 
-		const assessmentPath: DocPath = [COLLECTIONS.assessments, sheet.id];
-		if (sheet.assessment) {
-			const assessment: AssessmentRecord = {
-				...sheet.assessment,
-				chapterId: target.chapterId,
-				conceptIds: [sheet.id],
-				scoring: { ...DEFAULT_SCORING },
-				archived: false
-			};
-			ops.push({ kind: 'set', path: assessmentPath, data: { ...assessment } });
-		} else if (old?.hasAssessment) {
-			ops.push({ kind: 'archive', path: assessmentPath });
-		}
+		// Every sheet has an assessment (its questions may all be generated).
+		const assessment: AssessmentRecord = {
+			...(sheet.assessment ?? DEFAULT_ASSESSMENT),
+			...old?.assessmentSettings,
+			chapterId: target.chapterId,
+			conceptIds: [sheet.id],
+			archived: false
+		};
+		ops.push({
+			kind: 'set',
+			path: [COLLECTIONS.assessments, sheet.id],
+			data: { ...assessment }
+		});
 	}
 	return { ops, stats };
 }

@@ -31,7 +31,7 @@ function existingAfter(sheet: SheetDoc, chapterId: string, version = 1, order = 
 			version,
 			archived: false,
 			exerciseIds: sheet.exercises.map((e) => e.id),
-			hasAssessment: !!sheet.assessment
+			assessmentSettings: {}
 		}
 	};
 }
@@ -83,7 +83,24 @@ describe('planSheets', () => {
 			chapterId: 'numbers',
 			conceptIds: ['maths-3e-fractions'],
 			draw: { perKeyPoint: 2 },
-			scoring: { pointsPerCorrect: 5, perfectBonus: 15 }
+			archived: false
+		});
+	});
+
+	it('gives every sheet an assessment and keeps the parent settings on a new import', () => {
+		const v2 = structuredClone(fractions);
+		delete v2.assessment;
+		const existing = existingAfter(fractions, 'numbers');
+		existing[fractions.id].assessmentSettings = { passRate: 80, points: 25 };
+		const data = dataOf(
+			find(planSheets([v2], target, existing).ops, 'assessments/maths-3e-fractions')
+		);
+		expect(data).toMatchObject({
+			type: 'test',
+			draw: { perKeyPoint: 2 },
+			passRate: 80,
+			points: 25,
+			archived: false
 		});
 	});
 
@@ -101,7 +118,7 @@ describe('planSheets', () => {
 		});
 		expect(keys).toContain('archive concepts/maths-3e-fractions/exercises/add-1');
 		expect(keys).not.toContain('set concepts/maths-3e-fractions/exercises/add-1');
-		expect(keys).toContain('archive assessments/maths-3e-fractions');
+		expect(keys).toContain('set assessments/maths-3e-fractions');
 		expect(plan.stats).toMatchObject({ created: 0, updated: 1, archivedExercises: 1 });
 	});
 
