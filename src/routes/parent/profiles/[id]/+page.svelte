@@ -64,7 +64,15 @@
 					<SubjectCards {familyId} view={child} ownerId={child.id} />
 				</section>
 				<section class="flex flex-col gap-2">
-					<h2>{fr.practice.parentTitle}</h2>
+					<div class="flex flex-wrap items-center justify-between gap-2">
+						<h2>{fr.practice.parentTitle}</h2>
+						<a
+							class="btn btn-soft btn-primary btn-sm"
+							href="{resolve('/parent/stats')}?child={encodeURIComponent(child.id)}"
+						>
+							{fr.stats.title}
+						</a>
+					</div>
 					<PracticeScores {familyId} profileId={child.id} />
 				</section>
 				<section class="flex flex-col gap-2">

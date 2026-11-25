@@ -12,6 +12,15 @@ export function plural(count: number, one: string, many = `${one}s`): string {
 export const formatDate = (date: Date) =>
 	date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 
+/** « 25 nov., 14:05 »: a short date with the time (lists of attempts). */
+export const formatDateTime = (date: Date) =>
+	date.toLocaleString('fr-FR', {
+		day: 'numeric',
+		month: 'short',
+		hour: '2-digit',
+		minute: '2-digit'
+	});
+
 export const fr = {
 	app: {
 		name: 'PocketClass',
@@ -65,6 +74,7 @@ export const fr = {
 		manageBinder: 'Gérer les classeurs',
 		manageProfiles: 'Gérer les profils',
 		childrenNotes: 'Remarques des enfants',
+		stats: 'Statistiques',
 		myBinder: 'Mon classeur',
 		familyBinder: 'Classeurs',
 		seenTitle: 'Mes fiches vues',
@@ -324,6 +334,50 @@ export const fr = {
 		/** Test mode: the parent stamps their own test profile. */
 		testSet: 'Tamponner (test)',
 		testClear: 'Retirer le tampon (test)'
+	},
+	stats: {
+		title: 'Statistiques',
+		ofChild: (name: string) => `Statistiques de ${name}`,
+		who: 'Enfant',
+		myTests: 'Mes tests',
+		noChildren: "Ajoute d'abord un enfant dans « Gérer les profils ».",
+		loadFailed: "Les statistiques n'ont pas pu être chargées.",
+		overview: 'Vue globale',
+		points: 'Points',
+		read: 'Fiches lues',
+		acquired: 'Acquises',
+		finished: 'Essais terminés',
+		lastActivity: 'Dernière activité',
+		never: 'Pas encore',
+		noSubjects: "Aucun classeur pour l'instant.",
+		openings: 'Ouvertures',
+		opens: (n: number) => plural(n, 'ouverture'),
+		series: 'Séries',
+		challenges: 'Défis',
+		assessments: 'Contrôles',
+		/** « 3 terminés sur 5 » (started unknown for runs older than the counter: « 3 terminés »). */
+		runs: (finished: number, started: number | null) =>
+			!finished && !started
+				? 'aucun'
+				: started === null
+					? plural(finished, 'terminé')
+					: `${plural(finished, 'terminé')} sur ${started}`,
+		average: (n: number) => `moyenne ${n} %`,
+		record: (n: number) => `record ${n}`,
+		acquiredBadge: 'Acquise',
+		failedBadge: 'Raté',
+		lastScore: (score: string) => `dernier ${score}`,
+		best: (n: number) => `meilleur ${n} %`,
+		recent: 'Derniers essais',
+		noAttempts: "Aucun essai terminé pour l'instant.",
+		when: 'Quand',
+		sheet: 'Fiche',
+		kind: 'Type',
+		score: 'Score',
+		mode: { series: 'Entraînement', timed: 'Défi', assessment: 'Contrôle' },
+		pending: "à l'instant",
+		countedSince:
+			'Ouvertures et essais « lancés » : comptés depuis la mise à jour de fin novembre 2026.'
 	},
 	testMode: {
 		start: (name: string) => `Tester comme ${name}`,

@@ -51,6 +51,12 @@
 					>
 						{fr.home.childrenNotes}
 					</a>
+					<a
+						class="btn btn-outline border-neutral-content/40 text-neutral-content"
+						href={resolve('/parent/stats')}
+					>
+						{fr.home.stats}
+					</a>
 				</div>
 			</div>
 		</section>

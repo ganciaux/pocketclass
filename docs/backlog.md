@@ -27,6 +27,10 @@ Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
   fiche) ou automatiquement par un contrôle réussi ; l'enfant voit le tampon sur la fiche, une
   étoile dans le chapitre et « n acquises » dans ses compteurs. Une fiche acquise compte comme
   lue. « Continuer » ne propose plus une fiche acquise.
+- **Statistiques** (`/parent/stats`) : le parent choisit un enfant (ou « Mes tests ») ; vue
+  globale (points, fiches lues / acquises, essais terminés, une carte par classeur) et vue
+  détaillée d'un classeur (une ligne par fiche, les 20 derniers essais avec date et heure).
+  Ouvertures et essais lancés comptés depuis fin novembre 2026.
 - **Entraînement (phase 2)** : séries de 10 questions avec score et « Refaire mes erreurs »,
   défi chronométré de 60 s avec record, nouveaux types (relier, vrai/faux, classer),
   explication après chaque réponse, 25 générateurs d'exercices (calcul, algèbre, géométrie,
@@ -93,9 +97,11 @@ Par ordre de demande ; le détail de chaque point est plus bas.
 1. ~~Charte graphique et mise en forme~~ : **fait** (2026-11-25), charte « trousse
    d'écolier » (CLAUDE.md, styling).
 2. ~~Cartes mentales~~ : **fait** (2026-11-25).
-3. **Points de révision** (une fiche revue rapporte des points, pas plus d'une fois par
-   semaine) et **historique d'activité** (à partir du journal des points).
-4. Suite de l'entraînement (ci-dessous).
+3. ~~Statistiques d'un enfant~~ : **fait** (2026-11-25), vue globale / détaillée.
+4. **Points de révision** (une fiche revue rapporte des points, pas plus d'une fois par
+   semaine) et **historique d'activité** (à partir du journal des points ; les
+   statistiques montrent déjà les essais terminés).
+5. Suite de l'entraînement (ci-dessous).
 
 ### Suite de l'entraînement
 

@@ -60,6 +60,10 @@ export function watchAssessmentSetup(
 	});
 }
 
+/** Every finished run of a profile (series, challenges, assessments), for the statistics. */
+export const watchAttempts = (familyId: string, profileId: string) =>
+	querySource(attemptsCol(familyId, profileId));
+
 export interface SeriesToSave {
 	sheet: SheetRef;
 	results: Result[];
