@@ -75,16 +75,16 @@
 					{@const place = notePlace(note, catalog)}
 					<!-- Where the note was written: a link back to it, or why there is none. -->
 					{#if place.kind === 'sheet'}
-						<a class="font-bold hover:underline" href={resolve('/concept/[id]', { id: place.id })}>
+						<a class="link-text font-bold" href={resolve('/concept/[id]', { id: place.id })}>
 							{@html renderInline(place.title)}
 						</a>
 					{:else if place.kind === 'chapter'}
-						<a class="hover:underline" href={resolve('/chapter/[id]', { id: place.id })}>
+						<a class="link-text" href={resolve('/chapter/[id]', { id: place.id })}>
 							<span class="text-sm text-base-content/60">{t.place.chapter}</span>
 							<strong>{place.title}</strong>
 						</a>
 					{:else if place.kind === 'subject'}
-						<a class="hover:underline" href={resolve('/subject/[id]', { id: place.id })}>
+						<a class="link-text" href={resolve('/subject/[id]', { id: place.id })}>
 							<span class="text-sm text-base-content/60">{t.place.subject}</span>
 							<strong>{place.title}</strong>
 						</a>

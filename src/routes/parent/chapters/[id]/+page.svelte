@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportChapter } from '#lib/data/catalogExport.ts';
 	import { exportFileName } from '#lib/import/catalogExport.ts';
@@ -133,6 +135,7 @@
 						class="btn btn-ghost btn-sm"
 						onclick={() => setArchived(familyId, 'chapters', chapter.id, !chapter.archived)}
 					>
+						<Icon paths={chapter.archived ? UI_ICONS.eye : UI_ICONS.eyeOff} class="size-4" />
 						{chapter.archived ? t.show : t.hide}
 					</button>
 				</div>
@@ -142,12 +145,12 @@
 						<h2 class="card-title">{t.sheets}</h2>
 						<LoadState source={sheetsLive} failed={fr.binder.loadFailed}>
 							{#snippet children(sheets)}
-								<ul class="flex flex-col divide-y divide-base-300">
+								<ul class="flex flex-col gap-1">
 									{#each sheets as sheet, i (sheet.id)}
 										<li
 											class={[
-												'group relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2',
-												!sheet.archived && 'hover:bg-primary/15'
+												'relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2',
+												sheet.archived ? 'rounded-box border-2 border-transparent' : 'link-row'
 											]}
 											in:row
 											out:row={{ exit: true }}
@@ -163,7 +166,7 @@
 													<strong>{@html renderInline(sheet.title)}</strong>
 												{:else}
 													<a
-														class="font-bold group-hover:underline after:absolute after:inset-0"
+														class="font-bold after:absolute after:inset-0"
 														href={resolve('/concept/[id]', { id: sheet.id })}
 													>
 														{@html renderInline(sheet.title)}

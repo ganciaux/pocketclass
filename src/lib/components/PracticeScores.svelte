@@ -31,7 +31,7 @@
 				{#each rows as row (row.sheet.id)}
 					<li>
 						<a
-							class="card card-border flex-row items-center gap-3 bg-base-100 p-3 hover:bg-base-200"
+							class="link-card card card-border flex-row items-center gap-3 bg-base-100 p-3"
 							href={resolve('/concept/[id]', { id: row.sheet.id })}
 						>
 							<span class="flex min-w-0 flex-1 flex-col">

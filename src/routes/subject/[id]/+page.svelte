@@ -82,10 +82,15 @@
 								{/if}
 							</div>
 							{#if asChild}
+								<span class="text-sm text-base-content/70">
+									{t.chapterCount(chapters.length)} · {t.sheets(sheets.length)}
+								</span>
 								<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[subject.color]} />
 							{:else}
 								<div class="flex items-center justify-between gap-2">
-									<span class="text-sm text-base-content/70">{t.sheets(sheets.length)}</span>
+									<span class="text-sm text-base-content/70">
+										{t.chapterCount(chapters.length)} · {t.sheets(sheets.length)}
+									</span>
 									{#if session.isAdmin}
 										<a
 											class="btn btn-ghost btn-sm"
@@ -101,7 +106,7 @@
 
 					{#if next}
 						<a
-							class="card subject-card bg-primary text-primary-content shadow-sm"
+							class="link-card card bg-primary text-primary-content shadow-sm"
 							href={resolve('/concept/[id]', { id: next.id })}
 						>
 							<div class="card-body flex-row items-center gap-3">
@@ -139,7 +144,7 @@
 									acquired: 0
 								}}
 								<a
-									class="group card subject-card card-border bg-base-100 hover:border-primary"
+									class="link-card card card-border bg-base-100"
 									href={resolve('/chapter/[id]', { id: chapter.id })}
 								>
 									<div class="card-body flex-row items-center gap-4">
@@ -152,7 +157,7 @@
 											{numbers.get(chapter.id)}
 										</span>
 										<div class="flex min-w-0 flex-1 flex-col gap-2">
-											<strong class="text-lg leading-tight group-hover:underline">
+											<strong class="text-lg leading-tight">
 												{chapter.title}
 											</strong>
 											{#if asChild}

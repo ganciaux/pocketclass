@@ -128,7 +128,14 @@
 			<header class="flex flex-col gap-1">
 				{#if subjectLive.data}
 					<span class="flex min-w-0 items-center gap-2 text-sm font-bold text-base-content/60">
-						<SubjectBadge subject={subjectLive.data} size={1.75} />
+						<a
+							class="link-icon"
+							href={resolve('/subject/[id]', { id: subjectLive.data.id })}
+							title={subjectLive.data.name}
+							aria-label={subjectLive.data.name}
+						>
+							<SubjectBadge subject={subjectLive.data} size={1.75} />
+						</a>
 						<span class="truncate">
 							{subjectLive.data.name}
 							{#if chapterLive.data}<span aria-hidden="true">·</span> {chapterLive.data.title}{/if}
@@ -183,7 +190,7 @@
 								<!-- The whole row links to the first section about this key point. -->
 								{#if section}
 									<a
-										class="-mx-2 flex gap-3 rounded-box px-2 py-1 hover:bg-primary/10"
+										class="link-row -mx-2 flex gap-3 px-2 py-1"
 										href="#section-{section}"
 										onclick={(event) => goToSection(event, section)}
 									>

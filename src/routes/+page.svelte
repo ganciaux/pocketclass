@@ -85,10 +85,7 @@
 		hint: string,
 		badge: string | null = null
 	)}
-		<a
-			class="subject-card card card-border bg-base-100 transition-colors hover:border-secondary"
-			{href}
-		>
+		<a class="link-card card card-border bg-base-100" {href}>
 			<div class="card-body flex-row items-center gap-3 p-4">
 				<span class="grid size-11 shrink-0 place-items-center rounded-full bg-secondary/15">
 					<Icon paths={icon} class="size-5 text-secondary" />

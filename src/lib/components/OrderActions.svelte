@@ -46,8 +46,14 @@
 	>
 		↓
 	</button>
-	<button class="btn btn-ghost btn-xs" onclick={() => onarchive(!archived)}>
-		{archived ? t.show : t.hide}
+	<!-- Eye closed = hide from children; eye open = show again. -->
+	<button
+		class="btn btn-square btn-ghost btn-xs"
+		title={archived ? t.show : t.hide}
+		aria-label={archived ? t.show : t.hide}
+		onclick={() => onarchive(!archived)}
+	>
+		<Icon paths={archived ? UI_ICONS.eye : UI_ICONS.eyeOff} class="size-4" />
 	</button>
 	{#if ondelete}
 		<button class="btn btn-soft btn-error btn-xs" onclick={ondelete}>

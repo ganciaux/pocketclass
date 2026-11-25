@@ -197,25 +197,105 @@ header.navbar {
 		}
 	}
 
-	/* Subject card of the binder: sinks slightly under the finger, lifts under a mouse. */
-	.subject-card {
+	/*
+	 * Interaction rules (CLAUDE.md, « Links and hovers »): nothing is underlined on hover
+	 * (only links inside running text are underlined, always). Whatever opens something says so
+	 * with a mustard border; a tap presses a card in.
+	 */
+
+	/* A whole card that opens a page: mustard border under a mouse or keyboard focus. */
+	.link-card {
 		transition:
 			transform 160ms var(--ease-out),
+			border-color 160ms ease,
 			box-shadow 200ms ease;
 
-		&:active {
-			transform: scale(0.98);
+		&:focus-visible {
+			border-color: var(--color-primary);
 		}
 
 		@media (hover: hover) and (pointer: fine) {
 			&:hover {
-				box-shadow: var(--shadow-md);
+				border-color: var(--color-primary);
 			}
 		}
 
-		@media (prefers-reduced-motion: reduce) {
+		@media (prefers-reduced-motion: no-preference) {
 			&:active {
-				transform: none;
+				transform: scale(0.98);
+			}
+		}
+	}
+
+	/* A row of a list inside a card (parent lists, key points): same mustard border. */
+	.link-row {
+		border: 2px solid transparent;
+		border-radius: var(--radius-box);
+		transition: border-color 160ms ease;
+
+		&:focus-within {
+			border-color: var(--color-primary);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			&:hover {
+				border-color: var(--color-primary);
+			}
+		}
+	}
+
+	/* A short link inside a card (where a note was written): a highlighter swipe, no underline. */
+	.link-text {
+		border-radius: 0.25rem;
+		box-decoration-break: clone;
+		-webkit-box-decoration-break: clone;
+		transition: background-color 160ms ease;
+
+		&:focus-visible,
+		&:hover {
+			background-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
+		}
+	}
+
+	/* A subject picture that is a link: it tilts, like a sticker lifted by a corner. */
+	.link-icon {
+		display: inline-flex;
+		border-radius: var(--radius-box);
+		transition: transform 200ms var(--ease-out);
+
+		@media (prefers-reduced-motion: no-preference) {
+			&:hover,
+			&:focus-visible {
+				transform: rotate(-6deg);
+			}
+		}
+	}
+
+	/* A binder on the home shelf (with .link-card): under a mouse or keyboard focus it also
+	   slides up as if pulled off the shelf, and its picture tilts. The app's one hover motion. */
+	.binder-badge {
+		display: inline-flex;
+		transition: transform 260ms var(--ease-out);
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.binder-card:focus-visible {
+			transform: translateY(-4px);
+			box-shadow: var(--shadow-lg);
+		}
+
+		.binder-card:focus-visible .binder-badge {
+			transform: rotate(-8deg) scale(1.08);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			.binder-card:hover {
+				transform: translateY(-4px);
+				box-shadow: var(--shadow-lg);
+			}
+
+			.binder-card:hover .binder-badge {
+				transform: rotate(-8deg) scale(1.08);
 			}
 		}
 	}

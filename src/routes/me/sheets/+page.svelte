@@ -95,7 +95,7 @@
 							<li>
 								<a
 									class={[
-										'card subject-card card-border border-l-8 bg-base-100',
+										'card link-card card-border border-l-8 bg-base-100',
 										SUBJECT_BORDER[entry.subject.color]
 									]}
 									href={resolve('/concept/[id]', { id: entry.sheet.id })}

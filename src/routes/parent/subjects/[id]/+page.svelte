@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportSubject } from '#lib/data/catalogExport.ts';
 	import { exportFileName } from '#lib/import/catalogExport.ts';
@@ -131,7 +133,14 @@
 		>
 			{#snippet children(subject)}
 				<header class="flex flex-wrap items-center gap-3">
-					<SubjectBadge {subject} />
+					<a
+						class="link-icon"
+						href={resolve('/subject/[id]', { id: subject.id })}
+						title={t.view}
+						aria-label={t.view}
+					>
+						<SubjectBadge {subject} />
+					</a>
 					<h1 class="flex-1">{subject.name}</h1>
 					<span class="badge badge-ghost">{subject.grade}</span>
 					{#if subject.archived}<span class="badge badge-ghost">{t.hidden}</span>{/if}
@@ -147,6 +156,7 @@
 						class="btn btn-ghost btn-sm"
 						onclick={() => setArchived(familyId, 'subjects', subject.id, !subject.archived)}
 					>
+						<Icon paths={subject.archived ? UI_ICONS.eye : UI_ICONS.eyeOff} class="size-4" />
 						{subject.archived ? t.show : t.hide}
 					</button>
 				</div>
@@ -156,17 +166,17 @@
 						<h2 class="card-title">{t.chapters}</h2>
 						<LoadState source={chaptersLive} failed={fr.binder.loadFailed}>
 							{#snippet children(chapters)}
-								<ul class="flex flex-col divide-y divide-base-300">
+								<ul class="flex flex-col gap-1">
 									{#each chapters as chapter, i (chapter.id)}
 										<li
-											class="group relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2 hover:bg-primary/15"
+											class="link-row relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2"
 											in:row
 											out:row={{ exit: true }}
 											animate:reorder
 										>
 											<a
 												class={[
-													'flex min-w-0 flex-1 basis-48 flex-col group-hover:underline after:absolute after:inset-0',
+													'flex min-w-0 flex-1 basis-48 flex-col after:absolute after:inset-0',
 													chapter.archived && 'text-base-content/50'
 												]}
 												href={resolve('/parent/chapters/[id]', { id: chapter.id })}

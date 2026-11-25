@@ -66,13 +66,13 @@
 						{@const tally = tallies.get(subject.id) ?? { total: 0, read: 0, fresh: 0, acquired: 0 }}
 						<a
 							class={[
-								'card subject-card border-l-8 bg-base-100 shadow-sm',
+								'card card-border link-card binder-card border-l-8 bg-base-100 shadow-sm',
 								SUBJECT_BORDER[subject.color]
 							]}
 							href={resolve('/subject/[id]', { id: subject.id })}
 						>
 							<div class="card-body flex-row items-center gap-4">
-								<SubjectBadge {subject} />
+								<span class="binder-badge"><SubjectBadge {subject} /></span>
 								<div class="flex min-w-0 flex-1 flex-col gap-2">
 									<span class="flex items-center gap-2">
 										<strong class="flex-1 text-lg">{subject.name}</strong>

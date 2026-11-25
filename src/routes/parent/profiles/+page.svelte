@@ -58,7 +58,7 @@
 					{#each list as child (child.id)}
 						<li>
 							<a
-								class="card card-border bg-base-100 transition-colors hover:border-primary"
+								class="link-card card card-border bg-base-100"
 								href={resolve('/parent/profiles/[id]', { id: child.id })}
 							>
 								<div class="card-body flex-row items-center gap-3 py-3">

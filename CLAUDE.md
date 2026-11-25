@@ -91,6 +91,18 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   (`badge-warning`) is for points and rewards. Parent management lists: one card per group,
   rows (square, dividers) with a stretched link (`after:absolute after:inset-0`, actions `relative` above it) and
   a pale highlighter hover (`hover:bg-primary/15`, title underlined).
+- **Links and hovers** (2026-11-25, user's rules, apply them everywhere; classes in `app.css`):
+  nothing is underlined on hover; only links inside running text (`a:not([class])`, Markdown)
+  stay underlined. A whole card that opens a page = `.link-card` (mustard border under a mouse
+  or keyboard focus, pressed in on tap); a row of a list inside a card (parent lists, key points,
+  a child's name on « Remarques ») = `.link-row` (same mustard border, stretched link
+  `after:absolute after:inset-0`, actions `relative` above it); a short link in a card (where a
+  note was written) = `.link-text` (highlighter swipe); a subject picture that is a link =
+  `.link-icon` (tilts). Several things opening the same page light up together (chapter path:
+  the step bubble is a link too, `group-hover` on the card and a ring on the bubble). Tags fill
+  in mustard. Hide / show = eye-off / eye icon (`UI_ICONS.eyeOff` / `eye`, icon-only with a
+  `title` in list rows). The home binders (`.binder-card`) are the one hover motion: they slide
+  up and their picture tilts. No other hover animation.
 - **Child writes** (progress, notes, profile look) and **parent binder edits** (subjects,
   chapters, order, hide) go through `inBackground()` (`data/writes.ts`): not awaited, so they
   work offline (local cache first, live sources update at once). Parent actions that need the

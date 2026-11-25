@@ -93,7 +93,16 @@
 				label={subjectLive.data?.name ?? t.subject}
 			/>
 			<header class="flex items-center gap-3">
-				{#if subjectLive.data}<SubjectBadge subject={subjectLive.data} size={2.5} />{/if}
+				{#if subjectLive.data}
+					<a
+						class="link-icon"
+						href={resolve('/subject/[id]', { id: chapter.subjectId })}
+						title={subjectLive.data.name}
+						aria-label={subjectLive.data.name}
+					>
+						<SubjectBadge subject={subjectLive.data} size={2.5} />
+					</a>
+				{/if}
 				<div class="flex min-w-0 flex-1 flex-col">
 					{#if chapter.group}
 						<span class="text-sm font-bold tracking-wide text-base-content/60 uppercase">
@@ -170,31 +179,34 @@
 							{@const state = asChild ? sheetState(sheet, progress.get(sheet.id)) : null}
 							{@const acquired = asChild && isAcquired(progress.get(sheet.id))}
 							{@const failed = asChild && isFailed(progress.get(sheet.id))}
-							<li class="relative flex gap-3 pb-3 last:pb-0">
+							<li class="group relative flex gap-3 pb-3 last:pb-0">
 								{#if i < steps.length - 1}
 									<span
 										class="absolute top-11 bottom-0 left-[1.375rem] w-0.5 -translate-x-1/2 bg-base-300"
 										aria-hidden="true"
 									></span>
 								{/if}
-								<span
+								<!-- The step opens the sheet too; hovering either one lights up both. -->
+								<a
 									class={[
-										'relative grid size-11 shrink-0 place-items-center rounded-full font-bold',
+										'relative grid size-11 shrink-0 place-items-center rounded-full font-bold transition-shadow group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-base-200',
 										stepStyle(state, acquired, failed)
 									]}
+									href={resolve('/concept/[id]', { id: sheet.id })}
+									tabindex="-1"
 									aria-hidden="true"
 								>
 									{#if acquired}<Icon paths={UI_ICONS.star} />
 									{:else if failed}<Icon paths={UI_ICONS.sad} />
 									{:else if state === 'read'}<Icon paths={UI_ICONS.check} />
 									{:else}{number}{/if}
-								</span>
+								</a>
 								<a
-									class="group card subject-card card-border min-w-0 flex-1 bg-base-100 hover:border-primary"
+									class="link-card card card-border min-w-0 flex-1 bg-base-100 group-hover:border-primary"
 									href={resolve('/concept/[id]', { id: sheet.id })}
 								>
 									<div class="card-body flex-row items-center gap-3 py-3">
-										<span class="min-w-0 flex-1 font-bold group-hover:underline">
+										<span class="min-w-0 flex-1 font-bold">
 											{@html renderInline(sheet.title)}
 										</span>
 										{#if acquired}

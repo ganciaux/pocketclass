@@ -82,6 +82,7 @@ export const fr = {
 		subjectNotFound: "Cette matière n'existe pas (ou plus).",
 		chapterNotFound: "Ce chapitre n'existe pas (ou plus).",
 		sheets: (count: number) => plural(count, 'fiche'),
+		chapterCount: (count: number) => plural(count, 'chapitre'),
 		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
 		fresh: (count: number) => plural(count, 'nouveauté'),
 		acquired: (count: number) => plural(count, 'acquise'),

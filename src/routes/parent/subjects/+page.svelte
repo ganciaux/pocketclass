@@ -65,10 +65,10 @@
 					<section class="card card-border bg-base-100">
 						<div class="card-body gap-2">
 							<h2 class="card-title">{heading}</h2>
-							<ul class="flex flex-col divide-y divide-base-300">
+							<ul class="flex flex-col gap-1">
 								{#each list as subject, i (subject.id)}
 									<li
-										class="group relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2 hover:bg-primary/15"
+										class="link-row relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2"
 										in:row
 										out:row={{ exit: true }}
 										animate:reorder
@@ -76,7 +76,7 @@
 										<SubjectBadge {subject} size={2.5} />
 										<a
 											class={[
-												'min-w-0 flex-1 basis-20 font-bold group-hover:underline after:absolute after:inset-0',
+												'min-w-0 flex-1 basis-20 font-bold after:absolute after:inset-0',
 												subject.archived && 'text-base-content/50'
 											]}
 											href={resolve('/parent/subjects/[id]', { id: subject.id })}

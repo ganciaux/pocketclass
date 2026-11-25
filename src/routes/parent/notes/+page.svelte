@@ -33,7 +33,7 @@
 				{#each childProfiles as child (child.id)}
 					<section class="flex flex-col gap-2">
 						<a
-							class="flex items-center gap-3 hover:underline"
+							class="link-row -mx-2 flex items-center gap-3 px-2 py-1"
 							href={resolve('/parent/profiles/[id]', { id: child.id })}
 						>
 							<Avatar profile={child} size={2.5} />

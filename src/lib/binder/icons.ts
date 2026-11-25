@@ -65,6 +65,15 @@ export const UI_ICONS = {
 	x: paths('M18 6 6 18', 'm6 6 12 12'),
 	play: paths('M7 4v16l13-8z'),
 	bookmark: paths('M6 3h12v18l-6-4-6 4z'),
+	/** Shown to children (a « show » button). */
+	eye: paths('M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z', circle(12, 12, 3)),
+	/** Hidden from children (a « hide » button). */
+	eyeOff: paths(
+		'M3 3l18 18',
+		'M10.6 5.1A9.8 9.8 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2',
+		'M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a9.9 9.9 0 0 0 5.4-1.6',
+		'M9.9 9.9a3 3 0 0 0 4.2 4.2'
+	),
 	/** Mind map: a centre and three branches. */
 	map: paths(
 		circle(12, 12, 3),
