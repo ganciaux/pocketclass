@@ -183,7 +183,10 @@
 									<button class="btn btn-primary" onclick={() => start(set, concept)}>
 										{t.again}
 									</button>
-									<a class="btn btn-ghost" href={resolve('/concept/[id]', { id: concept.id })}>
+									<a
+										class="btn btn-soft btn-primary"
+										href={resolve('/concept/[id]', { id: concept.id })}
+									>
 										{fr.practice.backToSheet}
 									</a>
 								</div>

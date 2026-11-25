@@ -11,6 +11,7 @@ import {
 	sheetState,
 	tally,
 	tallyBy,
+	seesSubject,
 	visibleSubjects,
 	type SheetProgress
 } from './binder.ts';
@@ -21,6 +22,15 @@ const at = (ms: number) => ({ toMillis: () => ms });
 function subject(id: string, grade: Grade, order: number, archived = false) {
 	return { id, name: id, grade, order, archived };
 }
+
+describe('seesSubject', () => {
+	it('is true for the grade or a subject added by the parent', () => {
+		const maths6e = { id: 'maths-6e', grade: '6e' as const };
+		expect(seesSubject({ grade: '6e' }, maths6e)).toBe(true);
+		expect(seesSubject({ grade: '3e' }, maths6e)).toBe(false);
+		expect(seesSubject({ grade: '3e', extraSubjects: ['maths-6e'] }, maths6e)).toBe(true);
+	});
+});
 
 describe('visibleSubjects', () => {
 	const subjects = [

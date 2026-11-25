@@ -116,11 +116,13 @@
 									{:else}{i + 1}{/if}
 								</span>
 								<a
-									class="card subject-card card-border min-w-0 flex-1 bg-base-100"
+									class="group card subject-card card-border min-w-0 flex-1 bg-base-100 hover:border-primary"
 									href={resolve('/concept/[id]', { id: sheet.id })}
 								>
 									<div class="card-body flex-row items-center gap-3 py-3">
-										<span class="min-w-0 flex-1 font-bold">{@html renderInline(sheet.title)}</span>
+										<span class="min-w-0 flex-1 font-bold group-hover:underline">
+											{@html renderInline(sheet.title)}
+										</span>
 										{#if acquired}
 											<span class={['badge badge-sm shrink-0 badge-outline', SUBJECT_TEXT[color]]}>
 												{fr.stamp.label}

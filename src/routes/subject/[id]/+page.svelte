@@ -139,7 +139,7 @@
 									acquired: 0
 								}}
 								<a
-									class="card subject-card card-border bg-base-100"
+									class="group card subject-card card-border bg-base-100 hover:border-primary"
 									href={resolve('/chapter/[id]', { id: chapter.id })}
 								>
 									<div class="card-body flex-row items-center gap-4">
@@ -152,7 +152,9 @@
 											{numbers.get(chapter.id)}
 										</span>
 										<div class="flex min-w-0 flex-1 flex-col gap-2">
-											<strong class="text-lg leading-tight">{chapter.title}</strong>
+											<strong class="text-lg leading-tight group-hover:underline">
+												{chapter.title}
+											</strong>
 											{#if asChild}
 												<TallyLine tally={chapterTally} barClass={SUBJECT_TEXT[subject.color]} />
 											{:else}

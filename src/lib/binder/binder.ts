@@ -51,14 +51,19 @@ export function moveItem(
 
 type SubjectLike = { id: string } & Pick<Subject, 'name' | 'grade' | 'order' | 'archived'>;
 
+/** A child sees a subject of their grade, or one the parent added to their binder. */
+export const seesSubject = (
+	profile: Pick<Profile, 'grade' | 'extraSubjects'>,
+	subject: Pick<SubjectLike, 'id' | 'grade'>
+) => subject.grade === profile.grade || (profile.extraSubjects ?? []).includes(subject.id);
+
 /** Subjects a child sees: the active ones of their grade, plus the extras added by the parent. */
 export function visibleSubjects<S extends SubjectLike>(
 	subjects: S[],
 	profile: Pick<Profile, 'grade' | 'extraSubjects'>
 ): S[] {
-	const extras = new Set(profile.extraSubjects ?? []);
 	return sortSubjects(
-		activeOnly(subjects).filter((s) => s.grade === profile.grade || extras.has(s.id)),
+		activeOnly(subjects).filter((s) => seesSubject(profile, s)),
 		profile.grade
 	);
 }

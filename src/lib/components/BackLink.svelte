@@ -10,7 +10,10 @@
 	let { href, label }: { href: string; label: string } = $props();
 </script>
 
-<a class="btn back-link h-11 max-w-full self-start rounded-full ps-2 pe-4 font-normal" {href}>
+<a
+	class="btn btn-soft btn-primary back-link h-11 max-w-full self-start rounded-full ps-2 pe-4 font-normal"
+	{href}
+>
 	<Icon paths={UI_ICONS.chevronLeft} />
 	<span class="truncate">{label}</span>
 </a>

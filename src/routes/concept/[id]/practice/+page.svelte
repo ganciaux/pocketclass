@@ -119,7 +119,10 @@
 									>
 										{t.newSeries}
 									</button>
-									<a class="btn btn-ghost" href={resolve('/concept/[id]', { id: concept.id })}>
+									<a
+										class="btn btn-soft btn-primary"
+										href={resolve('/concept/[id]', { id: concept.id })}
+									>
 										{t.backToSheet}
 									</a>
 								</div>

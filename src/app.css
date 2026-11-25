@@ -260,3 +260,31 @@ header.navbar {
 		}
 	}
 }
+
+/* Button tweaks outside the layers, so they win over daisyUI (which sits in its own layers). */
+/*
+ * Navigation (back links, « Retour à la fiche »): pale mustard with dark text. daisyUI's soft
+ * style writes mustard on pale mustard (unreadable) and turns solid on hover; here the hover
+ * only deepens the tint, so solid mustard stays the main action.
+ */
+.btn.btn-soft.btn-primary {
+	--btn-rest-fg: var(--color-base-content);
+	--btn-bg: color-mix(in oklab, var(--color-primary) 22%, var(--color-base-100));
+	--btn-border: color-mix(in oklab, var(--color-primary) 40%, var(--color-base-100));
+	--btn-fg: var(--color-base-content);
+	color: var(--color-base-content);
+
+	@media (hover: hover) {
+		&:hover {
+			--btn-bg: color-mix(in oklab, var(--color-primary) 40%, var(--color-base-100));
+			color: var(--color-base-content);
+		}
+	}
+}
+
+/* Secondary (ghost) buttons: a light mustard hover instead of grey on grey. */
+@media (hover: hover) {
+	.btn.btn-ghost:hover {
+		background-color: color-mix(in oklab, var(--color-primary) 18%, transparent);
+	}
+}

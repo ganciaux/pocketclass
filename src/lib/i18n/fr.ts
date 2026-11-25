@@ -271,7 +271,8 @@ export const fr = {
 		/** Parent card on a sheet. */
 		title: 'Notion acquise',
 		help: "Tamponne la fiche quand tu as vérifié avec l'enfant qu'il a compris.",
-		noChildren: "Aucun profil enfant pour l'instant.",
+		noChildren:
+			"Aucun enfant n'a cette fiche dans son classeur (son niveau ou une matière ajoutée).",
 		toggle: (name: string, acquired: boolean) =>
 			acquired ? `${name} : acquise, retirer le tampon` : `${name} : tamponner « Acquise »`,
 		/** Test mode: the parent stamps their own test profile. */

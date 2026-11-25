@@ -8,5 +8,5 @@
 	<p role="alert" class="alert alert-error alert-soft">
 		{page.status === 404 ? fr.app.notFound : fr.app.error}
 	</p>
-	<a class="btn self-start" href={resolve('/')}>{fr.app.home}</a>
+	<a class="btn btn-soft btn-primary self-start" href={resolve('/')}>{fr.app.home}</a>
 </main>
