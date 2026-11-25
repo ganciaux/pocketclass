@@ -58,12 +58,17 @@ Tout est poussé sur `main`, rien n'est déployé depuis le mot de passe parent.
 Fait (2026-11-25) : séries de 10 questions (formule A) avec score, « Refaire mes erreurs »,
 nouveaux types (relier, vrai/faux, classer) et explication après chaque réponse, dernier et
 meilleur score sur la fiche, carte « Entraînement » sur la page de l'enfant côté parent ;
-défi chronométré de 60 s (formule C) avec record par fiche.
+défi chronométré de 60 s (formule C) avec record par fiche ; générateurs d'exercices (25, en
+4 familles : calcul, algèbre, géométrie, conversions), choisis par l'IA dans le JSON, qui
+complètent les séries et rendent le défi illimité (conception :
+`docs/superpowers/specs/2026-11-25-generators-design.md`).
 
 Ensuite :
 - « jusqu'à maîtrise » (formule B, plus tard) ;
-- générateurs `fractions.*` (entraînement illimité) ;
-- trous à choisir dans une liste (aujourd'hui saisis au clavier).
+- trous à choisir dans une liste (aujourd'hui saisis au clavier) ;
+- générateurs : un exemple de question générée dans l'aperçu d'import ; une saisie
+  d'expression (développer, factoriser) au lieu du QCM ; d'autres familles (statistiques,
+  probabilités, proportionnalité, physique-chimie).
 
 ## Idées mises de côté
 
