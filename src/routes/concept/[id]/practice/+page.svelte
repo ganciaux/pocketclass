@@ -8,12 +8,13 @@
 	import LoadState from '#lib/components/LoadState.svelte';
 	import { watchConcept } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import { saveSeries, watchPlayableExercises } from '#lib/data/practice.ts';
+	import { saveSeries, watchPracticeSet } from '#lib/data/practice.ts';
 	import { watchConceptProgress } from '#lib/data/progress.ts';
 	import type { ConceptRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import type { PlayableExercise } from '#lib/practice/answers.ts';
-	import { buildSeries, scoreOf, shuffle, wrongIds, type Result } from '#lib/practice/series.ts';
+	import { buildPracticeSeries, isEmpty, type PracticeSet } from '#lib/practice/generated.ts';
+	import { scoreOf, shuffle, wrongIds, type Result } from '#lib/practice/series.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -23,8 +24,8 @@
 	const conceptLive = live(
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
-	const exercisesLive = live(
-		() => session.familyId && conceptId && watchPlayableExercises(session.familyId, conceptId)
+	const setLive = live(
+		() => session.familyId && conceptId && watchPracticeSet(session.familyId, conceptId)
 	);
 	// Whose scores: a signed-in child, or the parent testing as a child (else not saved).
 	const profileId = $derived(session.childView?.ownerId ?? null);
@@ -47,8 +48,9 @@
 	const finished = $derived(series.length > 0 && index >= series.length);
 	const score = $derived(scoreOf(results));
 
-	function start(exercises: PlayableExercise[], replay = false) {
-		series = replay ? shuffle(exercises) : buildSeries(exercises);
+	/** Plays these questions (a new series, or a replay of the mistakes). */
+	function play(questions: PlayableExercise[], replay = false) {
+		series = questions;
 		retrying = replay;
 		results = [];
 		index = 0;
@@ -56,11 +58,12 @@
 		round++;
 	}
 
+	const start = (set: PracticeSet) => play(buildPracticeSeries(set));
+
 	// First series once the exercises are there (later catalogue changes do not restart it).
 	$effect(() => {
-		const exercises = exercisesLive.data;
-		if (exercises && untrack(() => round) === 0 && exercises.length > 0)
-			untrack(() => start(exercises));
+		const set = setLive.data;
+		if (set && untrack(() => round) === 0 && !isEmpty(set)) untrack(() => start(set));
 	});
 
 	function answer(correct: boolean) {
@@ -81,10 +84,7 @@
 
 	function retryWrong() {
 		const wrong = new Set(wrongIds(results));
-		start(
-			series.filter((e) => wrong.has(e.id)),
-			true
-		);
+		play(shuffle(series.filter((e) => wrong.has(e.id))), true);
 	}
 </script>
 
@@ -103,9 +103,9 @@
 				<h1>{@html renderInline(concept.title)}</h1>
 			</header>
 
-			<LoadState source={exercisesLive} failed={t.loadFailed}>
-				{#snippet children(exercises)}
-					{#if exercises.length === 0}
+			<LoadState source={setLive} failed={t.loadFailed}>
+				{#snippet children(set)}
+					{#if isEmpty(set)}
 						<p class="alert alert-info alert-soft">{t.empty}</p>
 					{:else if finished}
 						{@const wrong = wrongIds(results).length}
@@ -122,7 +122,7 @@
 									{/if}
 									<button
 										class={['btn', wrong > 0 ? 'btn-outline' : 'btn-primary']}
-										onclick={() => start(exercises)}
+										onclick={() => start(set)}
 									>
 										{t.newSeries}
 									</button>

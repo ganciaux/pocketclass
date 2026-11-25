@@ -6,7 +6,7 @@
 	import LoadState from '#lib/components/LoadState.svelte';
 	import { watchConcept } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import { saveChallenge, watchPlayableExercises } from '#lib/data/practice.ts';
+	import { saveChallenge, watchPracticeSet } from '#lib/data/practice.ts';
 	import { watchConceptProgress } from '#lib/data/progress.ts';
 	import type { ConceptRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
@@ -15,9 +15,10 @@
 		CHALLENGE_MAX_ANSWERS,
 		CHALLENGE_MIN_EXERCISES,
 		CHALLENGE_SECONDS,
-		challengePool,
-		challengeQueue
+		canChallenge,
+		challengeDraw
 	} from '#lib/practice/challenge.ts';
+	import type { PracticeSet } from '#lib/practice/generated.ts';
 	import { scoreOf, type Result } from '#lib/practice/series.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
@@ -28,8 +29,8 @@
 	const conceptLive = live(
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
-	const exercisesLive = live(
-		() => session.familyId && conceptId && watchPlayableExercises(session.familyId, conceptId)
+	const setLive = live(
+		() => session.familyId && conceptId && watchPracticeSet(session.familyId, conceptId)
 	);
 	const profileId = $derived(session.childView?.ownerId ?? null);
 	const progressLive = live(
@@ -65,9 +66,9 @@
 	}
 	onDestroy(stopTimers);
 
-	function start(pool: PlayableExercise[], concept: WithId<ConceptRecord>) {
+	function start(set: PracticeSet, concept: WithId<ConceptRecord>) {
 		sheet = concept;
-		next = challengeQueue(pool);
+		next = challengeDraw(set);
 		results = [];
 		previousRecord = record;
 		current = next();
@@ -122,20 +123,16 @@
 				<h1>{@html renderInline(concept.title)}</h1>
 			</header>
 
-			<LoadState source={exercisesLive} failed={fr.practice.loadFailed}>
-				{#snippet children(exercises)}
-					{@const pool = challengePool(exercises)}
-					{#if pool.length < CHALLENGE_MIN_EXERCISES}
+			<LoadState source={setLive} failed={fr.practice.loadFailed}>
+				{#snippet children(set)}
+					{#if !canChallenge(set)}
 						<p class="alert alert-info alert-soft">{t.tooFew(CHALLENGE_MIN_EXERCISES)}</p>
 					{:else if phase === 'ready'}
 						<section class="card card-border bg-base-100">
 							<div class="card-body items-center gap-4 text-center">
 								<p>{t.help(CHALLENGE_SECONDS)}</p>
 								<p class="font-bold">{record !== null ? t.record(record) : t.noRecord}</p>
-								<button
-									class="btn btn-primary btn-lg btn-wide"
-									onclick={() => start(pool, concept)}
-								>
+								<button class="btn btn-primary btn-lg btn-wide" onclick={() => start(set, concept)}>
 									{t.start}
 								</button>
 							</div>
@@ -188,7 +185,7 @@
 									<p class="text-sm text-base-content/60">{fr.practice.notSaved}</p>
 								{/if}
 								<div class="flex w-full flex-col gap-2 pt-2">
-									<button class="btn btn-primary" onclick={() => start(pool, concept)}>
+									<button class="btn btn-primary" onclick={() => start(set, concept)}>
 										{t.again}
 									</button>
 									<a class="btn btn-ghost" href={resolve('/concept/[id]', { id: concept.id })}>

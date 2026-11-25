@@ -7,7 +7,7 @@ export type Random = () => number;
 
 type Candidate = { usage: string; type: string; archived?: boolean };
 
-/** Active practice exercises the player can show (no assessment, no generator yet). */
+/** Active practice exercises the player can show as they are (a generator: see `generated.ts`). */
 export const playable = <E extends Candidate>(exercises: E[]) =>
 	exercises.filter(
 		(e): e is Exclude<E, { type: 'generator' }> =>

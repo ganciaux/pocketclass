@@ -1,3 +1,5 @@
+import type { PlayableExercise } from './answers.ts';
+import { generatedDraw, type GeneratorExercise, type PracticeSet } from './generated.ts';
 import { shuffle, type Random } from './series.ts';
 
 /**
@@ -33,6 +35,28 @@ export function challengeQueue<E extends { id: string }>(pool: E[], random: Rand
 		const next = queue.shift()!;
 		previous = next.id;
 		return next;
+	};
+}
+
+/** Enough to play: a generator (endless questions), or enough quick written exercises. */
+export const canChallenge = (set: PracticeSet) =>
+	set.generators.length > 0 || challengePool(set.written).length >= CHALLENGE_MIN_EXERCISES;
+
+/**
+ * The challenge's questions: quick written exercises and generators in the queue; each time a
+ * generator comes up, it makes a new question.
+ */
+export function challengeDraw(set: PracticeSet, random: Random = Math.random) {
+	const queue = challengeQueue<PlayableExercise | GeneratorExercise>(
+		[...challengePool(set.written), ...set.generators],
+		random
+	);
+	const draw = generatedDraw(random);
+	// Generated questions already asked in this challenge: not asked again (when possible).
+	const seen = new Set<string>();
+	return (): PlayableExercise | null => {
+		const next = queue();
+		return next?.type === 'generator' ? draw(next, seen) : next;
 	};
 }
 

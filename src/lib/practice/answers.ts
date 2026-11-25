@@ -7,7 +7,7 @@ import type { Exercise } from '#lib/schemas/common.ts';
  * value, but a wrong value is never accepted.
  */
 
-/** An exercise the player can show (generators come later). */
+/** An exercise the player can show (a generator is played through the questions it makes). */
 export type PlayableExercise = Exclude<Exercise, { type: 'generator' }>;
 export type PlayableType = PlayableExercise['type'];
 

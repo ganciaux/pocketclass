@@ -162,7 +162,7 @@ export const fr = {
 		help: (seconds: number) =>
 			`Réponds juste au plus grand nombre de questions en ${seconds} secondes. Une erreur ne fait pas perdre de point.`,
 		tooFew: (min: number) =>
-			`Il faut au moins ${min} questions rapides (QCM, vrai/faux, calcul) sur cette fiche pour le défi.`,
+			`Il faut au moins ${min} questions rapides (QCM, vrai/faux, calcul) ou un exercice généré sur cette fiche pour le défi.`,
 		record: (n: number) => `Ton record : ${plural(n, 'bonne réponse', 'bonnes réponses')}`,
 		noRecord: 'Pas encore de record : à toi de jouer !',
 		start: "C'est parti !",

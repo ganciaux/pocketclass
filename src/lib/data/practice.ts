@@ -1,8 +1,8 @@
 import { doc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
-import type { PlayableExercise } from '#lib/practice/answers.ts';
 import { newRecord } from '#lib/practice/challenge.ts';
-import { betterScore, playable, scoreOf, type Result } from '#lib/practice/series.ts';
+import { practiceSet, type PracticeSet } from '#lib/practice/generated.ts';
+import { betterScore, scoreOf, type Result } from '#lib/practice/series.ts';
 import { querySource, type Subscribe } from './sources.ts';
 import { attemptsCol, exercisesCol, progressRef } from './refs.ts';
 import type { AttemptMode, ConceptRecord, PracticeScore, WithId } from './types.ts';
@@ -12,13 +12,10 @@ import { inBackground } from './writes.ts';
 
 type SheetRef = Pick<WithId<ConceptRecord>, 'id' | 'subjectId' | 'chapterId'>;
 
-/** Active practice exercises of a sheet that the player can show (stored flat: id + fields). */
-export function watchPlayableExercises(
-	familyId: string,
-	conceptId: string
-): Subscribe<PlayableExercise[]> {
+/** What a sheet offers to practise: written exercises and generators (stored flat: id + fields). */
+export function watchPracticeSet(familyId: string, conceptId: string): Subscribe<PracticeSet> {
 	const exercises = querySource(exercisesCol(familyId, conceptId));
-	return (onData, onError) => exercises((docs) => onData(playable(docs)), onError);
+	return (onData, onError) => exercises((docs) => onData(practiceSet(docs)), onError);
 }
 
 export interface SeriesToSave {
