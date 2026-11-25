@@ -75,6 +75,14 @@ Ensuite :
 Notées telles quelles, sans décision. La colonne « À savoir » relie chaque idée à ce qui
 existe déjà ou signale ce qu'il faudra trancher.
 
+### Charte graphique et mise en forme (à faire, demandé le 2026-11-25)
+
+| Idée | À savoir |
+| --- | --- |
+| Revoir la mise en forme des liens de liste côté parent : matières sur `/parent/subjects`, chapitres sur `/parent/subjects/[id]`, fiches sur `/parent/chapters/[id]`. | Aujourd'hui des lignes avec `OrderActions` (↑ ↓ masquer supprimer). Viser le même style que les cartes enfant (bordure moutarde et titre souligné au survol) sans gêner les boutons d'action. |
+| Une charte de couleurs des boutons selon l'action. | À fixer une fois pour toutes dans `CLAUDE.md` (styling), par ex. : principale = moutarde plein, navigation = moutarde doux, secondaire = ghost, suppression = rouge doux, validation = vert. Puis passer sur toutes les pages. |
+| Colorer les filtres de `/chapter/[id]` selon l'état : Toutes = jaune, Acquises = vert, Ratées = rouge, etc. ; renommer « Commencées » en « En cours ». | Reprendre les couleurs des repères du parcours et des badges (`SheetStateBadge`) pour que filtre, badge et repère d'une même fiche aient la même couleur. |
+
 ### Vue enfant et navigation
 
 | Idée | À savoir |
@@ -90,7 +98,7 @@ existe déjà ou signale ce qu'il faudra trancher.
 
 | Idée | À savoir |
 | --- | --- |
-| Des cartes mentales simples, sur une page, avec un lien pour tester la notion sur 3 à 5 exemples. | Prévoir une dizaine d'exemples par notion et en tirer 3 à 5 sans retomber sur les mêmes ; quand tous sont sortis, on recommence (tirage sans remise). Il faut mémoriser par enfant ce qui est déjà sorti. Proche de l'entraînement de la phase 2. |
+| Des cartes mentales simples, sur une page, avec un lien pour tester la notion sur 3 à 5 exemples. **À prévoir** (demandé à nouveau le 2026-11-25). | Prévoir une dizaine d'exemples par notion et en tirer 3 à 5 sans retomber sur les mêmes ; quand tous sont sortis, on recommence (tirage sans remise). Il faut mémoriser par enfant ce qui est déjà sorti. Proche de l'entraînement de la phase 2. |
 
 ### Points et historique (phase 3)
 
