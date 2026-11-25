@@ -11,6 +11,7 @@ import {
 import { deleteInBatches } from './batches.ts';
 import {
 	assessmentRef,
+	attemptsCol,
 	chapterRef,
 	chaptersCol,
 	conceptRef,
@@ -24,7 +25,7 @@ import {
 
 // Parent deletions of the binder (online, awaited, after a typed confirmation). Hiding
 // (`archived`) stays the reversible option; these remove the content for good, with what
-// hangs on it: exercises, assessment, and the children's progress and notes on those sheets
+// hangs on it: exercises, assessment, and the children's progress, attempts and notes on those sheets
 // (and their notes on the deleted chapters and subject).
 // Reads come from the server (getDocs) so nothing written elsewhere is left behind.
 
@@ -57,12 +58,14 @@ async function sheetRefs(
 		Promise.all(sheetIds.map((id) => refsOf(exercisesCol(familyId, id)))),
 		Promise.all(
 			profiles.map(async (profile) => {
-				const [progress, notes] = await Promise.all([
+				const [progress, notes, attempts] = await Promise.all([
 					getDocs(progressCol(familyId, profile.id)),
-					getDocs(notesCol(familyId, profile.id))
+					getDocs(notesCol(familyId, profile.id)),
+					getDocs(attemptsCol(familyId, profile.id))
 				]);
 				return [
 					...progress.docs.filter((d) => ids.has(d.id)),
+					...attempts.docs.filter((d) => ids.has(d.data().conceptId)),
 					...notes.docs.filter((d) => noteGoes(d.data()))
 				].map((d) => d.ref);
 			})

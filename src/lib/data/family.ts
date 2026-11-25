@@ -20,6 +20,7 @@ import {
 	profileRef,
 	profilesCol,
 	progressCol,
+	attemptsCol,
 	userRef
 } from './refs.ts';
 import type { Grade, Profile, ProfileLook, UserIndex, WithId } from './types.ts';
@@ -115,7 +116,8 @@ export async function deleteChildProfile(familyId: string, profileId: string): P
 	const [devices, ...owned] = await Promise.all([
 		getDocs(query(devicesCol(familyId), where('profileId', '==', profileId))),
 		getDocs(progressCol(familyId, profileId)),
-		getDocs(notesCol(familyId, profileId))
+		getDocs(notesCol(familyId, profileId)),
+		getDocs(attemptsCol(familyId, profileId))
 	]);
 	await deleteInBatches([
 		...devices.docs.map((d) => d.ref),
@@ -127,12 +129,13 @@ export async function deleteChildProfile(familyId: string, profileId: string): P
 /**
  * Parent action (online): clears what the parent did while testing as a child (child test
  * mode writes on the parent's own profile). Reads from the server, like a profile deletion.
- * Phases 2–3: add the parent's attempts and points here when they exist.
+ * Phase 3: add the parent's points here when they exist.
  */
 export async function resetTestData(familyId: string, profileId: string): Promise<void> {
 	const owned = await Promise.all([
 		getDocs(progressCol(familyId, profileId)),
-		getDocs(notesCol(familyId, profileId))
+		getDocs(notesCol(familyId, profileId)),
+		getDocs(attemptsCol(familyId, profileId))
 	]);
 	await deleteInBatches(owned.flatMap((snap) => snap.docs.map((d) => d.ref)));
 }

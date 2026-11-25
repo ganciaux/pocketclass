@@ -71,6 +71,32 @@ export interface ProgressRecord {
 	openedAt?: Timestamp | null;
 	readAt?: Timestamp | null;
 	acquiredAt?: Timestamp | null;
+	/** Practice (phase 2): last and best series score, time of the last series. */
+	practiceLast?: PracticeScore;
+	practiceBest?: PracticeScore;
+	practicedAt?: Timestamp | null;
+}
+
+export interface PracticeScore {
+	correct: number;
+	total: number;
+}
+
+export const ATTEMPT_MODES = ['series', 'timed'] as const;
+export type AttemptMode = (typeof ATTEMPT_MODES)[number];
+
+/**
+ * families/{familyId}/profiles/{profileId}/attempts/{attemptId}: one practice series (created
+ * once, never changed). Kept as a history; the scores shown come from the progress document.
+ */
+export interface AttemptRecord extends PracticeScore {
+	conceptId: string;
+	subjectId: string;
+	chapterId: string;
+	mode: AttemptMode;
+	answers: { exerciseId: string; correct: boolean }[];
+	/** Null while the write is pending (server timestamp). */
+	createdAt: Timestamp | null;
 }
 
 export const NOTE_STATUSES = ['open', 'seen', 'resolved'] as const;

@@ -338,6 +338,54 @@ describe('child writes', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), opened));
 	});
 
+	it('record practice scores and create (never change) their attempts', async () => {
+		const kid = as('kid-phone');
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		const scores = {
+			...where,
+			practiceLast: { correct: 7, total: 10 },
+			practiceBest: { correct: 9, total: 10 },
+			practicedAt: serverTimestamp()
+		};
+		await assertSucceeds(setDoc(at(kid, `${lea}/progress/c2`), scores, { merge: true }));
+		await assertSucceeds(setDoc(at(kid, `${lea}/progress/c2`), scores, { merge: true }));
+		await assertFails(
+			setDoc(
+				at(kid, `${lea}/progress/c3`),
+				{ ...where, practiceBest: { correct: 11, total: 10 } },
+				{ merge: true }
+			)
+		);
+		await assertFails(
+			setDoc(
+				at(kid, `${lea}/progress/c3`),
+				{ ...where, practiceBest: { correct: 1, total: 1, points: 50 } },
+				{ merge: true }
+			)
+		);
+
+		const attempt = {
+			conceptId: 'c2',
+			...where,
+			mode: 'series',
+			correct: 1,
+			total: 2,
+			answers: [
+				{ exerciseId: 'e1', correct: true },
+				{ exerciseId: 'e2', correct: false }
+			],
+			createdAt: serverTimestamp()
+		};
+		await assertSucceeds(setDoc(at(kid, `${lea}/attempts/a1`), attempt));
+		await assertSucceeds(getDoc(at(kid, `${lea}/attempts/a1`)));
+		await assertFails(updateDoc(at(kid, `${lea}/attempts/a1`), { correct: 2 }));
+		await assertFails(deleteDoc(at(kid, `${lea}/attempts/a1`)));
+		await assertFails(setDoc(at(kid, `${lea}/attempts/a2`), { ...attempt, correct: 3 }));
+		await assertFails(setDoc(at(kid, `${lea}/attempts/a2`), { ...attempt, mode: 'exam' }));
+		await assertFails(setDoc(at(kid, `${lea}/attempts/a2`), { ...attempt, points: 10 }));
+		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/attempts/a2`), attempt));
+	});
+
 	it('only the parent stamps a sheet as acquired; the child still opens and reads it', async () => {
 		const kid = as('kid-phone');
 		const parent = as('alice');
@@ -425,7 +473,7 @@ describe('child writes', () => {
 describe('parent test mode', () => {
 	const own = `families/${FAMILY}/profiles/alice`;
 
-	it('the parent records and clears test progress and notes on their own profile', async () => {
+	it('the parent records and clears test progress, notes and attempts on their own profile', async () => {
 		const alice = as('alice');
 		const progress = { subjectId: 'maths', chapterId: 'ch1', openedAt: serverTimestamp() };
 		const note = {
@@ -442,5 +490,8 @@ describe('parent test mode', () => {
 		await assertFails(getDoc(at(as('kid-phone'), `${own}/progress/c1`)));
 		await assertSucceeds(deleteDoc(at(alice, `${own}/progress/c1`)));
 		await assertSucceeds(deleteDoc(at(alice, `${own}/notes/t1`)));
+		const attempt = { conceptId: 'c1', mode: 'series', correct: 0, total: 0, answers: [] };
+		await assertSucceeds(setDoc(at(alice, `${own}/attempts/t1`), attempt));
+		await assertSucceeds(deleteDoc(at(alice, `${own}/attempts/t1`)));
 	});
 });

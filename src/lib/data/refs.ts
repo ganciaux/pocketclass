@@ -9,6 +9,7 @@ import { db } from '#lib/firebase.ts';
 import { COLLECTIONS, ROOT } from './collections.ts';
 import type {
 	AssessmentRecord,
+	AttemptRecord,
 	Chapter,
 	ConceptRecord,
 	Device,
@@ -64,6 +65,9 @@ export const notesCol = (familyId: string, profileId: string) =>
 	familyCol<Note>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.notes);
 export const noteRef = (familyId: string, profileId: string, noteId: string) =>
 	typedDoc<Note>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.notes, noteId);
+
+export const attemptsCol = (familyId: string, profileId: string) =>
+	familyCol<AttemptRecord>(familyId, COLLECTIONS.profiles, profileId, COLLECTIONS.attempts);
 
 export const subjectsCol = (familyId: string) => familyCol<Subject>(familyId, COLLECTIONS.subjects);
 export const subjectRef = (familyId: string, subjectId: string) =>

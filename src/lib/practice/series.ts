@@ -8,8 +8,11 @@ export type Random = () => number;
 type Candidate = { usage: string; type: string; archived?: boolean };
 
 /** Active practice exercises the player can show (no assessment, no generator yet). */
-export const playable = <E extends Candidate>(exercises: E[]): E[] =>
-	exercises.filter((e) => e.usage === 'practice' && e.type !== 'generator' && !e.archived);
+export const playable = <E extends Candidate>(exercises: E[]) =>
+	exercises.filter(
+		(e): e is Exclude<E, { type: 'generator' }> =>
+			e.usage === 'practice' && e.type !== 'generator' && !e.archived
+	);
 
 /** Fisher–Yates shuffle into a new array. */
 export function shuffle<T>(items: readonly T[], random: Random = Math.random): T[] {

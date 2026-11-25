@@ -149,20 +149,39 @@ service cloud.firestore {
         }
 
         // Sheet opened / read (id = concept id).
-        // Opened / read by the child. `acquiredAt` (the « Acquise » stamp) is the parent's:
+        // Opened / read by the child, with the last and best practice scores. `acquiredAt` (the « Acquise » stamp) is the parent's:
         // the child keeps writing a stamped document but never sets, changes or removes it.
         match /progress/{conceptId} {
           allow create: if isOwnDevice(familyId, profileId)
-            && request.resource.data.keys().hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt'])
+            && request.resource.data.keys().hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt',
+              'practiceLast', 'practiceBest', 'practicedAt'])
             && request.resource.data.subjectId is string
-            && request.resource.data.chapterId is string;
+            && request.resource.data.chapterId is string
+            && validPracticeScores();
           allow update: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys()
-              .hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt'])
+              .hasOnly(['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt',
+                'practiceLast', 'practiceBest', 'practicedAt'])
             && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['acquiredAt'])
             && request.resource.data.subjectId is string
-            && request.resource.data.chapterId is string;
+            && request.resource.data.chapterId is string
+            && validPracticeScores();
           allow delete: if isOwnDevice(familyId, profileId) && !('acquiredAt' in resource.data);
+        }
+
+        // One finished practice series (history): created once, never changed by the child.
+        match /attempts/{attemptId} {
+          allow create: if isOwnDevice(familyId, profileId)
+            && request.resource.data.keys().hasOnly(['conceptId', 'subjectId', 'chapterId', 'mode',
+              'correct', 'total', 'answers', 'createdAt'])
+            && request.resource.data.conceptId is string
+            && request.resource.data.subjectId is string
+            && request.resource.data.chapterId is string
+            && request.resource.data.mode in ['series', 'timed']
+            && validScore(request.resource.data)
+            && request.resource.data.answers is list
+            && request.resource.data.answers.size() == request.resource.data.total
+            && request.resource.data.createdAt == request.time;
         }
 
         // What the child found difficult (on a sheet, a chapter, a subject or free). Created
@@ -200,6 +219,23 @@ service cloud.firestore {
     // string, null, or absent (older notes have no `subjectId`).
     function nullableId(data, field) {
       return data.get(field, null) == null || data.get(field, null) is string;
+    }
+
+    // A practice score: 0 <= correct <= total <= 100.
+    function validScore(score) {
+      return score.correct is int && score.total is int
+        && score.correct >= 0 && score.correct <= score.total && score.total <= 100;
+    }
+
+    function optionalScore(data, field) {
+      return !(field in data)
+        || (data[field] is map && data[field].keys().hasOnly(['correct', 'total'])
+          && validScore(data[field]));
+    }
+
+    function validPracticeScores() {
+      return optionalScore(request.resource.data, 'practiceLast')
+        && optionalScore(request.resource.data, 'practiceBest');
     }
 
     function validNoteText() {

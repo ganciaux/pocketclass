@@ -17,5 +17,6 @@ export const COLLECTIONS = {
 	exercises: 'exercises',
 	assessments: 'assessments',
 	progress: 'progress',
-	notes: 'notes'
+	notes: 'notes',
+	attempts: 'attempts'
 } as const;
