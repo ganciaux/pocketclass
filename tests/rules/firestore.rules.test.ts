@@ -495,6 +495,51 @@ describe('child writes', () => {
 		);
 	});
 
+	it('a first pass may create the progress; defaults when the sheet has no assessment document', async () => {
+		await env.withSecurityRulesDisabled(async (ctx) => {
+			const db = ctx.firestore();
+			const keyPoints = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+			// c5: imported before assessments (no document): 70 %, 10 points per key point.
+			await setDoc(doc(db, `families/${FAMILY}/concepts/c5`), { keyPoints, archived: false });
+			// c6: the parent set the amount.
+			await setDoc(doc(db, `families/${FAMILY}/concepts/c6`), { keyPoints, archived: false });
+			await setDoc(doc(db, `families/${FAMILY}/assessments/c6`), { type: 'test', points: 5 });
+			await updateDoc(doc(db, lea), { points: 0 });
+		});
+		const kid = as('kid-phone');
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		/** First pass on a sheet never opened: the progress document is created by the batch. */
+		const pass = (sheet: string, correct: number, amount: number) => {
+			const batch = writeBatch(kid);
+			batch.set(at(kid, `${lea}/progress/${sheet}`), {
+				...where,
+				assessmentLast: { correct, total: 10 },
+				assessmentBest: { correct, total: 10 },
+				assessedAt: serverTimestamp(),
+				acquiredAt: serverTimestamp(),
+				assessmentPoints: amount
+			});
+			batch.set(at(kid, `${lea}/pointsLedger/assessment-${sheet}`), {
+				kind: 'assessment',
+				conceptId: sheet,
+				...where,
+				amount,
+				createdAt: serverTimestamp()
+			});
+			batch.update(at(kid, lea), {
+				points: increment(amount),
+				lastEarningId: `assessment-${sheet}`
+			});
+			return batch.commit();
+		};
+		await assertFails(pass('c5', 6, 30)); // under 70 %
+		await assertSucceeds(pass('c5', 7, 30));
+		await assertFails(pass('c6', 9, 30)); // the parent's amount is 5
+		await assertSucceeds(pass('c6', 9, 5));
+		const profile = await getDoc(at(kid, lea));
+		if (profile.data()?.points !== 35) throw new Error(`points: ${profile.data()?.points}`);
+	});
+
 	it('only the parent stamps a sheet without a passed assessment; the child still opens and reads it', async () => {
 		const kid = as('kid-phone');
 		const parent = as('alice');
@@ -602,5 +647,11 @@ describe('parent test mode', () => {
 		const attempt = { conceptId: 'c1', mode: 'series', correct: 0, total: 0, answers: [] };
 		await assertSucceeds(setDoc(at(alice, `${own}/attempts/t1`), attempt));
 		await assertSucceeds(deleteDoc(at(alice, `${own}/attempts/t1`)));
+		// Points earned in test, then taken back by « Remettre à zéro ».
+		const line = { kind: 'assessment', conceptId: 'c1', amount: 30, createdAt: serverTimestamp() };
+		await assertSucceeds(setDoc(at(alice, `${own}/pointsLedger/assessment-c1`), line));
+		await assertSucceeds(setDoc(at(alice, own), { points: 30, lastEarningId: 'assessment-c1' }));
+		await assertSucceeds(deleteDoc(at(alice, `${own}/pointsLedger/assessment-c1`)));
+		await assertSucceeds(updateDoc(at(alice, own), { points: 0, lastEarningId: deleteField() }));
 	});
 });
