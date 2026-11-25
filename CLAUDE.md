@@ -100,8 +100,10 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   note was written) = `.link-text` (highlighter swipe); a subject picture that is a link =
   `.link-icon` (tilts). Several things opening the same page light up together (chapter path:
   the step bubble is a link too, `group-hover` on the card and a ring on the bubble). Tags fill
-  in mustard. Hide / show = eye-off / eye icon (`UI_ICONS.eyeOff` / `eye`, icon-only with a
-  `title` in list rows). The home binders (`.binder-card`) are the one hover motion: they slide
+  in mustard. Hide / show: the eye shows the **current state**, as in
+  layer panels (open `UI_ICONS.eye` = visible to children, `eyeOff` = hidden; the click
+  toggles), the `title` / text names the action (« Masquer » / « Afficher »); icon-only in list
+  rows. The home binders (`.binder-card`) are the one hover motion: they slide
   up and their picture tilts. No other hover animation.
 - **Child writes** (progress, notes, profile look) and **parent binder edits** (subjects,
   chapters, order, hide) go through `inBackground()` (`data/writes.ts`): not awaited, so they

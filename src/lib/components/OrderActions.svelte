@@ -53,7 +53,7 @@
 		aria-label={archived ? t.show : t.hide}
 		onclick={() => onarchive(!archived)}
 	>
-		<Icon paths={archived ? UI_ICONS.eye : UI_ICONS.eyeOff} class="size-4" />
+		<Icon paths={archived ? UI_ICONS.eyeOff : UI_ICONS.eye} class="size-4" />
 	</button>
 	{#if ondelete}
 		<button class="btn btn-soft btn-error btn-xs" onclick={ondelete}>

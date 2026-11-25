@@ -135,7 +135,7 @@
 						class="btn btn-ghost btn-sm"
 						onclick={() => setArchived(familyId, 'chapters', chapter.id, !chapter.archived)}
 					>
-						<Icon paths={chapter.archived ? UI_ICONS.eye : UI_ICONS.eyeOff} class="size-4" />
+						<Icon paths={chapter.archived ? UI_ICONS.eyeOff : UI_ICONS.eye} class="size-4" />
 						{chapter.archived ? t.show : t.hide}
 					</button>
 				</div>
