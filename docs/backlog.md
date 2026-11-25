@@ -77,6 +77,9 @@ Tout est poussé sur `main`. Si ce n'est pas encore fait :
 
 - Lancer `npm run prod` : il déploie l'app **et les règles Firestore** (nécessaires au tampon
   « Acquise », aux remarques n'importe où, à l'entraînement, au contrôle et aux points).
+  **Ne jamais déployer l'app seule (`deploy:app`) avant les règles** : depuis les statistiques,
+  ouvrir une fiche écrit aussi `openCount`, que les anciennes règles refusent (la fiche
+  resterait « nouvelle » sur le téléphone de l'enfant).
 - Vérifier sur la vraie app :
   - sur le téléphone d'un enfant : une série d'entraînement, un défi, un contrôle réussi
     (tampon + points) et un contrôle raté (« Raté », nouvel essai après une série) ;
@@ -84,6 +87,8 @@ Tout est poussé sur `main`. Si ce n'est pas encore fait :
   - rattacher un mot de passe au compte Google depuis « Mon profil », puis se connecter avec
     (l'emulator bloque ce rattachement) ;
   - sur le téléphone d'un enfant : ouvrir et marquer lue une fiche tamponnée « Acquise » ;
+  - statistiques : ouvrir deux fois une fiche et lancer une série sur le téléphone d'un enfant,
+    puis vérifier « 2 ouvertures » et « 1 terminé sur 1 » dans `/parent/stats` ;
   - le bouton « Une difficulté ? » sur iPhone (au-dessus de la barre du bas, zone sûre).
 - Facultatif : console Firebase → Authentication → Modèles, langue des e-mails en français
   (e-mail « mot de passe oublié »).
