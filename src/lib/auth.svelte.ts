@@ -68,6 +68,8 @@ class Session {
 	 * a child (that child's binder, the parent's own progress and notes). Null: parent view.
 	 */
 	childView = $derived(childViewOf(this.profile, this.#testChild));
+	/** Whose progress, notes, scores and points child pages read and write (null: parent view). */
+	ownerId = $derived(this.childView?.ownerId ?? null);
 
 	#started = false;
 	/** Incremented on each load: a slower previous load must not overwrite a newer one. */

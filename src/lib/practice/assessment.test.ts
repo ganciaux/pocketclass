@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { seeded } from '#lib/generators/random.ts';
-import type { Exercise } from '#lib/schemas/common.ts';
+import type { StoredExercise } from './generated.ts';
 import { correctionOf, exercisePrompt, type PlayableExercise } from './answers.ts';
 import {
 	assessmentOutcome,
@@ -11,35 +11,12 @@ import {
 	passed,
 	settingsOf
 } from './assessment.ts';
+import { storedGenerator, storedMcq } from './testing.ts';
 
-type Stored = Exercise & { archived?: boolean };
-
-const mcq = (id: string, keyPoint: string, extra: Partial<Stored> = {}) =>
-	({
-		id,
-		usage: 'assessment',
-		keyPoint,
-		difficulty: 1,
-		type: 'mcq',
-		question: `Q ${id}`,
-		answer: 'A',
-		distractors: ['B', 'C', 'D'],
-		archived: false,
-		...extra
-	}) as Stored;
-
-const gen = (id: string, keyPoint: string, extra: Partial<Stored> = {}) =>
-	({
-		id,
-		usage: 'practice',
-		keyPoint,
-		difficulty: 2,
-		type: 'generator',
-		generator: 'units.length',
-		params: {},
-		archived: false,
-		...extra
-	}) as Stored;
+const mcq = (id: string, keyPoint: string, extra: Partial<StoredExercise> = {}) =>
+	storedMcq(id, { usage: 'assessment', keyPoint, ...extra });
+const gen = (id: string, keyPoint: string, extra: Partial<StoredExercise> = {}) =>
+	storedGenerator(id, { keyPoint, ...extra });
 
 describe('settingsOf', () => {
 	it('uses the parent settings, else 70 % and 10 points per key point', () => {
@@ -55,7 +32,7 @@ describe('assessmentPool', () => {
 			mcq('a', 'kp1'),
 			mcq('b', 'kp1', { usage: 'practice' }),
 			mcq('c', 'kp1', { archived: true }),
-			{ ...mcq('d', 'kp1'), type: 'paper', instruction: 'Fais' } as Stored,
+			{ ...mcq('d', 'kp1'), type: 'paper', instruction: 'Fais' } as StoredExercise,
 			gen('g1', 'kp1'),
 			gen('g2', 'kp1', { generator: 'nope' }),
 			gen('g3', 'kp2', { usage: 'assessment' })

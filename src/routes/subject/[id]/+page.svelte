@@ -27,7 +27,7 @@
 	const t = fr.binder;
 	// Child pages: a signed-in child, or a parent testing as a child (see `session.childView`).
 	const asChild = $derived(session.childView !== null);
-	const ownerId = $derived(session.childView?.ownerId ?? null);
+	const ownerId = $derived(session.ownerId);
 	const subjectId = $derived(page.params.id ?? '');
 	const subjectLive = live(
 		() => session.familyId && subjectId && watchSubject(session.familyId, subjectId)

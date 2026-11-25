@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { session } from '#lib/auth.svelte.ts';
-	import BackLink from '#lib/components/BackLink.svelte';
+	import PlayerHeader from '#lib/components/PlayerHeader.svelte';
 	import ExercisePlayer from '#lib/components/exercises/ExercisePlayer.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import { watchConcept } from '#lib/data/catalog.ts';
@@ -20,7 +20,6 @@
 	} from '#lib/practice/challenge.ts';
 	import type { PracticeSet } from '#lib/practice/generated.ts';
 	import { scoreOf, type Result } from '#lib/practice/series.ts';
-	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
@@ -29,10 +28,10 @@
 	const conceptLive = live(
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
-	const setLive = live(
+	const practiceSetLive = live(
 		() => session.familyId && conceptId && watchPracticeSet(session.familyId, conceptId)
 	);
-	const profileId = $derived(session.childView?.ownerId ?? null);
+	const profileId = $derived(session.ownerId);
 	const progressLive = live(
 		() =>
 			session.familyId &&
@@ -117,13 +116,9 @@
 <main>
 	<LoadState source={conceptLive} notFound={fr.concept.notFound} failed={fr.concept.loadFailed}>
 		{#snippet children(concept)}
-			<BackLink href={resolve('/concept/[id]', { id: concept.id })} label={fr.practice.sheet} />
-			<header class="flex flex-col gap-1">
-				<span class="text-sm font-bold text-base-content/60">{t.title}</span>
-				<h1>{@html renderInline(concept.title)}</h1>
-			</header>
+			<PlayerHeader sheet={concept} label={t.title} />
 
-			<LoadState source={setLive} failed={fr.practice.loadFailed}>
+			<LoadState source={practiceSetLive} failed={fr.practice.loadFailed}>
 				{#snippet children(set)}
 					{#if !canChallenge(set)}
 						<p class="alert alert-info alert-soft">{t.tooFew(CHALLENGE_MIN_EXERCISES)}</p>

@@ -19,6 +19,12 @@ const IRREDUCIBLE = 'Calcule et donne le résultat sous forme irréductible : ';
 
 const lcm = (a: number, b: number) => (a / gcd(a, b)) * b;
 
+/** Both fractions over their least common denominator: numerators `na`, `nb` over `den`. */
+function commonDenominator(a: Fraction, b: Fraction) {
+	const den = lcm(a.den, b.den);
+	return { den, na: a.num * (den / a.den), nb: b.num * (den / b.den) };
+}
+
 /** A positive irreducible fraction that is not an integer, denominator ≤ `maxDen`. */
 const properish = (random: Random, maxDen: number) => overDen(random, int(random, 2, maxDen));
 
@@ -88,8 +94,7 @@ const fractionsAdd: Generator = {
 			difficulty === 1 ? chance(random, 0.3) && a.num * b.den > b.num * a.den : chance(random, 0.4);
 		const op = minus ? '-' : '+';
 		const result = minus ? subtract(a, b) : add(a, b);
-		const den = lcm(a.den, b.den);
-		const [na, nb] = [a.num * (den / a.den), b.num * (den / b.den)];
+		const { den, na, nb } = commonDenominator(a, b);
 		const raw = fraction(minus ? na - nb : na + nb, den);
 		const expression = `${fracTex(a)} ${op} ${fracTex(b)}`;
 		const explanation =
@@ -168,8 +173,7 @@ const fractionsCompare: Generator = {
 		const less = a.num * b.den < b.num * a.den;
 		const shown = chance(random) ? '<' : '>';
 		const truth = less ? '<' : '>';
-		const den = lcm(a.den, b.den);
-		const [na, nb] = [a.num * (den / a.den), b.num * (den / b.den)];
+		const { den, na, nb } = commonDenominator(a, b);
 		const conclusion = `donc $${fracTex(a)} ${truth} ${fracTex(b)}$.`;
 		return trueFalse(
 			`$${fracTex(a)} ${shown} ${fracTex(b)}$`,
@@ -230,6 +234,7 @@ const powersCompute: Generator = {
 	}
 };
 
+const SINGLE_POWER = "Écris sous la forme d'une seule puissance : ";
 const powerTex = (base: string, exp: number) => `${base}^{${exp}}`;
 const sumTex = (m: number, n: number, op: '+' | '-') => `${m} ${op} ${paren(n)}`;
 
@@ -253,7 +258,7 @@ const powersRules: Generator = {
 		const squared = numeric ? String(baseNumber * baseNumber) : `(${base}^{2})`;
 		if (kind === 'product') {
 			return mcq(
-				`Écris sous la forme d'une seule puissance : $${powerTex(base, m)} \\times ${powerTex(base, n)}$`,
+				`${SINGLE_POWER}$${powerTex(base, m)} \\times ${powerTex(base, n)}$`,
 				option(m + n),
 				[
 					...(m + n === 0 ? [] : [`$${squared}^{${m + n}}$`]),
@@ -267,14 +272,14 @@ const powersRules: Generator = {
 		}
 		if (kind === 'quotient') {
 			return mcq(
-				`Écris sous la forme d'une seule puissance : $\\frac{${powerTex(base, m)}}{${powerTex(base, n)}}$`,
+				`${SINGLE_POWER}$\\frac{${powerTex(base, m)}}{${powerTex(base, n)}}$`,
 				option(m - n),
 				[option(m + n), option(n - m), option(m * n), option(m - n + 1), option(m - n - 1)],
 				`On garde la base et on soustrait les exposants : $\\frac{${powerTex(base, m)}}{${powerTex(base, n)}} = ${base}^{${sumTex(m, n, '-')}} = ${powerTex(base, m - n)}$.`
 			);
 		}
 		return mcq(
-			`Écris sous la forme d'une seule puissance : $(${powerTex(base, m)})^{${n}}$`,
+			`${SINGLE_POWER}$(${powerTex(base, m)})^{${n}}$`,
 			option(m * n),
 			[option(m + n), option(m - n), option(m * n + 1), option(m * n - 1), option(m * n + 2)],
 			`On garde la base et on multiplie les exposants : $(${powerTex(base, m)})^{${n}} = ${base}^{${paren(m)} \\times ${paren(n)}} = ${powerTex(base, m * n)}$.`

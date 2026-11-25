@@ -2,7 +2,7 @@
 	import { untrack } from 'svelte';
 	import { session } from '#lib/auth.svelte.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
-	import BackLink from '#lib/components/BackLink.svelte';
+	import PlayerHeader from '#lib/components/PlayerHeader.svelte';
 	import ExercisePlayer from '#lib/components/exercises/ExercisePlayer.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
@@ -15,7 +15,6 @@
 	import type { PlayableExercise } from '#lib/practice/answers.ts';
 	import { buildPracticeSeries, isEmpty, type PracticeSet } from '#lib/practice/generated.ts';
 	import { scoreOf, shuffle, wrongIds, type Result } from '#lib/practice/series.ts';
-	import { renderInline } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
@@ -24,11 +23,11 @@
 	const conceptLive = live(
 		() => session.familyId && conceptId && watchConcept(session.familyId, conceptId)
 	);
-	const setLive = live(
+	const practiceSetLive = live(
 		() => session.familyId && conceptId && watchPracticeSet(session.familyId, conceptId)
 	);
 	// Whose scores: a signed-in child, or the parent testing as a child (else not saved).
-	const profileId = $derived(session.childView?.ownerId ?? null);
+	const profileId = $derived(session.ownerId);
 	const progressLive = live(
 		() =>
 			session.familyId &&
@@ -62,7 +61,7 @@
 
 	// First series once the exercises are there (later catalogue changes do not restart it).
 	$effect(() => {
-		const set = setLive.data;
+		const set = practiceSetLive.data;
 		if (set && untrack(() => round) === 0 && !isEmpty(set)) untrack(() => start(set));
 	});
 
@@ -95,15 +94,9 @@
 <main>
 	<LoadState source={conceptLive} notFound={fr.concept.notFound} failed={fr.concept.loadFailed}>
 		{#snippet children(concept)}
-			<BackLink href={resolve('/concept/[id]', { id: concept.id })} label={t.sheet} />
-			<header class="flex flex-col gap-1">
-				<span class="text-sm font-bold text-base-content/60">
-					{retrying ? t.retryRound : t.title}
-				</span>
-				<h1>{@html renderInline(concept.title)}</h1>
-			</header>
+			<PlayerHeader sheet={concept} label={retrying ? t.retryRound : t.title} />
 
-			<LoadState source={setLive} failed={t.loadFailed}>
+			<LoadState source={practiceSetLive} failed={t.loadFailed}>
 				{#snippet children(set)}
 					{#if isEmpty(set)}
 						<p class="alert alert-info alert-soft">{t.empty}</p>

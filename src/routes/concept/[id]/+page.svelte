@@ -36,7 +36,7 @@
 	);
 
 	// Whose progress and notes: a signed-in child, or the parent testing as a child.
-	const profileId = $derived(session.childView?.ownerId ?? null);
+	const profileId = $derived(session.ownerId);
 	const readLive = live(
 		() =>
 			session.familyId &&

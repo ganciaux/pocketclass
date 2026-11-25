@@ -1,37 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { seeded } from '#lib/generators/random.ts';
-import type { Exercise } from '#lib/schemas/common.ts';
 import { canChallenge, challengeDraw } from './challenge.ts';
-import { buildPracticeSeries, instantiate, isEmpty, practiceSet } from './generated.ts';
+import {
+	buildPracticeSeries,
+	instantiate,
+	isEmpty,
+	practiceSet,
+	type StoredExercise
+} from './generated.ts';
+import { storedGenerator, storedMcq } from './testing.ts';
 
-type Stored = Exercise & { archived?: boolean };
-
-const written = (id: string, extra: Partial<Stored> = {}) =>
-	({
-		id,
-		usage: 'practice',
-		keyPoint: 'kp',
-		difficulty: 1,
-		type: 'mcq',
-		question: 'Q',
-		answer: 'A',
-		distractors: ['B', 'C', 'D'],
-		archived: false,
-		...extra
-	}) as Stored;
-
-const generator = (id: string, name = 'units.length', extra: Partial<Stored> = {}) =>
-	({
-		id,
-		usage: 'practice',
-		keyPoint: 'kp',
-		difficulty: 2,
-		type: 'generator',
-		generator: name,
-		params: {},
-		archived: false,
-		...extra
-	}) as Stored;
+const written = storedMcq;
+const generator = (id: string, name = 'units.length', extra: Partial<StoredExercise> = {}) =>
+	storedGenerator(id, { generator: name, ...extra });
 
 describe('practiceSet', () => {
 	it('splits written exercises and known, active practice generators', () => {

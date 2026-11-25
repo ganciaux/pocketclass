@@ -1,4 +1,4 @@
-import { fraction, simplify, toString } from '#lib/math/fraction.ts';
+import { fraction, gcd, simplify, toString } from '#lib/math/fraction.ts';
 import { calculation, mcq } from './build.ts';
 import { fracTex, paren } from './format.ts';
 import { chance, int, nonZero, pick } from './random.ts';
@@ -253,10 +253,9 @@ const algebraIdentities: Generator = {
 function coprimePair(random: Random, max: number): [number, number] {
 	for (;;) {
 		const [p, q] = [int(random, 1, max), nonZero(random, -max, max)];
-		if (gcdOf(p, q) === 1) return [p, q];
+		if (gcd(p, q) === 1) return [p, q];
 	}
 }
-const gcdOf = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcdOf(b, a % b));
 
 const algebraFactor: Generator = {
 	id: 'algebra.factor',
@@ -302,7 +301,7 @@ const algebraFactor: Generator = {
 		}
 		const b = int(random, 1, 3);
 		let a = int(random, 1, 9);
-		while (gcdOf(a, b) !== 1) a = int(random, 1, 9); // fully factorised: no common factor left
+		while (gcd(a, b) !== 1) a = int(random, 1, 9); // fully factorised: no common factor left
 		const kind = pick(random, ['difference', 'plus', 'minus'] as const);
 		const [bb, ab2, aa] = [b * b, 2 * a * b, a * a];
 		if (kind === 'difference') {

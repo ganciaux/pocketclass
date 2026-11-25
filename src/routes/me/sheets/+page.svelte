@@ -17,7 +17,7 @@
 	// The sheets the child already opened (or the parent, testing as a child): latest first,
 	// searchable, filterable by subject, or one at random to revise.
 	const t = fr.seen;
-	const ownerId = $derived(session.childView?.ownerId ?? null);
+	const ownerId = $derived(session.ownerId);
 	const binderLive = live(
 		() => session.familyId && ownerId && watchBinder(session.familyId, ownerId)
 	);

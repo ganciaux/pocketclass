@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { seeded } from '#lib/generators/random.ts';
 import {
 	betterScore,
 	buildSeries,
@@ -8,12 +9,6 @@ import {
 	shuffle,
 	wrongIds
 } from './series.ts';
-
-/** Deterministic "random" numbers for the tests. */
-function seeded(seed = 1) {
-	let s = seed;
-	return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
-}
 
 const ex = (id: string, keyPoint: string, extra: Record<string, unknown> = {}) => ({
 	id,

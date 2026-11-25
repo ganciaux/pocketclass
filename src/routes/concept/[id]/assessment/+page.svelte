@@ -2,7 +2,7 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import AcquiredStamp from '#lib/components/AcquiredStamp.svelte';
-	import BackLink from '#lib/components/BackLink.svelte';
+	import PlayerHeader from '#lib/components/PlayerHeader.svelte';
 	import AnswerFeedback from '#lib/components/exercises/AnswerFeedback.svelte';
 	import ExercisePlayer from '#lib/components/exercises/ExercisePlayer.svelte';
 	import FailedStamp from '#lib/components/FailedStamp.svelte';
@@ -26,7 +26,7 @@
 	} from '#lib/practice/assessment.ts';
 	import { isEmpty, practiceSet } from '#lib/practice/generated.ts';
 	import { scoreOf, type Result } from '#lib/practice/series.ts';
-	import { renderInline, renderMarkdown } from '#lib/render/markdown.ts';
+	import { renderMarkdown } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
@@ -39,7 +39,7 @@
 		() => session.familyId && conceptId && watchAssessmentSetup(session.familyId, conceptId)
 	);
 	// Whose result: a signed-in child, or the parent testing as a child (else not saved).
-	const profileId = $derived(session.childView?.ownerId ?? null);
+	const profileId = $derived(session.ownerId);
 	const progressLive = live(
 		() =>
 			session.familyId &&
@@ -120,11 +120,7 @@
 <main>
 	<LoadState source={conceptLive} notFound={fr.concept.notFound} failed={fr.concept.loadFailed}>
 		{#snippet children(concept)}
-			<BackLink href={resolve('/concept/[id]', { id: concept.id })} label={fr.practice.sheet} />
-			<header class="flex flex-col gap-1">
-				<span class="text-sm font-bold text-base-content/60">{t.title}</span>
-				<h1>{@html renderInline(concept.title)}</h1>
-			</header>
+			<PlayerHeader sheet={concept} label={t.title} />
 
 			<LoadState source={setupLive} failed={t.loadFailed}>
 				{#snippet children(setup)}

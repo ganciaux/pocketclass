@@ -1,7 +1,7 @@
 import type { Random } from './types.ts';
 
 /** Deterministic random numbers (mulberry32), for tests and reproducible draws. */
-export function seeded(seed: number): Random {
+export function seeded(seed = 1): Random {
 	let a = seed >>> 0;
 	return () => {
 		a = (a + 0x6d2b79f5) >>> 0;

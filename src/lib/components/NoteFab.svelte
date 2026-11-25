@@ -16,7 +16,7 @@
 	 */
 	const t = fr.notes;
 	const familyId = $derived(session.familyId);
-	const ownerId = $derived(session.childView?.ownerId ?? null);
+	const ownerId = $derived(session.ownerId);
 	const context = $derived(ownerId ? noteContext(page.route.id, page.params) : null);
 
 	// Primitives for the sources: the chapter / subject named in the dialog.

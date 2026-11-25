@@ -12,7 +12,7 @@
 
 	// Parents see every subject of the family; children (or a parent testing as a child) see
 	// their binder with their progress.
-	const ownerId = $derived(session.childView?.ownerId ?? null);
+	const ownerId = $derived(session.ownerId);
 	const notesLive = live(
 		() => session.familyId && ownerId && watchNotes(session.familyId, ownerId)
 	);
