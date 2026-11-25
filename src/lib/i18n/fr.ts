@@ -105,6 +105,54 @@ export const fr = {
 		isRead: 'Fiche lue, bravo !',
 		markUnread: 'Marquer comme non lue'
 	},
+	practice: {
+		title: "S'entraîner",
+		sheet: 'La fiche',
+		loadFailed: "Impossible de charger l'entraînement.",
+		empty: "Cette fiche n'a pas encore d'exercice d'entraînement.",
+		progress: (n: number, total: number) => `Question ${n} / ${total}`,
+		retryRound: 'Mes erreurs',
+		check: 'Valider',
+		next: 'Suivant',
+		seeResult: 'Voir mon score',
+		true: 'Vrai',
+		false: 'Faux',
+		answerPlaceholder: 'Ta réponse',
+		blank: (n: number) => `Trou ${n}`,
+		moveUp: 'Monter',
+		moveDown: 'Descendre',
+		orderHelp: 'Remets dans le bon ordre avec les flèches.',
+		matchHelp: 'Touche un élément à gauche, puis celui qui va avec à droite.',
+		matchLinked: (n: number) => `relié au ${n}`,
+		categorizeHelp: 'Choisis la bonne catégorie pour chaque élément.',
+		showAnswer: 'Voir la réponse',
+		paperHelp: 'Fais-le sur papier, puis regarde la correction.',
+		showCorrection: 'Voir la correction',
+		noCorrection: 'Pas de correction fournie : vérifie avec ta fiche ou demande à un parent.',
+		knew: 'Je savais',
+		didNotKnow: 'Je ne savais pas',
+		succeeded: "J'ai réussi",
+		failed: "Je n'ai pas réussi",
+		correct: 'Bonne réponse !',
+		wrong: 'Pas tout à fait.',
+		expected: 'La bonne réponse',
+		why: 'Pourquoi',
+		score: (correct: number, total: number) => `${correct} / ${total}`,
+		cheer: (rate: number) =>
+			rate === 1
+				? 'Parfait, tout juste !'
+				: rate >= 0.7
+					? 'Très bien, continue comme ça !'
+					: rate >= 0.4
+						? "C'est en bonne voie. Refais tes erreurs pour progresser."
+						: 'Relis la fiche, puis réessaie : ça va venir.',
+		retryWrong: (n: number) => `Refaire mes erreurs (${n})`,
+		newSeries: 'Nouvelle série',
+		backToSheet: 'Retour à la fiche',
+		notSaved: "Mode parent : ce score n'est pas enregistré.",
+		best: (score: string) => `Meilleur : ${score}`,
+		last: (score: string) => `Dernier : ${score}`
+	},
 	profiles: {
 		title: 'Profils',
 		children: 'Enfants',

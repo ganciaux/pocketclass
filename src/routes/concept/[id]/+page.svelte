@@ -44,6 +44,8 @@
 	const isRead = $derived(readLive.data?.readAt !== undefined);
 	// The parent's « Acquise » stamp (a parent testing as a child stamps their own profile).
 	const acquired = $derived(isAcquired(readLive.data ?? undefined));
+	const practiceBest = $derived(readLive.data?.practiceBest);
+	const practiceLast = $derived(readLive.data?.practiceLast);
 
 	// Opening the sheet clears its "new" / "updated" badge (again if it is re-imported while open).
 	$effect(() => {
@@ -313,7 +315,20 @@
 			{/if}
 
 			<div class="grid grid-cols-2 gap-2">
-				<button class="btn" disabled>{t.practice} <small>({fr.app.soon})</small></button>
+				<a
+					class="btn btn-secondary h-auto min-h-12 flex-col gap-0 py-1"
+					href={resolve('/concept/[id]/practice', { id: concept.id })}
+				>
+					<span class="flex items-center gap-1.5">
+						<Icon paths={UI_ICONS.play} class="size-4" />{t.practice}
+					</span>
+					{#if practiceBest && practiceLast}
+						<small class="font-normal opacity-80">
+							{fr.practice.last(fr.practice.score(practiceLast.correct, practiceLast.total))} ·
+							{fr.practice.best(fr.practice.score(practiceBest.correct, practiceBest.total))}
+						</small>
+					{/if}
+				</a>
 				<button class="btn" disabled>{t.assessment} <small>({fr.app.soon})</small></button>
 			</div>
 		{/snippet}

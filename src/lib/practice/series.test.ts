@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { betterScore, buildSeries, playable, scoreOf, shuffle, wrongIds } from './series.ts';
+import {
+	betterScore,
+	buildSeries,
+	playable,
+	scoreOf,
+	scramble,
+	shuffle,
+	wrongIds
+} from './series.ts';
 
 /** Deterministic "random" numbers for the tests. */
 function seeded(seed = 1) {
@@ -34,6 +42,14 @@ describe('shuffle', () => {
 		const mixed = shuffle(items, seeded());
 		expect([...mixed].sort()).toEqual(items);
 		expect(items).toEqual([1, 2, 3, 4, 5]);
+	});
+});
+
+describe('scramble', () => {
+	it('never returns the original order when there is more than one item', () => {
+		const identity = () => 0.999; // Fisher–Yates with j = i: nothing moves
+		expect(scramble(['a', 'b', 'c'], identity)).toEqual(['b', 'c', 'a']);
+		expect(scramble(['a'], identity)).toEqual(['a']);
 	});
 });
 

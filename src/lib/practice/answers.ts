@@ -1,4 +1,5 @@
 import { equals, isIrreducible, parseFraction } from '#lib/math/fraction.ts';
+import { fr } from '#lib/i18n/fr.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
 
 /**
@@ -113,5 +114,39 @@ export function checkAnswer<E extends PlayableExercise>(exercise: E, response: R
 		case 'pair':
 		case 'paper':
 			return r === true;
+	}
+}
+
+/**
+ * The right answer as lines of inline Markdown, shown after a wrong answer. Empty when the child
+ * already saw it (pair, paper: self-assessed after seeing the answer).
+ */
+export function solutionOf(exercise: PlayableExercise): string[] {
+	switch (exercise.type) {
+		case 'mcq':
+			return [exercise.answer];
+		case 'true_false':
+			return [exercise.answer ? fr.practice.true : fr.practice.false];
+		case 'calculation':
+			return [String(exercise.answer)];
+		case 'cloze':
+			return [exercise.text.replace(BLANK, (_, answer: string) => `**${answer.trim()}**`)];
+		case 'open':
+			return [exercise.answers[0]];
+		case 'ordering':
+			return exercise.items.map((item, i) => `${i + 1}. ${item}`);
+		case 'match':
+			return exercise.pairs.map((p) => `${p.left} → ${p.right}`);
+		case 'categorize':
+			return exercise.categories.map(
+				(category) =>
+					`**${category}** : ${exercise.items
+						.filter((item) => item.category === category)
+						.map((item) => item.text)
+						.join(', ')}`
+			);
+		case 'pair':
+		case 'paper':
+			return [];
 	}
 }

@@ -24,6 +24,13 @@ export function shuffle<T>(items: readonly T[], random: Random = Math.random): T
 	return mixed;
 }
 
+/** Shuffled, but never left in the original order (ordering exercises), when it can move. */
+export function scramble<T>(items: readonly T[], random: Random = Math.random): T[] {
+	const mixed = shuffle(items, random);
+	const unchanged = mixed.every((item, i) => item === items[i]);
+	return unchanged && items.length > 1 ? [...mixed.slice(1), mixed[0]] : mixed;
+}
+
 /** Default length of a series. */
 export const SERIES_SIZE = 10;
 

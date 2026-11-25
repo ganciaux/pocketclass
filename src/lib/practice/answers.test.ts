@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Exercise } from '#lib/schemas/common.ts';
-import { checkAnswer, clozeAnswers, clozeParts, normalizeText, sameAnswer } from './answers.ts';
+import {
+	checkAnswer,
+	clozeAnswers,
+	clozeParts,
+	normalizeText,
+	sameAnswer,
+	solutionOf
+} from './answers.ts';
 
 const base = { id: 'x', usage: 'practice', keyPoint: 'kp', difficulty: 1 } as const;
 const ex = <E extends Exercise>(fields: Omit<E, keyof typeof base>) =>
@@ -132,5 +139,47 @@ describe('checkAnswer', () => {
 		});
 		expect(checkAnswer(pair, true)).toBe(true);
 		expect(checkAnswer(pair, false)).toBe(false);
+	});
+});
+
+describe('solutionOf', () => {
+	it('writes the right answer as inline Markdown lines', () => {
+		expect(
+			solutionOf(
+				ex<Extract<Exercise, { type: 'cloze' }>>({ type: 'cloze', text: 'Nous [[ mangeons ]].' })
+			)
+		).toEqual(['Nous **mangeons**.']);
+		expect(
+			solutionOf(
+				ex<Extract<Exercise, { type: 'true_false' }>>({
+					type: 'true_false',
+					statement: 'S',
+					answer: true
+				})
+			)
+		).toEqual(['Vrai']);
+		expect(
+			solutionOf(
+				ex<Extract<Exercise, { type: 'categorize' }>>({
+					type: 'categorize',
+					categories: ['Pair', 'Impair'],
+					items: [
+						{ text: '2', category: 'Pair' },
+						{ text: '3', category: 'Impair' },
+						{ text: '4', category: 'Pair' }
+					]
+				})
+			)
+		).toEqual(['**Pair** : 2, 4', '**Impair** : 3']);
+		expect(
+			solutionOf(
+				ex<Extract<Exercise, { type: 'pair' }>>({
+					type: 'pair',
+					front: 'F',
+					back: 'B',
+					direction: 'both'
+				})
+			)
+		).toEqual([]);
 	});
 });
