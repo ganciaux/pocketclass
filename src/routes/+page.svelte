@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import SubjectCards from '#lib/components/SubjectCards.svelte';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { watchNotes } from '#lib/data/notes.ts';
@@ -24,6 +26,13 @@
 			session.childView?.name ?? (session.profile ? displayName(session.profile) : '')
 		)}
 	</h1>
+	{#if session.childView && session.profile}
+		<!-- Points earned by passed assessments (the owner's profile, also in test mode). -->
+		<p class="badge badge-warning badge-lg gap-1.5 self-start font-bold">
+			<Icon paths={UI_ICONS.star} class="size-4" />
+			{fr.points.count(session.profile.points ?? 0)}
+		</p>
+	{/if}
 
 	{#if session.isAdmin && !session.childView}
 		<section class="card bg-neutral text-neutral-content">

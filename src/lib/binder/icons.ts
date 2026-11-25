@@ -67,6 +67,14 @@ export const UI_ICONS = {
 	bookmark: paths('M6 3h12v18l-6-4-6 4z'),
 	message: paths('M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),
+	/** Sad face, for the « Raté » stamp (no emoji in the UI). */
+	sad: paths(circle(12, 12, 9), 'M9 9.5h.01', 'M15 9.5h.01', 'M8.5 16.5a5 5 0 0 1 7 0'),
+	/** Clipboard with a tick: the assessment. */
+	clipboard: paths(
+		'M9 4H6a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3',
+		'M9 3h6v3H9z',
+		'm9 14 2 2 4-4'
+	),
 	lightbulb: paths(
 		'M9 18h6',
 		'M10 22h4',

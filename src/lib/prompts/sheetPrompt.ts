@@ -88,7 +88,7 @@ function generatorRules(grade: string): string {
 		.map((g) => `  - "${g.id}" : ${g.label}${g.params ? ` ; "params" : ${g.params}` : ''}`)
 		.join('\n');
 	return `
-- Exercices générés ("type": "generator") : l'application fabrique une nouvelle question à chaque tirage et vérifie la réponse elle-même. Champs : "generator" (un nom de la liste ci-dessous, aucun autre), "difficulty" (1 à 3, voir la liste), "params" (facultatif). Pour chaque point-clé qui s'y prête (calculs, conversions, équations…), ajoute 1 ou 2 générateurs en "practice", en plus des exercices écrits ; n'en mets aucun si rien ne correspond. Pas de "explanation" pour eux (l'application l'écrit). Exemple : { "id": "gen-convert", "usage": "practice", "keyPoint": "kp-…", "difficulty": 2, "type": "generator", "generator": "units.length", "params": { "units": ["km", "m"] } }. Générateurs disponibles :
+- Exercices générés ("type": "generator") : l'application fabrique une nouvelle question à chaque tirage et vérifie la réponse elle-même. Champs : "generator" (un nom de la liste ci-dessous, aucun autre), "difficulty" (1 à 3, voir la liste), "params" (facultatif). Pour chaque point-clé qui s'y prête (calculs, conversions, équations…), ajoute 1 ou 2 générateurs en "practice", en plus des exercices écrits ; n'en mets aucun si rien ne correspond. Ils servent aussi au contrôle : chaque nouvel essai a des questions neuves. Pas de "explanation" pour eux (l'application l'écrit). Exemple : { "id": "gen-convert", "usage": "practice", "keyPoint": "kp-…", "difficulty": 2, "type": "generator", "generator": "units.length", "params": { "units": ["km", "m"] } }. Générateurs disponibles :
 ${list}`;
 }
 

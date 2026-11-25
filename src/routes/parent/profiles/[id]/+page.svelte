@@ -49,6 +49,7 @@
 					<Avatar profile={child} size={3.5} />
 					<h1 class="flex-1">{displayName(child)}</h1>
 					<span class="badge badge-secondary">{child.grade}</span>
+					<span class="badge badge-warning font-bold">{fr.points.count(child.points ?? 0)}</span>
 				</header>
 				<section class="card card-border bg-base-100">
 					<div class="card-body gap-3">

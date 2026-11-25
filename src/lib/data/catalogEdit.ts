@@ -1,8 +1,8 @@
 import { deleteField, doc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db } from '#lib/firebase.ts';
 import { COLLECTIONS } from './collections.ts';
-import { chaptersCol, familyDoc, subjectsCol } from './refs.ts';
-import type { Chapter, Subject } from './types.ts';
+import { assessmentRef, chaptersCol, familyDoc, subjectsCol } from './refs.ts';
+import type { AssessmentSettingsRecord, Chapter, Subject } from './types.ts';
 import { inBackground } from './writes.ts';
 
 // Parent edits of the binder (subjects, chapters, sheet order). Plain writes with no server
@@ -61,4 +61,24 @@ export function saveOrder(
 		batch.update(familyDoc(familyId, COLLECTIONS[kind], id), { order });
 	}
 	inBackground(batch.commit(), 'reorder');
+}
+
+/**
+ * The assessment settings of a sheet (pass rate %, points); `null` goes back to the default.
+ * Kept by a new import of the sheet.
+ */
+export function setAssessmentSettings(
+	familyId: string,
+	conceptId: string,
+	settings: { [K in keyof AssessmentSettingsRecord]-?: number | null }
+): void {
+	const value = (n: number | null) => n ?? deleteField();
+	inBackground(
+		setDoc(
+			assessmentRef(familyId, conceptId),
+			{ passRate: value(settings.passRate), points: value(settings.points) },
+			{ merge: true }
+		),
+		'assessment settings'
+	);
 }

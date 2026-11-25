@@ -3,6 +3,9 @@
 	import AcquiredStamp from '#lib/components/AcquiredStamp.svelte';
 	import AcquiredStamps from '#lib/components/AcquiredStamps.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
+	import FailedStamp from '#lib/components/FailedStamp.svelte';
+	import AssessmentSettings from '#lib/components/AssessmentSettings.svelte';
+	import { assessmentStatus } from '#lib/practice/assessment.ts';
 	import { session } from '#lib/auth.svelte.ts';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import NoteForm from '#lib/components/NoteForm.svelte';
@@ -47,6 +50,7 @@
 	const practiceBest = $derived(readLive.data?.practiceBest);
 	const practiceLast = $derived(readLive.data?.practiceLast);
 	const challengeBest = $derived(readLive.data?.challengeBest);
+	const assessment = $derived(assessmentStatus(readLive.data));
 
 	// Opening the sheet clears its "new" / "updated" badge (again if it is re-imported while open).
 	$effect(() => {
@@ -148,9 +152,10 @@
 						{/each}
 					</ul>
 				{/if}
-				{#if profileId && (acquired || session.childView?.testing)}
+				{#if profileId && (acquired || assessment.failed || session.childView?.testing)}
 					<div class="flex flex-wrap items-center gap-3 pt-1">
 						{#if acquired}<AcquiredStamp {color} />{/if}
+						{#if assessment.failed}<FailedStamp />{/if}
 						{#if session.childView?.testing}
 							<button class="btn btn-ghost btn-xs" onclick={() => stampTest(concept)}>
 								{acquired ? fr.stamp.testClear : fr.stamp.testSet}
@@ -313,6 +318,7 @@
 			<!-- Parent: stamp the sheet « Acquise » for each child, after checking with them. -->
 			{#if session.isAdmin && !session.childView && session.familyId}
 				<AcquiredStamps familyId={session.familyId} sheet={concept} />
+				<AssessmentSettings familyId={session.familyId} sheet={concept} />
 			{/if}
 
 			<div class="grid grid-cols-2 gap-2">
@@ -341,9 +347,21 @@
 						</small>
 					{/if}
 				</a>
-				<button class="btn col-span-2" disabled>
-					{t.assessment} <small>({fr.app.soon})</small>
-				</button>
+				<a
+					class="btn btn-primary col-span-2 h-auto min-h-12 flex-col gap-0 py-1"
+					href={resolve('/concept/[id]/assessment', { id: concept.id })}
+				>
+					<span class="flex items-center gap-1.5">
+						<Icon paths={UI_ICONS.clipboard} class="size-4" />{t.assessment}
+					</span>
+					{#if assessment.locked}
+						<small class="font-normal opacity-80">{fr.assessment.sheetLocked}</small>
+					{:else if assessment.best}
+						<small class="font-normal opacity-80">
+							{fr.assessment.sheetBest(assessment.best.correct, assessment.best.total)}
+						</small>
+					{/if}
+				</a>
 			</div>
 		{/snippet}
 	</LoadState>

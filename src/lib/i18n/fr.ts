@@ -174,6 +174,50 @@ export const fr = {
 		newRecord: 'Nouveau record !',
 		again: 'Rejouer'
 	},
+	assessment: {
+		title: 'Contrôle',
+		loadFailed: 'Impossible de charger le contrôle.',
+		empty: "Cette fiche n'a pas encore de question de contrôle.",
+		help: (questions: number, passRate: number) =>
+			`${plural(questions, 'question')}, sans correction pendant le contrôle. Réussi à partir de ${passRate} % de bonnes réponses.`,
+		reward: (points: number) => `À la clé : le tampon « Acquise » et ${plural(points, 'point')}.`,
+		acquired: 'Fiche acquise ! Tu peux le refaire pour battre ton meilleur score.',
+		best: (correct: number, total: number) => `Meilleur score : ${correct} / ${total}`,
+		locked: "Raté la dernière fois : refais d'abord une série d'entraînement pour retenter.",
+		toPractice: "S'entraîner",
+		start: 'Commencer le contrôle',
+		progress: (n: number, total: number) => `Question ${n} / ${total}`,
+		passed: 'Contrôle réussi !',
+		failed: 'Pas encore…',
+		score: (correct: number, total: number) => `${correct} / ${total}`,
+		needed: (passRate: number) => `Il fallait ${passRate} % de bonnes réponses.`,
+		earned: (points: number) => `+ ${plural(points, 'point')}`,
+		afterFail: "Refais une série d'entraînement pour débloquer un nouvel essai.",
+		correction: 'Correction',
+		question: (n: number) => `Question ${n}`,
+		right: 'Juste',
+		wrong: 'Faux',
+		expected: 'Bonne réponse :',
+		backToSheet: 'Retour à la fiche',
+		/** Sheet button. */
+		sheetBest: (correct: number, total: number) => `Meilleur : ${correct} / ${total}`,
+		sheetLocked: "Après une série d'entraînement",
+		/** The « Raté » stamp. */
+		failedStamp: 'Raté',
+		failedStampHint: 'on retente !',
+		/** Parent card on a sheet. */
+		settingsTitle: 'Contrôle',
+		settingsHelp: (passRate: number, points: number) =>
+			`Par défaut : réussi à ${passRate} %, ${plural(points, 'point')} à la première réussite.`,
+		passRate: 'Seuil de réussite (%)',
+		points: 'Points gagnés',
+		save: 'Enregistrer',
+		reset: 'Valeurs par défaut',
+		saved: 'Réglages enregistrés.'
+	},
+	points: {
+		count: (n: number) => plural(n, 'point')
+	},
 	profiles: {
 		title: 'Profils',
 		children: 'Enfants',

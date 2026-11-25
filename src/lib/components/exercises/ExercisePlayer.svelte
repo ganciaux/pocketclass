@@ -24,12 +24,15 @@
 	let {
 		exercise,
 		onanswer,
-		explain = true
+		explain = true,
+		feedback = true
 	}: {
 		exercise: PlayableExercise;
 		onanswer: (correct: boolean) => void;
 		/** False (timed challenge): right / wrong and the right answer only. */
 		explain?: boolean;
+		/** False (assessment): nothing after the answer, the correction comes at the end. */
+		feedback?: boolean;
 	} = $props();
 
 	const t = fr.practice;
@@ -110,7 +113,7 @@
 		/>
 	{/if}
 
-	{#if result !== null}
+	{#if result !== null && feedback}
 		<AnswerFeedback
 			correct={selfAssessed ? null : result}
 			solution={solutionOf(exercise)}

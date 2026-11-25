@@ -95,6 +95,20 @@ export function buildAssessment(
 	return shuffle(questions, random);
 }
 
+/** How many questions `buildAssessment` makes (announced before starting). */
+export function assessmentSize(
+	pool: AssessmentPool,
+	keyPoints: string[],
+	perKeyPoint = DEFAULT_PER_KEY_POINT
+): number {
+	return keyPoints.reduce((total, keyPoint) => {
+		if (pool.generators.some((g) => g.keyPoint === keyPoint)) return total + perKeyPoint;
+		return (
+			total + Math.min(perKeyPoint, pool.written.filter((e) => e.keyPoint === keyPoint).length)
+		);
+	}, 0);
+}
+
 export const passed = (score: Score, passRate: number) =>
 	score.total > 0 && score.correct * 100 >= passRate * score.total;
 

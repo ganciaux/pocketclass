@@ -5,6 +5,7 @@ import { correctionOf, exercisePrompt, type PlayableExercise } from './answers.t
 import {
 	assessmentOutcome,
 	assessmentPool,
+	assessmentSize,
 	assessmentStatus,
 	buildAssessment,
 	passed,
@@ -86,6 +87,7 @@ describe('buildAssessment', () => {
 		expect(ids.filter((id) => id.startsWith('g~'))).toHaveLength(2);
 		expect(ids).not.toContain('x');
 		expect(ids).toContain('lonely');
+		expect(assessmentSize(pool, ['kp1', 'kp2', 'kp3', 'kp4'], 2)).toBe(5);
 	});
 
 	it('makes different generated questions at each try', () => {
