@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { practiceSet } from '#lib/practice/generated.ts';
 import { storedGenerator, storedMcq } from '#lib/practice/testing.ts';
 import { seeded } from '#lib/generators/random.ts';
-import { drawMapTest, mapBranches } from './mindmap.ts';
+import { drawMapTest, hasQuestions, mapBranches } from './mindmap.ts';
 
 const keyPoints = [
 	{ id: 'kp-add', label: 'Additionner' },
@@ -95,5 +95,8 @@ describe('drawMapTest', () => {
 
 	it('has nothing to ask on a branch without questions', () => {
 		expect(drawMapTest(set, [], 'kp-none', seeded(10)).questions).toEqual([]);
+		expect(hasQuestions(set, 'kp-none')).toBe(false);
+		expect(hasQuestions(set, 'kp-div')).toBe(true);
+		expect(hasQuestions(practiceSet([]), null)).toBe(false);
 	});
 });

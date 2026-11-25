@@ -297,6 +297,20 @@ export const fr = {
 		noMatch: 'Aucune fiche ne correspond.',
 		loadFailed: 'Impossible de charger tes fiches.'
 	},
+	mindMap: {
+		title: 'Carte mentale',
+		/** Button on the sheet page. */
+		open: 'Carte mentale',
+		testBranch: 'Me tester',
+		testAll: 'Me tester sur toute la carte',
+		/** Label of a test, above the questions. */
+		testing: (what: string) => `Me tester : ${what}`,
+		wholeMap: 'toute la carte',
+		noQuestions: "Pas encore d'exercices pour se tester sur cette fiche.",
+		again: 'Encore',
+		back: 'Retour à la carte',
+		loadFailed: 'Impossible de charger les exercices.'
+	},
 	stamp: {
 		label: 'Acquise',
 		/** Parent card on a sheet. */

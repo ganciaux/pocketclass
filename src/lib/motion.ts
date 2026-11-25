@@ -1,7 +1,7 @@
 import { flip } from 'svelte/animate';
 import { cubicInOut, quintOut } from 'svelte/easing';
 import { prefersReducedMotion } from 'svelte/motion';
-import { fade, fly, slide } from 'svelte/transition';
+import { draw, fade, fly, slide } from 'svelte/transition';
 
 /**
  * The app's motion, in one place (Svelte transitions; page transitions are CSS view
@@ -37,4 +37,10 @@ export function stamp(node: Element) {
 		easing: quintOut,
 		css: (t: number, u: number) => `scale: ${1 + 0.6 * u}; opacity: ${t}`
 	};
+}
+
+/** A mind map branch drawing itself from the centre (nothing moves with « reduce motion »). */
+export function drawLine(node: SVGGeometryElement) {
+	if (reduced()) return { duration: 0 };
+	return draw(node, { duration: 700, easing: quintOut });
 }

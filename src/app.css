@@ -261,6 +261,27 @@ header.navbar {
 	}
 }
 
+/* Mind map page only: a squared exercise-book page (light blue squares, both themes). */
+.squared-paper {
+	--square: color-mix(in oklab, var(--color-secondary) 16%, transparent);
+	background-color: var(--color-base-100);
+	background-image:
+		linear-gradient(var(--square) 1px, transparent 1px),
+		linear-gradient(90deg, var(--square) 1px, transparent 1px);
+	background-size: 1.25rem 1.25rem;
+	background-position: -1px -1px;
+}
+
+/* The notion at the centre of a mind map, swiped with a yellow highlighter. */
+.highlighter {
+	padding: 0.05em 0.35em;
+	border-radius: 0.6em 0.25em 0.5em 0.3em;
+	color: var(--color-primary-content);
+	background: color-mix(in oklab, var(--color-primary) 75%, transparent);
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+
 /* Button tweaks outside the layers, so they win over daisyUI (which sits in its own layers). */
 /*
  * Navigation (back links, « Retour à la fiche »): pale mustard with dark text. daisyUI's soft

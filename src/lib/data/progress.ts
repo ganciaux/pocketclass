@@ -54,3 +54,13 @@ export function setAcquired(
 	const acquiredAt = acquired ? serverTimestamp() : deleteField();
 	writeProgress(familyId, profileId, sheet, { acquiredAt }, 'sheet acquired');
 }
+
+/** Mind map test: the practice questions drawn so far (saved when a test starts). Offline. */
+export function saveMapDrawn(
+	familyId: string,
+	profileId: string,
+	sheet: SheetRef,
+	drawn: string[]
+): void {
+	writeProgress(familyId, profileId, sheet, { mapDrawn: drawn }, 'mind map draw');
+}

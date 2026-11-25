@@ -49,6 +49,11 @@ Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
   Boutons classés par intensité ; une couleur par état de fiche, la même sur le filtre, la
   pastille, le repère et le tampon (« Acquise » en vert) ; « Commencées » devient « En
   cours » ; listes du parent avec survol surligneur sur toute la ligne.
+- **Cartes mentales** : une carte par fiche sur papier à petits carreaux (notion surlignée au
+  centre, une branche par point-clé, feuilles courtes écrites par l'IA, ou titres des parties
+  pour les fiches plus anciennes) ; « Me tester » : 3 questions sur une branche, 5 sur toute
+  la carte, sans retomber sur les mêmes avant d'avoir tout vu. Réimporter les classeurs pour
+  avoir les feuilles écrites par l'IA.
 - **Ergonomie** : confirmations dans une fenêtre (plus de `confirm()` du navigateur), boutons
   de suppression rouges avec une corbeille, boutons de navigation moutarde doux, survols
   teintés, grandes lignes de liens sur l'accueil de l'enfant.
@@ -87,7 +92,7 @@ Par ordre de demande ; le détail de chaque point est plus bas.
 
 1. ~~Charte graphique et mise en forme~~ : **fait** (2026-11-25), charte « trousse
    d'écolier » (CLAUDE.md, styling).
-2. **Cartes mentales** (demandé à nouveau le 2026-11-25).
+2. ~~Cartes mentales~~ : **fait** (2026-11-25).
 3. **Points de révision** (une fiche revue rapporte des points, pas plus d'une fois par
    semaine) et **historique d'activité** (à partir du journal des points).
 4. Suite de l'entraînement (ci-dessous).
@@ -118,7 +123,7 @@ existe déjà ou signale ce qu'il faudra trancher.
 
 | Idée | À savoir |
 | --- | --- |
-| Des cartes mentales simples, sur une page, avec un lien pour tester la notion sur 3 à 5 exemples. **À prévoir** (demandé à nouveau le 2026-11-25). | Prévoir une dizaine d'exemples par notion et en tirer 3 à 5 sans retomber sur les mêmes ; quand tous sont sortis, on recommence (tirage sans remise). Il faut mémoriser par enfant ce qui est déjà sorti. Proche de l'entraînement de la phase 2. |
+| Une carte mentale d'un chapitre (centre = chapitre, branches = ses fiches). | Peut se construire sans l'IA à partir des données existantes ; idée laissée de côté lors des cartes de fiche (2026-11-25). |
 
 ### Points et historique (phase 3)
 

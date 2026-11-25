@@ -333,7 +333,15 @@
 				/>
 			{/if}
 
-			<div class="grid grid-cols-2 gap-2">
+			<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+				<a
+					class="btn btn-soft btn-primary h-auto min-h-12 flex-col gap-0 py-1"
+					href={resolve('/concept/[id]/map', { id: concept.id })}
+				>
+					<span class="flex items-center gap-1.5">
+						<Icon paths={UI_ICONS.map} class="size-4" />{fr.mindMap.open}
+					</span>
+				</a>
 				<a
 					class="btn btn-soft btn-primary h-auto min-h-12 flex-col gap-0 py-1"
 					href={resolve('/concept/[id]/practice', { id: concept.id })}
@@ -349,7 +357,7 @@
 					{/if}
 				</a>
 				<a
-					class="btn btn-soft btn-primary h-auto min-h-12 flex-col gap-0 py-1"
+					class="btn btn-soft btn-primary col-span-2 h-auto min-h-12 flex-col gap-0 py-1 sm:col-span-1"
 					href={resolve('/concept/[id]/challenge', { id: concept.id })}
 				>
 					<span>{fr.challenge.title}</span>
@@ -360,7 +368,7 @@
 					{/if}
 				</a>
 				<a
-					class="btn btn-primary col-span-2 h-auto min-h-12 flex-col gap-0 py-1"
+					class="btn btn-primary col-span-2 h-auto min-h-12 flex-col gap-0 py-1 sm:col-span-3"
 					href={resolve('/concept/[id]/assessment', { id: concept.id })}
 				>
 					<span class="flex items-center gap-1.5">

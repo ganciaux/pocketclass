@@ -65,6 +65,16 @@ export const UI_ICONS = {
 	x: paths('M18 6 6 18', 'm6 6 12 12'),
 	play: paths('M7 4v16l13-8z'),
 	bookmark: paths('M6 3h12v18l-6-4-6 4z'),
+	/** Mind map: a centre and three branches. */
+	map: paths(
+		circle(12, 12, 3),
+		'M9.5 10.5 5 7',
+		'M14.5 10.5 19 7',
+		'M12 15v4',
+		circle(4, 6, 1.5),
+		circle(20, 6, 1.5),
+		circle(12, 20.5, 1.5)
+	),
 	message: paths('M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),
 	download: paths('M12 3v12', 'm7 10 5 5 5-5', 'M5 21h14'),

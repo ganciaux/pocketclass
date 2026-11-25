@@ -90,6 +90,8 @@ export interface ProgressRecord {
 	retakeLocked?: boolean;
 	/** Points earned by this sheet's assessment (set once, at the first pass). */
 	assessmentPoints?: number;
+	/** Mind map « Me tester »: practice questions already drawn (without replacement). */
+	mapDrawn?: string[];
 }
 
 export interface PracticeScore {

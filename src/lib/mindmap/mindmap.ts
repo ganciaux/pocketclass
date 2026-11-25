@@ -41,6 +41,10 @@ export function mapBranches(sheet: MapSource): Branch[] {
 	}));
 }
 
+/** Whether a test on `focus` (null: the whole map) has anything to ask. */
+export const hasQuestions = (set: PracticeSet, focus: string | null) =>
+	[...set.written, ...set.generators].some((e) => focus === null || e.keyPoint === focus);
+
 /** Questions of a test on one branch, and on the whole map. */
 export const BRANCH_TEST_SIZE = 3;
 export const MAP_TEST_SIZE = 5;
