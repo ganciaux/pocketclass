@@ -72,7 +72,12 @@ export const clozeAnswers = (text: string) => [...text.matchAll(BLANK)].map((m) 
 const sameList = (given: string[], expected: string[]) =>
 	given.length === expected.length && given.every((value, i) => value === expected[i]);
 
-function checkCalculation(exercise: Extract<Exercise, { type: 'calculation' }>, given: string) {
+/** « x = 3 500 » → « 3500 »: a letter-equals prefix and the spaces between digits go. */
+export const cleanNumber = (given: string) =>
+	given.replace(/^\s*[a-z]\s*=\s*/i, '').replace(/(\d)[\s  ]+(?=\d)/g, '$1');
+
+function checkCalculation(exercise: Extract<Exercise, { type: 'calculation' }>, raw: string) {
+	const given = cleanNumber(raw);
 	const value = parseFraction(given);
 	const expected = parseFraction(exercise.answer);
 	if (!value || !expected || !equals(value, expected)) return false;

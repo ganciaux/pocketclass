@@ -455,6 +455,8 @@ export const fr = {
 		duplicateId: (id: string) => `l'identifiant « ${id} » est utilisé plusieurs fois`,
 		duplicateValue: (value: string) => `« ${value} » apparaît plusieurs fois`,
 		unknownRef: (id: string, where: string) => `« ${id} » n'existe pas dans ${where}`,
+		unknownGenerator: (id: string) =>
+			`générateur « ${id} » inconnu : utilise un nom de la liste donnée dans la consigne`,
 		scoreTooHigh: 'score.acquired ne peut pas dépasser score.total',
 		root: 'document',
 		invalidJson: "Ce texte n'est pas un JSON valide.",

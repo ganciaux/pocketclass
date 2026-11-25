@@ -156,6 +156,7 @@ describe(`sample ${SAMPLE}`, () => {
 			'calculation',
 			'categorize',
 			'cloze',
+			'generator',
 			'match',
 			'mcq',
 			'open',

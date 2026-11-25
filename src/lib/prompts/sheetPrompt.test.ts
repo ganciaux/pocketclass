@@ -43,6 +43,19 @@ describe('prompts', () => {
 		for (const type of ['"match"', '"true_false"', '"categorize"']) expect(prompt).toContain(type);
 	});
 
+	it('lists the generators of the grade, with their params', () => {
+		const prompt = sheetPrompt(ctx);
+		expect(prompt).toContain('"type": "generator"');
+		expect(prompt).toContain('"algebra.identities"');
+		expect(prompt).toContain('"units.length" : convertir des longueurs');
+		expect(prompt).toContain('"units" : liste d\'au moins 2 unités parmi km');
+		expect(chapterPrompt(ctx)).toContain('"geometry.pythagoras"');
+		const sixth = sheetPrompt({ ...ctx, grade: '6e' });
+		expect(sixth).toContain('"units.duration"');
+		expect(sixth).not.toContain('"algebra.identities"');
+		expect(sheetPrompt({ ...ctx, grade: 'CP' })).not.toContain('"type": "generator"');
+	});
+
 	it('leaves a placeholder when the request is empty and skips empty lists', () => {
 		const prompt = sheetPrompt({
 			...ctx,

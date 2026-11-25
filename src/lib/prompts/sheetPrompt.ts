@@ -1,3 +1,4 @@
+import { generatorsForGrade } from '#lib/generators/catalog.ts';
 import { CHAPTER_FORMAT } from '#lib/schemas/chapter.ts';
 import { SHEET_FORMAT } from '#lib/schemas/sheet.ts';
 
@@ -76,6 +77,23 @@ const RULES = `Règles :
 - "assessment" (facultatif) : "type" ("test" ou "brevet"), "draw.perKeyPoint", "exerciseIds" (ids d'exercices de la fiche), "paper" ({ "instruction", "rubric": [{ "keyPoint", "criterion" }] }).
 - Si quelque chose est incertain, ajoute une phrase dans "warnings" (tableau de textes) au lieu de l'inventer.`;
 
+/**
+ * The generators of the grade: the app makes a new question at each draw (answer checked by the
+ * app). Nothing when the grade has none.
+ */
+function generatorRules(grade: string): string {
+	const generators = generatorsForGrade(grade);
+	if (generators.length === 0) return '';
+	const list = generators
+		.map((g) => `  - "${g.id}" : ${g.label}${g.params ? ` ; "params" : ${g.params}` : ''}`)
+		.join('\n');
+	return `
+- Exercices générés ("type": "generator") : l'application fabrique une nouvelle question à chaque tirage et vérifie la réponse elle-même. Champs : "generator" (un nom de la liste ci-dessous, aucun autre), "difficulty" (1 à 3, voir la liste), "params" (facultatif). Pour chaque point-clé qui s'y prête (calculs, conversions, équations…), ajoute 1 ou 2 générateurs en "practice", en plus des exercices écrits ; n'en mets aucun si rien ne correspond. Pas de "explanation" pour eux (l'application l'écrit). Exemple : { "id": "gen-convert", "usage": "practice", "keyPoint": "kp-…", "difficulty": 2, "type": "generator", "generator": "units.length", "params": { "units": ["km", "m"] } }. Générateurs disponibles :
+${list}`;
+}
+
+const rules = (grade: string) => RULES + generatorRules(grade);
+
 function context(ctx: PromptContext): string {
 	const lines = [
 		`Matière : ${ctx.subject} (${ctx.grade}).`,
@@ -107,7 +125,7 @@ Format attendu (un seul objet JSON) :
 où une fiche a cette forme :
 ${SHEET_SHAPE}
 
-${RULES}
+${rules(ctx.grade)}
 - L'identifiant de la fiche commence par "${prefix}" (ex. "${prefix}fractions").`;
 }
 
@@ -124,6 +142,6 @@ Format attendu (un seul objet JSON) :
 où chaque fiche a cette forme :
 ${SHEET_SHAPE}
 
-${RULES}
+${rules(ctx.grade)}
 - Une fiche par notion, dans l'ordre où l'élève doit les réviser. Les identifiants des fiches sont uniques et commencent par "${prefix}".`;
 }

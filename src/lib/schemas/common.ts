@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { generatorById } from '#lib/generators/catalog.ts';
 import { fr } from '#lib/i18n/fr.ts';
 
 const SLUG = /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
@@ -65,7 +66,9 @@ const exerciseVariants = {
 	},
 	generator: {
 		type: z.literal('generator'),
-		generator: text,
+		generator: text.refine((id) => generatorById(id) !== undefined, {
+			error: (issue) => fr.validation.unknownGenerator(String(issue.input))
+		}),
 		params: z.record(z.string(), z.unknown()).default({})
 	},
 	match: {

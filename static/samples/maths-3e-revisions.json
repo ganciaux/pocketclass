@@ -102,7 +102,11 @@
 				{ "id": "categorize-irreducible", "usage": "practice", "keyPoint": "kp-irreducible", "difficulty": 1, "type": "categorize", "instruction": "Range chaque fraction dans la bonne colonne.", "categories": ["Irréductible", "Simplifiable"], "items": [{ "text": "$\\frac{3}{7}$", "category": "Irréductible" }, { "text": "$\\frac{4}{6}$", "category": "Simplifiable" }, { "text": "$\\frac{5}{8}$", "category": "Irréductible" }, { "text": "$\\frac{10}{25}$", "category": "Simplifiable" }, { "text": "$\\frac{7}{9}$", "category": "Irréductible" }, { "text": "$\\frac{12}{16}$", "category": "Simplifiable" }], "explanation": "Une fraction est simplifiable quand le numérateur et le dénominateur ont un diviseur commun autre que 1." },
 				{ "id": "open-inverse", "usage": "practice", "keyPoint": "kp-divide", "difficulty": 1, "type": "open", "question": "Quel est l'inverse de $\\frac{2}{3}$ ? Écris-le sous la forme a/b.", "answers": ["3/2"], "explanation": "On échange le numérateur et le dénominateur." },
 				{ "id": "ordering-add", "usage": "practice", "keyPoint": "kp-add", "difficulty": 1, "type": "ordering", "instruction": "Remets dans l'ordre les étapes pour calculer $\\frac{1}{4} + \\frac{1}{6}$.", "items": ["Chercher un dénominateur commun : 12", "Écrire $\\frac{3}{12} + \\frac{2}{12}$", "Additionner les numérateurs : $\\frac{5}{12}$", "Vérifier que $\\frac{5}{12}$ est irréductible"], "explanation": "On met les fractions au même dénominateur avant d'additionner les numérateurs." },
-				{ "id": "pair-inverse", "usage": "practice", "keyPoint": "kp-divide", "difficulty": 1, "type": "pair", "front": "Inverse de $\\frac{a}{b}$", "back": "$\\frac{b}{a}$ (avec $a \\neq 0$)", "explanation": "Diviser par une fraction, c'est multiplier par son inverse." }
+				{ "id": "pair-inverse", "usage": "practice", "keyPoint": "kp-divide", "difficulty": 1, "type": "pair", "front": "Inverse de $\\frac{a}{b}$", "back": "$\\frac{b}{a}$ (avec $a \\neq 0$)", "explanation": "Diviser par une fraction, c'est multiplier par son inverse." },
+				{ "id": "gen-simplify", "usage": "practice", "keyPoint": "kp-simplify", "difficulty": 2, "type": "generator", "generator": "fractions.simplify" },
+				{ "id": "gen-add", "usage": "practice", "keyPoint": "kp-add", "difficulty": 1, "type": "generator", "generator": "fractions.add" },
+				{ "id": "gen-multiply", "usage": "practice", "keyPoint": "kp-multiply", "difficulty": 2, "type": "generator", "generator": "fractions.multiply" },
+				{ "id": "gen-divide", "usage": "practice", "keyPoint": "kp-divide", "difficulty": 2, "type": "generator", "generator": "fractions.divide" }
 			],
 			"assessment": {
 				"type": "brevet",
@@ -151,7 +155,10 @@
 				{ "id": "powers-1", "usage": "practice", "keyPoint": "kp-definition", "difficulty": 1, "type": "calculation", "statement": "Calcule $2^5$.", "answer": "32" },
 				{ "id": "powers-2", "usage": "assessment", "keyPoint": "kp-negative", "difficulty": 2, "type": "calculation", "statement": "Écris sous forme de fraction : $10^{-2}$.", "answer": "1/100", "requireIrreducible": true },
 				{ "id": "powers-3", "usage": "assessment", "keyPoint": "kp-product-rule", "difficulty": 1, "type": "mcq", "question": "$3^2 \\times 3^4$ est égal à :", "answer": "$3^6$", "distractors": ["$3^8$", "$9^6$", "$6^6$"] },
-				{ "id": "powers-4", "usage": "practice", "keyPoint": "kp-negative", "difficulty": 1, "type": "cloze", "text": "En écriture décimale, $10^{-3}$ s'écrit [[0,001]]." }
+				{ "id": "powers-4", "usage": "practice", "keyPoint": "kp-negative", "difficulty": 1, "type": "cloze", "text": "En écriture décimale, $10^{-3}$ s'écrit [[0,001]]." },
+				{ "id": "gen-compute", "usage": "practice", "keyPoint": "kp-definition", "difficulty": 2, "type": "generator", "generator": "powers.compute" },
+				{ "id": "gen-rules", "usage": "practice", "keyPoint": "kp-product-rule", "difficulty": 2, "type": "generator", "generator": "powers.rules" },
+				{ "id": "gen-negative", "usage": "practice", "keyPoint": "kp-negative", "difficulty": 3, "type": "generator", "generator": "powers.compute" }
 			]
 		},
 		{
@@ -188,7 +195,9 @@
 				{ "id": "pythagoras-1", "usage": "practice", "keyPoint": "kp-theorem", "difficulty": 1, "type": "calculation", "statement": "Le triangle ABC est rectangle en A avec AB = 6 cm et AC = 8 cm. Calcule BC en cm : $BC = \\sqrt{6^2 + 8^2}$.", "answer": "10" },
 				{ "id": "pythagoras-2", "usage": "assessment", "keyPoint": "kp-theorem", "difficulty": 2, "type": "calculation", "statement": "Le triangle DEF est rectangle en D avec EF = 13 cm et DE = 5 cm. Calcule DF en cm : $DF = \\sqrt{13^2 - 5^2}$.", "answer": "12" },
 				{ "id": "pythagoras-3", "usage": "assessment", "keyPoint": "kp-hypotenuse", "difficulty": 1, "type": "mcq", "question": "Dans le triangle MNP rectangle en N, l'hypoténuse est :", "answer": "[MP]", "distractors": ["[MN]", "[NP]", "On ne peut pas savoir"] },
-				{ "id": "pythagoras-4", "usage": "practice", "keyPoint": "kp-converse", "difficulty": 1, "type": "cloze", "text": "Si $BC^2 = AB^2 + AC^2$, alors le triangle ABC est [[rectangle]] en A : c'est la [[réciproque]] du théorème de Pythagore." }
+				{ "id": "pythagoras-4", "usage": "practice", "keyPoint": "kp-converse", "difficulty": 1, "type": "cloze", "text": "Si $BC^2 = AB^2 + AC^2$, alors le triangle ABC est [[rectangle]] en A : c'est la [[réciproque]] du théorème de Pythagore." },
+				{ "id": "gen-hypotenuse", "usage": "practice", "keyPoint": "kp-theorem", "difficulty": 2, "type": "generator", "generator": "geometry.pythagoras" },
+				{ "id": "gen-converse", "usage": "practice", "keyPoint": "kp-converse", "difficulty": 3, "type": "generator", "generator": "geometry.pythagoras" }
 			]
 		}
 	]

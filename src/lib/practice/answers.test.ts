@@ -79,6 +79,20 @@ describe('checkAnswer', () => {
 		expect(checkAnswer({ ...calc, answer: 2.5 }, '5/2')).toBe(true);
 	});
 
+	it('calculation: accepts spaced thousands and « x = »', () => {
+		const calc = ex<Extract<Exercise, { type: 'calculation' }>>({
+			type: 'calculation',
+			statement: 'S',
+			answer: '3500'
+		});
+		expect(checkAnswer(calc, '3 500')).toBe(true);
+		expect(checkAnswer(calc, '3 500')).toBe(true);
+		expect(checkAnswer(calc, 'x = 3500')).toBe(true);
+		expect(checkAnswer({ ...calc, answer: '-5/2' }, 'X=-5/2')).toBe(true);
+		expect(checkAnswer(calc, '35 00 0')).toBe(false);
+		expect(checkAnswer(calc, 'x = y = 3500')).toBe(false);
+	});
+
 	it('cloze: every blank must match', () => {
 		const cloze = ex<Extract<Exercise, { type: 'cloze' }>>({
 			type: 'cloze',

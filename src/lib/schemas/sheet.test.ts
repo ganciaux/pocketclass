@@ -37,6 +37,15 @@ describe('sheetSchema', () => {
 		expect(errorsOf({ ...minimalSheet(), tags: ['  '] })).not.toEqual([]);
 	});
 
+	it('rejects a generator name that is not in the catalogue', () => {
+		const data = minimalSheet();
+		const base = { usage: 'practice', keyPoint: 'kp-add', type: 'generator' };
+		data.exercises.push({ ...base, id: 'g1', generator: 'units.length' } as never);
+		expect(errorsOf(data)).toEqual([]);
+		data.exercises.push({ ...base, id: 'g2', generator: 'fractions.magic' } as never);
+		expect(errorsOf(data).join(' ')).toContain('générateur « fractions.magic » inconnu');
+	});
+
 	it('accepts every exercise type', () => {
 		const data = minimalSheet();
 		const base = { usage: 'practice', keyPoint: 'kp-add' };
