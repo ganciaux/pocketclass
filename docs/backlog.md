@@ -23,10 +23,30 @@ Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
 - **Mot de passe parent** : rattaché au compte Google (même famille), connexion par e-mail et
   mot de passe, « mot de passe oublié ». À confirmer sur la vraie app (l'emulator bloque le
   rattachement).
-- **Tampon « acquise »** : le parent tamponne une fiche pour un enfant après avoir vérifié
-  avec lui ; l'enfant voit le tampon sur la fiche, une étoile dans le chapitre et « n
-  acquises » dans ses compteurs. « Continuer » ne propose plus une fiche acquise. Plus tard
-  (phase 3), un contrôle réussi pourra le poser tout seul.
+- **Tampon « acquise »** : posé par le parent (seulement pour les enfants qui voient la
+  fiche) ou automatiquement par un contrôle réussi ; l'enfant voit le tampon sur la fiche, une
+  étoile dans le chapitre et « n acquises » dans ses compteurs. Une fiche acquise compte comme
+  lue. « Continuer » ne propose plus une fiche acquise.
+- **Entraînement (phase 2)** : séries de 10 questions avec score et « Refaire mes erreurs »,
+  défi chronométré de 60 s avec record, nouveaux types (relier, vrai/faux, classer),
+  explication après chaque réponse, 25 générateurs d'exercices (calcul, algèbre, géométrie,
+  conversions) ; scores sur la fiche et carte « Entraînement » côté parent.
+- **Contrôle et points (phase 3)** : contrôle par fiche (questions tirées par point-clé,
+  correction à la fin), réussi à 70 % (réglable par fiche), points gagnés une seule fois
+  (10 par point-clé, réglable), tampon « Acquise » automatique ; un échec pose le tampon
+  « Raté » et bloque un nouvel essai jusqu'à une série d'entraînement. Points sur l'accueil,
+  par matière et sur la page de l'enfant côté parent.
+- **Page chapitre** : repère « Raté » sur le parcours, filtres par état (acquises, ratées,
+  nouvelles, lues…) avec leurs comptes.
+- **Export et sauvegarde** : télécharger en JSON une fiche, un chapitre, une matière ou tous
+  les classeurs ; restaurer une sauvegarde (fichier ou collage), ajoutée comme nouvelles
+  matières.
+- **Contenu réel** : premier chapitre de 6e (Gemini) importé ; l'import refuse les QCM aux
+  options répétées, les catégories en double et les réponses contenant « -> » (corrections
+  laissées par l'IA).
+- **Ergonomie** : confirmations dans une fenêtre (plus de `confirm()` du navigateur), boutons
+  de suppression rouges avec une corbeille, boutons de navigation moutarde doux, survols
+  teintés, grandes lignes de liens sur l'accueil de l'enfant.
 - **Mode test enfant** : le parent utilise l'app comme un enfant choisi (son classeur), avec
   ses propres données de test, remises à zéro quand il veut.
 - **Remarques** : l'enfant écrit une remarque sur une fiche, ou de n'importe quelle page avec
@@ -39,11 +59,14 @@ Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
 
 ## À faire au prochain déploiement
 
-Tout est poussé sur `main`, rien n'est déployé depuis le mot de passe parent.
+Tout est poussé sur `main`. Si ce n'est pas encore fait :
 
 - Lancer `npm run prod` : il déploie l'app **et les règles Firestore** (nécessaires au tampon
-  « Acquise » et aux remarques n'importe où).
+  « Acquise », aux remarques n'importe où, à l'entraînement, au contrôle et aux points).
 - Vérifier sur la vraie app :
+  - sur le téléphone d'un enfant : une série d'entraînement, un défi, un contrôle réussi
+    (tampon + points) et un contrôle raté (« Raté », nouvel essai après une série) ;
+  - exporter tous les classeurs (sauvegarde) avant de gros changements de contenu ;
   - rattacher un mot de passe au compte Google depuis « Mon profil », puis se connecter avec
     (l'emulator bloque ce rattachement) ;
   - sur le téléphone d'un enfant : ouvrir et marquer lue une fiche tamponnée « Acquise » ;
@@ -53,17 +76,23 @@ Tout est poussé sur `main`, rien n'est déployé depuis le mot de passe parent.
 - Sur iPhone : voir si les reconnexions fréquentes cessent (stockage persistant demandé,
   connexion par mot de passe possible).
 
-## En cours : phase 2 (entraînement)
+## À faire ensuite
 
-Fait (2026-11-25) : séries de 10 questions (formule A) avec score, « Refaire mes erreurs »,
-nouveaux types (relier, vrai/faux, classer) et explication après chaque réponse, dernier et
-meilleur score sur la fiche, carte « Entraînement » sur la page de l'enfant côté parent ;
-défi chronométré de 60 s (formule C) avec record par fiche ; générateurs d'exercices (25, en
-4 familles : calcul, algèbre, géométrie, conversions), choisis par l'IA dans le JSON, qui
-complètent les séries et rendent le défi illimité (conception :
-`docs/superpowers/specs/2026-11-25-generators-design.md`).
+Par ordre de demande ; le détail de chaque point est plus bas.
 
-Ensuite :
+1. **Charte graphique et mise en forme** (demandé le 2026-11-25) : listes du parent au style
+   des cartes enfant, charte de couleurs des boutons, filtres du chapitre colorés par état
+   (et « Commencées » → « En cours »).
+2. **Cartes mentales** (demandé à nouveau le 2026-11-25).
+3. **Points de révision** (une fiche revue rapporte des points, pas plus d'une fois par
+   semaine) et **historique d'activité** (à partir du journal des points).
+4. Suite de l'entraînement (ci-dessous).
+
+### Suite de l'entraînement
+
+Conception : `docs/superpowers/specs/2026-11-25-practice-design.md` et
+`2026-11-25-generators-design.md`.
+
 - « jusqu'à maîtrise » (formule B, plus tard) ;
 - trous à choisir dans une liste (aujourd'hui saisis au clavier) ;
 - générateurs : un exemple de question générée dans l'aperçu d'import ; une saisie
@@ -82,11 +111,6 @@ existe déjà ou signale ce qu'il faudra trancher.
 | Revoir la mise en forme des liens de liste côté parent : matières sur `/parent/subjects`, chapitres sur `/parent/subjects/[id]`, fiches sur `/parent/chapters/[id]`. | Aujourd'hui des lignes avec `OrderActions` (↑ ↓ masquer supprimer). Viser le même style que les cartes enfant (bordure moutarde et titre souligné au survol) sans gêner les boutons d'action. |
 | Une charte de couleurs des boutons selon l'action. | À fixer une fois pour toutes dans `CLAUDE.md` (styling), par ex. : principale = moutarde plein, navigation = moutarde doux, secondaire = ghost, suppression = rouge doux, validation = vert. Puis passer sur toutes les pages. |
 | Colorer les filtres de `/chapter/[id]` selon l'état : Toutes = jaune, Acquises = vert, Ratées = rouge, etc. ; renommer « Commencées » en « En cours ». | Reprendre les couleurs des repères du parcours et des badges (`SheetStateBadge`) pour que filtre, badge et repère d'une même fiche aient la même couleur. |
-
-### Vue enfant et navigation
-
-| Idée | À savoir |
-| --- | --- |
 
 ### Remarques et photos
 

@@ -547,10 +547,10 @@ done (player, 10 playable types, attempts, scores), exercise generators done (25
 Phase 4: summary photo flow. Phase 5: child-side extras (QR code if needed). Phase 6:
 spaced repetition, in-app AI prompts, quick lesson entry (`lesson@1`).
 
-The user's ideas set aside (no decision yet: hide the grade from the
-child, key point links, seen-sheets page, tags on sheets, photo upload, mind
-maps with a no-repeat draw, points / 70 % assessments / activity history)
-are in [docs/backlog.md](docs/backlog.md) (French). Keep it in sync when one is done or decided.
+What is done, what to check at the next deploy, the next steps (styling charter, mind maps,
+revision points + activity history, practice follow-ups) and the ideas set aside (photo
+upload…) are in [docs/backlog.md](docs/backlog.md) (French). Keep it in sync when one is done
+or decided.
 
 ## Git
 
