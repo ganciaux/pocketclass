@@ -55,11 +55,12 @@ export interface GroupStats {
 	lastActivity: number | null;
 }
 
-const STARTED: Record<AttemptMode, keyof StatsProgress> = {
+/** The progress counter of the runs started, per mode. */
+export const STARTED_FIELD = {
 	series: 'seriesStarted',
 	timed: 'challengeStarted',
 	assessment: 'assessmentStarted'
-};
+} as const satisfies Record<AttemptMode, keyof StatsProgress>;
 
 /** Statistics of a set of sheets (one sheet, a chapter, a subject or the whole binder). */
 export function groupStats(
@@ -73,7 +74,7 @@ export function groupStats(
 	const sum = (field: keyof StatsProgress) =>
 		docs.reduce((total, p) => total + ((p?.[field] as number | undefined) ?? 0), 0);
 	const runsOf = (mode: AttemptMode) =>
-		runs(sum(STARTED[mode]), own.filter((a) => a.mode === mode).length);
+		runs(sum(STARTED_FIELD[mode]), own.filter((a) => a.mode === mode).length);
 
 	const series = own.filter((a) => a.mode === 'series' && a.total > 0);
 	const average = series.length

@@ -264,7 +264,15 @@ service cloud.firestore {
       return ['subjectId', 'chapterId', 'openedAt', 'readAt', 'acquiredAt',
         'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt',
         'assessmentLast', 'assessmentBest', 'assessedAt', 'failedAt', 'retakeLocked',
-        'assessmentPoints', 'mapDrawn'];
+        'assessmentPoints', 'mapDrawn', 'openCount', 'seriesStarted', 'challengeStarted',
+        'assessmentStarted'];
+    }
+
+    // Statistics counter (sheet opens, started runs): absent, unchanged or one more.
+    function validCounter(field) {
+      let before = resource == null ? 0 : resource.data.get(field, 0);
+      let after = request.resource.data.get(field, before);
+      return after is int && (after == before || after == before + 1);
     }
 
     function validProgress(familyId, profileId, conceptId) {
@@ -276,7 +284,11 @@ service cloud.firestore {
         && request.resource.data.get('retakeLocked', false) is bool
         // Mind map « Me tester »: ids of the practice questions already drawn.
         && request.resource.data.get('mapDrawn', []) is list
-        && request.resource.data.get('mapDrawn', []).size() <= 200;
+        && request.resource.data.get('mapDrawn', []).size() <= 200
+        && validCounter('openCount')
+        && validCounter('seriesStarted')
+        && validCounter('challengeStarted')
+        && validCounter('assessmentStarted');
     }
 
     function assessmentPath(familyId, conceptId) {

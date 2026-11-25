@@ -1,8 +1,9 @@
-import { deleteField, serverTimestamp, setDoc } from 'firebase/firestore';
+import { deleteField, increment, serverTimestamp, setDoc } from 'firebase/firestore';
 import { docSource, querySource } from './sources.ts';
 import { progressCol, progressRef } from './refs.ts';
-import type { ConceptRecord, WithId } from './types.ts';
+import type { AttemptMode, ConceptRecord, WithId } from './types.ts';
 import { inBackground } from './writes.ts';
+import { STARTED_FIELD } from '#lib/stats/stats.ts';
 
 // Progress of a profile on each sheet: opened (for "new" / "updated"), read, and the parent's
 // « Acquise » stamp.
@@ -28,9 +29,34 @@ function writeProgress(
 	inBackground(setDoc(ref, data, { merge: true }), label);
 }
 
-/** The child opened the sheet: it is no longer "new" or "updated". Works offline. */
-export function markOpened(familyId: string, profileId: string, sheet: SheetRef): void {
-	writeProgress(familyId, profileId, sheet, { openedAt: serverTimestamp() }, 'sheet opened');
+/**
+ * The child opened the sheet: it is no longer "new" or "updated". `newVisit` also counts the
+ * visit (statistics), once per sheet shown. Works offline.
+ */
+export function markOpened(
+	familyId: string,
+	profileId: string,
+	sheet: SheetRef,
+	newVisit: boolean
+): void {
+	const fields = { openedAt: serverTimestamp(), ...(newVisit ? { openCount: increment(1) } : {}) };
+	writeProgress(familyId, profileId, sheet, fields, 'sheet opened');
+}
+
+/** A practice series, a challenge or an assessment was started (statistics). Offline. */
+export function countStart(
+	familyId: string,
+	profileId: string,
+	sheet: SheetRef,
+	mode: AttemptMode
+): void {
+	writeProgress(
+		familyId,
+		profileId,
+		sheet,
+		{ [STARTED_FIELD[mode]]: increment(1) },
+		`${mode} started`
+	);
 }
 
 /** Marks a sheet as read or unread. Works offline. */

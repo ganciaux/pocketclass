@@ -11,7 +11,7 @@
 	import { watchConcept, watchSubject } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { saveAssessment, watchAssessmentSetup } from '#lib/data/practice.ts';
-	import { watchConceptProgress } from '#lib/data/progress.ts';
+	import { countStart, watchConceptProgress } from '#lib/data/progress.ts';
 	import type { AssessmentRecord, ConceptRecord, ExerciseRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { correctionOf, exercisePrompt, type PlayableExercise } from '#lib/practice/answers.ts';
@@ -83,13 +83,14 @@
 	let outcome = $state<ReturnType<typeof assessmentOutcome> | null>(null);
 	const score = $derived(scoreOf(results));
 
-	function start(plan: Plan) {
+	function start(plan: Plan, sheet: WithId<ConceptRecord>) {
 		questions = buildAssessment(plan.pool, plan.keyPoints, plan.perKeyPoint);
 		played = plan.settings;
 		results = [];
 		index = 0;
 		outcome = null;
 		phase = 'playing';
+		if (session.familyId && profileId) countStart(session.familyId, profileId, sheet, 'assessment');
 	}
 
 	function answer(correct: boolean, concept: WithId<ConceptRecord>) {
@@ -244,7 +245,10 @@
 										{t.toPractice}
 									</a>
 								{:else}
-									<button class="btn btn-primary btn-lg btn-wide" onclick={() => start(plan)}>
+									<button
+										class="btn btn-primary btn-lg btn-wide"
+										onclick={() => start(plan, concept)}
+									>
 										{t.start}
 									</button>
 								{/if}

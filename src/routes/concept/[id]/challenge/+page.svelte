@@ -7,7 +7,7 @@
 	import { watchConcept } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { saveChallenge, watchPracticeSet } from '#lib/data/practice.ts';
-	import { watchConceptProgress } from '#lib/data/progress.ts';
+	import { countStart, watchConceptProgress } from '#lib/data/progress.ts';
 	import type { ConceptRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import type { PlayableExercise } from '#lib/practice/answers.ts';
@@ -73,6 +73,7 @@
 		current = next();
 		shown++;
 		phase = 'playing';
+		if (session.familyId && profileId) countStart(session.familyId, profileId, concept, 'timed');
 		// A deadline, not a count of ticks: stays right if the phone is slow or the tab sleeps.
 		const deadline = Date.now() + CHALLENGE_SECONDS * 1000;
 		secondsLeft = CHALLENGE_SECONDS;

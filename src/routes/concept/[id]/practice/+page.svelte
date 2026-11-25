@@ -9,7 +9,7 @@
 	import { watchConcept } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { saveSeries, watchPracticeSet } from '#lib/data/practice.ts';
-	import { watchConceptProgress } from '#lib/data/progress.ts';
+	import { countStart, watchConceptProgress } from '#lib/data/progress.ts';
 	import type { ConceptRecord, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import type { PlayableExercise } from '#lib/practice/answers.ts';
@@ -57,12 +57,20 @@
 		round++;
 	}
 
-	const start = (set: PracticeSet) => play(buildPracticeSeries(set));
+	/** A new series (counted for the statistics; the mistakes replay is not). */
+	function start(set: PracticeSet, sheet: WithId<ConceptRecord>) {
+		play(buildPracticeSeries(set));
+		if (session.familyId && profileId) countStart(session.familyId, profileId, sheet, 'series');
+	}
 
-	// First series once the exercises are there (later catalogue changes do not restart it).
+	// First series once the sheet and its exercises are there (later catalogue changes do not
+	// restart it).
 	$effect(() => {
 		const set = practiceSetLive.data;
-		if (set && untrack(() => round) === 0 && !isEmpty(set)) untrack(() => start(set));
+		const sheet = conceptLive.data;
+		if (set && sheet && untrack(() => round) === 0 && !isEmpty(set)) {
+			untrack(() => start(set, sheet));
+		}
 	});
 
 	function answer(correct: boolean) {
@@ -115,7 +123,7 @@
 									{/if}
 									<button
 										class={['btn', wrong > 0 ? 'btn-ghost' : 'btn-primary']}
-										onclick={() => start(set)}
+										onclick={() => start(set, concept)}
 									>
 										{t.newSeries}
 									</button>

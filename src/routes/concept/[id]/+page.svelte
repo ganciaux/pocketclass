@@ -57,9 +57,14 @@
 	const assessment = $derived(assessmentStatus(readLive.data));
 
 	// Opening the sheet clears its "new" / "updated" badge (again if it is re-imported while open).
+	// The visit is counted once per sheet shown (statistics), not on each catalogue update.
+	let counted = '';
 	$effect(() => {
 		const sheet = conceptLive.data;
-		if (session.familyId && profileId && sheet) markOpened(session.familyId, profileId, sheet);
+		if (!session.familyId || !profileId || !sheet) return;
+		const visit = `${profileId}/${sheet.id}`;
+		markOpened(session.familyId, profileId, sheet, visit !== counted);
+		counted = visit;
 	});
 
 	// Back link and heading: chapter title, subject name, picture and colour.

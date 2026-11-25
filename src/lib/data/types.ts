@@ -92,6 +92,11 @@ export interface ProgressRecord {
 	assessmentPoints?: number;
 	/** Mind map « Me tester »: practice questions already drawn (without replacement). */
 	mapDrawn?: string[];
+	/** Statistics (since their release): visits of the sheet page and runs started. */
+	openCount?: number;
+	seriesStarted?: number;
+	challengeStarted?: number;
+	assessmentStarted?: number;
 }
 
 export interface PracticeScore {

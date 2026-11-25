@@ -339,6 +339,22 @@ describe('child writes', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), opened));
 	});
 
+	it('count sheet opens and started runs one at a time (statistics)', async () => {
+		const kid = as('kid-phone');
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		const path = `${lea}/progress/c5`;
+		const set = (fields: object) => setDoc(at(kid, path), { ...where, ...fields }, { merge: true });
+		await assertSucceeds(set({ openedAt: serverTimestamp(), openCount: increment(1) }));
+		await assertSucceeds(set({ openCount: increment(1), seriesStarted: increment(1) }));
+		await assertSucceeds(set({ challengeStarted: 1, assessmentStarted: 1 }));
+		await assertSucceeds(set({ openedAt: serverTimestamp() })); // unchanged counters
+		await assertFails(set({ openCount: increment(2) }));
+		await assertFails(set({ seriesStarted: 0 }));
+		await assertFails(set({ challengeStarted: 'x' }));
+		await assertFails(set({ unknownCount: 1 }));
+		await assertFails(setDoc(at(kid, `${lea}/progress/c6`), { ...where, assessmentStarted: 5 }));
+	});
+
 	it('remember the mind map questions already drawn (a bounded list)', async () => {
 		const kid = as('kid-phone');
 		const where = { subjectId: 'maths', chapterId: 'ch1' };
