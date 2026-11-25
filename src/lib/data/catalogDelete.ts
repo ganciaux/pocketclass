@@ -18,6 +18,7 @@ import {
 	conceptsCol,
 	exercisesCol,
 	notesCol,
+	pointsLedgerCol,
 	profilesCol,
 	progressCol,
 	subjectRef
@@ -25,8 +26,8 @@ import {
 
 // Parent deletions of the binder (online, awaited, after a typed confirmation). Hiding
 // (`archived`) stays the reversible option; these remove the content for good, with what
-// hangs on it: exercises, assessment, and the children's progress, attempts and notes on those sheets
-// (and their notes on the deleted chapters and subject).
+// hangs on it: exercises, assessment, and the children's progress, attempts, points lines and
+// notes on those sheets (and their notes on the deleted chapters and subject).
 // Reads come from the server (getDocs) so nothing written elsewhere is left behind.
 
 const refsOf = async (q: Query) => (await getDocs(q)).docs.map((d) => d.ref);
@@ -38,8 +39,8 @@ interface NoteScope {
 }
 
 /**
- * Exercises, assessment and sheet documents of `sheetIds`, plus the children's progress and
- * notes on them, and their notes on the chapters / subject of `scope`.
+ * Exercises, assessment and sheet documents of `sheetIds`, plus the children's progress,
+ * attempts, points lines and notes on them, and their notes on the chapters / subject of `scope`.
  */
 async function sheetRefs(
 	familyId: string,
@@ -58,14 +59,18 @@ async function sheetRefs(
 		Promise.all(sheetIds.map((id) => refsOf(exercisesCol(familyId, id)))),
 		Promise.all(
 			profiles.map(async (profile) => {
-				const [progress, notes, attempts] = await Promise.all([
+				const [progress, notes, attempts, ledger] = await Promise.all([
 					getDocs(progressCol(familyId, profile.id)),
 					getDocs(notesCol(familyId, profile.id)),
-					getDocs(attemptsCol(familyId, profile.id))
+					getDocs(attemptsCol(familyId, profile.id)),
+					getDocs(pointsLedgerCol(familyId, profile.id))
 				]);
 				return [
 					...progress.docs.filter((d) => ids.has(d.id)),
 					...attempts.docs.filter((d) => ids.has(d.data().conceptId)),
+					// Points lines too (points already counted stay on the profile): a sheet
+					// re-imported with the same id can be earned again.
+					...ledger.docs.filter((d) => ids.has(d.data().conceptId)),
 					...notes.docs.filter((d) => noteGoes(d.data()))
 				].map((d) => d.ref);
 			})

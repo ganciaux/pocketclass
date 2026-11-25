@@ -24,6 +24,7 @@
 		DEFAULT_PER_KEY_POINT,
 		settingsOf
 	} from '#lib/practice/assessment.ts';
+	import { isEmpty, practiceSet } from '#lib/practice/generated.ts';
 	import { scoreOf, type Result } from '#lib/practice/series.ts';
 	import { renderInline, renderMarkdown } from '#lib/render/markdown.ts';
 	import { resolve } from '$app/paths';
@@ -46,7 +47,6 @@
 			conceptId &&
 			watchConceptProgress(session.familyId, profileId, conceptId)
 	);
-	const status = $derived(assessmentStatus(progressLive.data));
 	const subjectId = $derived(conceptLive.data?.subjectId);
 	const subjectLive = live(
 		() => session.familyId && subjectId && watchSubject(session.familyId, subjectId)
@@ -67,7 +67,9 @@
 			keyPoints,
 			perKeyPoint,
 			settings: settingsOf(setup.assessment, keyPoints.length),
-			size: assessmentSize(pool, keyPoints, perKeyPoint)
+			size: assessmentSize(pool, keyPoints, perKeyPoint),
+			// Without practice content, no series could unlock a new try after a fail.
+			canPractise: !isEmpty(practiceSet(setup.exercises))
 		};
 	}
 	type Plan = ReturnType<typeof planOf>;
@@ -127,6 +129,7 @@
 			<LoadState source={setupLive} failed={t.loadFailed}>
 				{#snippet children(setup)}
 					{@const plan = planOf(concept, setup)}
+					{@const status = assessmentStatus(progressLive.data, plan.canPractise)}
 					{#if phase === 'playing'}
 						<section class="card card-border bg-base-100">
 							<div class="card-body gap-4">
@@ -136,6 +139,7 @@
 									</span>
 									<progress
 										class="progress progress-primary w-full"
+										aria-label={t.progress(index + 1, questions.length)}
 										value={index}
 										max={questions.length}
 									></progress>
@@ -151,7 +155,8 @@
 						</section>
 					{:else if phase === 'done' && outcome && played}
 						<section class="card card-border bg-base-100">
-							<div class="card-body items-center gap-3 text-center">
+							<!-- Announced after the last answer (the page does not change). -->
+							<div class="card-body items-center gap-3 text-center" role="status">
 								<p class="text-sm font-bold tracking-wide text-base-content/60 uppercase">
 									{outcome.pass ? t.passed : t.failed}
 								</p>

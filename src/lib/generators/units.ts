@@ -62,7 +62,10 @@ function converter(
 		label,
 		params: `"units" : liste d'au moins 2 unités parmi ${all.join(', ')}`,
 		generate(random, { difficulty, params }) {
-			const [from, to] = unitPair(random, table, allowed(params, 'units', all, 2), difficulty);
+			// The asked units, if they give at least one conversion (["dm³", "L"] gives none).
+			const chosen = allowed(params, 'units', all, 2);
+			const units = new Set(chosen.map((u) => table[u])).size >= 2 ? chosen : all;
+			const [from, to] = unitPair(random, table, units, difficulty);
 			const decimals = difficulty === 1 ? 0 : int(random, 0, difficulty === 2 ? 1 : 2);
 			let digits = int(random, decimals > 0 ? 11 : 1, decimals > 0 ? 999 : 99);
 			while (decimals > 0 && digits % 10 === 0) digits = int(random, 11, 999);

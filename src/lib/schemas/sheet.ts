@@ -21,7 +21,8 @@ const sectionSchema = z.object({
 
 const assessmentSchema = z.object({
 	type: z.enum(ASSESSMENT_TYPES),
-	draw: z.object({ perKeyPoint: z.int().min(1) }).optional(),
+	// An assessment is saved with at most 100 answers (rules): 15 per key point × 6 is plenty.
+	draw: z.object({ perKeyPoint: z.int().min(1).max(15) }).optional(),
 	exerciseIds: z.array(slug).optional(),
 	paper: z
 		.object({

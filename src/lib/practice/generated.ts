@@ -16,19 +16,21 @@ export interface PracticeSet {
 	generators: GeneratorExercise[];
 }
 
-type Stored = Exercise & { archived?: boolean };
+/** An exercise as stored: flat, with `archived`. */
+export type StoredExercise = Exercise & { archived?: boolean };
 
-/** Active practice exercises, split; a generator the app does not know is left out. */
-export function practiceSet(exercises: Stored[]): PracticeSet {
+/** Active generators the app knows (a name missing from the catalogue is left out). */
+export const knownGenerators = (exercises: StoredExercise[]) =>
+	exercises.filter(
+		(e): e is GeneratorExercise & { archived?: boolean } =>
+			e.type === 'generator' && !e.archived && generatorById(e.generator) !== undefined
+	);
+
+/** Active practice exercises, split into written ones and generators. */
+export function practiceSet(exercises: StoredExercise[]): PracticeSet {
 	return {
 		written: playable(exercises),
-		generators: exercises.filter(
-			(e): e is GeneratorExercise & { archived?: boolean } =>
-				e.type === 'generator' &&
-				e.usage === 'practice' &&
-				!e.archived &&
-				generatorById(e.generator) !== undefined
-		)
+		generators: knownGenerators(exercises).filter((g) => g.usage === 'practice')
 	};
 }
 

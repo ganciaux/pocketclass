@@ -167,3 +167,17 @@ describe('correctionOf', () => {
 		expect(correctionOf(tf)).toEqual(['Faux']);
 	});
 });
+
+describe('review fixes', () => {
+	it('never draws more than 100 questions (the rules refuse a longer attempt)', () => {
+		const pool = assessmentPool([gen('g1', 'kp1'), gen('g2', 'kp2')]);
+		expect(buildAssessment(pool, ['kp1', 'kp2'], 60, seeded(3))).toHaveLength(100);
+		expect(assessmentSize(pool, ['kp1', 'kp2'], 60)).toBe(100);
+	});
+
+	it('a fail does not lock a sheet that has nothing to practise', () => {
+		const failed = { failedAt: 1, retakeLocked: true };
+		expect(assessmentStatus(failed, false)).toMatchObject({ failed: true, locked: false });
+		expect(assessmentStatus(failed, true).locked).toBe(true);
+	});
+});

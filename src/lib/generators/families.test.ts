@@ -59,6 +59,13 @@ describe('conversions', () => {
 			)
 		);
 		expect(units.size).toBeGreaterThan(2);
+		// Units of the same size give no conversion: the param is ignored too (no crash).
+		for (const [id, same] of [
+			['units.volume', ['dm³', 'L']],
+			['units.area', ['ha', 'hm²']]
+		] as const) {
+			expect(() => draws(id, { units: [...same] }, 20)).not.toThrow();
+		}
 	});
 
 	it('duration: the true / false trap is true only with the right minutes', () => {

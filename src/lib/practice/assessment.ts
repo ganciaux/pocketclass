@@ -1,7 +1,10 @@
-import { generatorById } from '#lib/generators/catalog.ts';
-import type { Exercise } from '#lib/schemas/common.ts';
 import type { PlayableExercise } from './answers.ts';
-import { generatedDraw, type GeneratorExercise } from './generated.ts';
+import {
+	generatedDraw,
+	knownGenerators,
+	type GeneratorExercise,
+	type StoredExercise
+} from './generated.ts';
 import { shuffle, type Random, type Score } from './series.ts';
 
 /**
@@ -12,6 +15,8 @@ import { shuffle, type Random, type Score } from './series.ts';
 export const DEFAULT_PASS_RATE = 70;
 export const POINTS_PER_KEY_POINT = 10;
 export const DEFAULT_PER_KEY_POINT = 2;
+/** The rules accept at most 100 answers per attempt. */
+export const MAX_ASSESSMENT_QUESTIONS = 100;
 /** Self-assessed types: an assessment is marked by the app. */
 const SELF_ASSESSED = new Set(['pair', 'paper']);
 
@@ -40,31 +45,38 @@ export interface AssessmentPool {
 	generators: GeneratorExercise[];
 }
 
-type Stored = Exercise & { archived?: boolean };
-
 /** What an assessment draws from; `exerciseIds` (from the JSON) limits the written ones. */
-export function assessmentPool(exercises: Stored[], exerciseIds?: string[]): AssessmentPool {
-	const active = exercises.filter((e) => !e.archived);
+export function assessmentPool(
+	exercises: StoredExercise[],
+	exerciseIds?: string[]
+): AssessmentPool {
 	const chosen = exerciseIds && exerciseIds.length > 0 ? new Set(exerciseIds) : null;
 	return {
-		written: active.filter(
-			(e): e is Exclude<Stored, { type: 'generator' }> =>
+		written: exercises.filter(
+			(e): e is Exclude<StoredExercise, { type: 'generator' }> =>
 				e.type !== 'generator' &&
+				!e.archived &&
 				e.usage === 'assessment' &&
 				!SELF_ASSESSED.has(e.type) &&
 				(!chosen || chosen.has(e.id))
 		),
-		generators: active.filter(
-			(e): e is GeneratorExercise & { archived?: boolean } =>
-				e.type === 'generator' && generatorById(e.generator) !== undefined
-		)
+		// Any usage: a practice generator still makes new questions for the assessment.
+		generators: knownGenerators(exercises)
 	};
+}
+
+/** One key point's share: its generators, else its written exercises, and how many questions. */
+function keyPointShare(pool: AssessmentPool, keyPoint: string, perKeyPoint: number) {
+	const generators = pool.generators.filter((g) => g.keyPoint === keyPoint);
+	const written = pool.written.filter((e) => e.keyPoint === keyPoint);
+	const count = generators.length > 0 ? perKeyPoint : Math.min(perKeyPoint, written.length);
+	return { generators, written, count };
 }
 
 /**
  * `perKeyPoint` questions per key point: generated ones when the key point has a generator
  * (new at each try, no text twice), else written ones. Key points without questions are
- * skipped; the questions come shuffled.
+ * skipped; at most `MAX_ASSESSMENT_QUESTIONS`; the questions come shuffled.
  */
 export function buildAssessment(
 	pool: AssessmentPool,
@@ -76,21 +88,14 @@ export function buildAssessment(
 	const seen = new Set<string>();
 	const questions: PlayableExercise[] = [];
 	for (const keyPoint of keyPoints) {
-		const generators = shuffle(
-			pool.generators.filter((g) => g.keyPoint === keyPoint),
-			random
-		);
-		if (generators.length > 0) {
-			for (let i = 0; i < perKeyPoint; i++) {
-				questions.push(draw(generators[i % generators.length], seen));
-			}
-			continue;
+		const share = keyPointShare(pool, keyPoint, perKeyPoint);
+		const count = Math.min(share.count, MAX_ASSESSMENT_QUESTIONS - questions.length);
+		if (share.generators.length > 0) {
+			const generators = shuffle(share.generators, random);
+			for (let i = 0; i < count; i++) questions.push(draw(generators[i % generators.length], seen));
+		} else {
+			questions.push(...shuffle(share.written, random).slice(0, count));
 		}
-		const written = shuffle(
-			pool.written.filter((e) => e.keyPoint === keyPoint),
-			random
-		);
-		questions.push(...written.slice(0, perKeyPoint));
 	}
 	return shuffle(questions, random);
 }
@@ -101,12 +106,11 @@ export function assessmentSize(
 	keyPoints: string[],
 	perKeyPoint = DEFAULT_PER_KEY_POINT
 ): number {
-	return keyPoints.reduce((total, keyPoint) => {
-		if (pool.generators.some((g) => g.keyPoint === keyPoint)) return total + perKeyPoint;
-		return (
-			total + Math.min(perKeyPoint, pool.written.filter((e) => e.keyPoint === keyPoint).length)
-		);
-	}, 0);
+	const total = keyPoints.reduce(
+		(sum, keyPoint) => sum + keyPointShare(pool, keyPoint, perKeyPoint).count,
+		0
+	);
+	return Math.min(total, MAX_ASSESSMENT_QUESTIONS);
 }
 
 export const passed = (score: Score, passRate: number) =>
@@ -122,14 +126,21 @@ export interface AssessmentProgress {
 	assessmentBest?: Score;
 }
 
-export function assessmentStatus(progress: AssessmentProgress | null | undefined) {
+/**
+ * What the sheet page and the assessment page show. `canPractise` false (a sheet without
+ * practice): a fail never locks, as no series could unlock it.
+ */
+export function assessmentStatus(
+	progress: AssessmentProgress | null | undefined,
+	canPractise = true
+) {
 	const acquired = progress?.acquiredAt !== undefined;
 	return {
 		acquired,
 		/** The « Raté » stamp: failed and not acquired since. */
 		failed: !acquired && progress?.failedAt !== undefined,
 		/** A new try waits for a finished practice series. */
-		locked: !acquired && progress?.retakeLocked === true,
+		locked: !acquired && canPractise && progress?.retakeLocked === true,
 		best: progress?.assessmentBest ?? null
 	};
 }
