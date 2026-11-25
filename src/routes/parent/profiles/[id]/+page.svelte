@@ -7,6 +7,7 @@
 	import ExtraSubjects from '#lib/components/ExtraSubjects.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import ProfileLookForm from '#lib/components/ProfileLookForm.svelte';
+	import PracticeScores from '#lib/components/PracticeScores.svelte';
 	import ProfileNotes from '#lib/components/ProfileNotes.svelte';
 	import SubjectCards from '#lib/components/SubjectCards.svelte';
 	import { deleteChildProfile, watchProfile } from '#lib/data/family.ts';
@@ -60,6 +61,10 @@
 				<section class="flex flex-col gap-2">
 					<h2>{fr.dashboard.title}</h2>
 					<SubjectCards {familyId} view={child} ownerId={child.id} />
+				</section>
+				<section class="flex flex-col gap-2">
+					<h2>{fr.practice.parentTitle}</h2>
+					<PracticeScores {familyId} profileId={child.id} />
 				</section>
 				<section class="flex flex-col gap-2">
 					<h2>{fr.notes.parentTitle}</h2>

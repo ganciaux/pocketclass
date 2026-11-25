@@ -53,20 +53,17 @@ Tout est poussé sur `main`, rien n'est déployé depuis le mot de passe parent.
 - Sur iPhone : voir si les reconnexions fréquentes cessent (stockage persistant demandé,
   connexion par mot de passe possible).
 
-## En pause : phase 2 (entraînement)
+## En cours : phase 2 (entraînement)
 
-Moteur d'exercices, générateurs `fractions.*`, vérification des réponses en valeur, historique
-des tentatives (`attempts`).
+Fait (2026-11-25) : séries de 10 questions (formule A) avec score, « Refaire mes erreurs »,
+nouveaux types (relier, vrai/faux, classer) et explication après chaque réponse, dernier et
+meilleur score sur la fiche, carte « Entraînement » sur la page de l'enfant côté parent.
 
-Question à trancher avant de commencer : quand l'enfant lance l'entraînement sur une fiche,
-comment se déroule la séance (série courte, sans fin, ciblée sur un point-clé…), et qu'est-ce
-que le parent veut pouvoir regarder ensuite ?
-
-À savoir :
-- aujourd'hui, une fiche n'a que quelques exercices d'entraînement : l'entraînement n'est
-  « illimité » qu'avec des générateurs ;
-- l'affichage des 8 types d'exercices est sans doute le plus gros du travail ;
-- un exercice `paper` ne se corrige pas automatiquement (autocorrection par l'enfant ?).
+Ensuite :
+- défi chronométré de 60 s (formule C) ;
+- « jusqu'à maîtrise » (formule B, plus tard) ;
+- générateurs `fractions.*` (entraînement illimité) ;
+- trous à choisir dans une liste (aujourd'hui saisis au clavier).
 
 ## Idées mises de côté
 

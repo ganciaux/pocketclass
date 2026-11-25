@@ -151,7 +151,10 @@ export const fr = {
 		backToSheet: 'Retour à la fiche',
 		notSaved: "Mode parent : ce score n'est pas enregistré.",
 		best: (score: string) => `Meilleur : ${score}`,
-		last: (score: string) => `Dernier : ${score}`
+		last: (score: string) => `Dernier : ${score}`,
+		parentTitle: 'Entraînement',
+		noScores: "Aucune série d'entraînement pour l'instant.",
+		bestLabel: 'meilleur'
 	},
 	profiles: {
 		title: 'Profils',
