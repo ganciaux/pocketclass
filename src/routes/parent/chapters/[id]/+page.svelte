@@ -123,7 +123,12 @@
 					{#if chapter.archived}<span class="badge badge-ghost">{t.hidden}</span>{/if}
 				</header>
 				<div class="flex flex-wrap gap-2">
-					<a class="btn btn-sm" href={resolve('/chapter/[id]', { id: chapter.id })}>{t.view}</a>
+					<a
+						class="btn btn-soft btn-primary btn-sm"
+						href={resolve('/chapter/[id]', { id: chapter.id })}
+					>
+						{t.view}
+					</a>
 					<button
 						class="btn btn-ghost btn-sm"
 						onclick={() => setArchived(familyId, 'chapters', chapter.id, !chapter.archived)}
@@ -140,7 +145,10 @@
 								<ul class="flex flex-col divide-y divide-base-300">
 									{#each sheets as sheet, i (sheet.id)}
 										<li
-											class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2"
+											class={[
+												'group relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2',
+												!sheet.archived && 'hover:bg-primary/15'
+											]}
 											in:row
 											out:row={{ exit: true }}
 											animate:reorder
@@ -155,7 +163,7 @@
 													<strong>{@html renderInline(sheet.title)}</strong>
 												{:else}
 													<a
-														class="font-bold hover:underline"
+														class="font-bold group-hover:underline after:absolute after:inset-0"
 														href={resolve('/concept/[id]', { id: sheet.id })}
 													>
 														{@html renderInline(sheet.title)}

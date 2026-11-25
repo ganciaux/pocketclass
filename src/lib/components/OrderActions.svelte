@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 
 	/**
@@ -24,7 +26,8 @@
 	const t = fr.manage;
 </script>
 
-<span class="ms-auto flex shrink-0 items-center gap-1">
+<!-- Positioned: stays above the row's stretched link (parent lists). -->
+<span class="relative ms-auto flex shrink-0 items-center gap-1">
 	<button
 		class="btn btn-square btn-ghost btn-xs"
 		title={t.moveUp}
@@ -47,6 +50,8 @@
 		{archived ? t.show : t.hide}
 	</button>
 	{#if ondelete}
-		<button class="btn btn-ghost btn-xs text-error" onclick={ondelete}>{t.delete}</button>
+		<button class="btn btn-soft btn-error btn-xs" onclick={ondelete}>
+			<Icon paths={UI_ICONS.trash} class="size-3.5" />{t.delete}
+		</button>
 	{/if}
 </span>

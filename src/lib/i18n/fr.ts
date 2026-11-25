@@ -85,14 +85,14 @@ export const fr = {
 		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
 		fresh: (count: number) => plural(count, 'nouveauté'),
 		acquired: (count: number) => plural(count, 'acquise'),
-		state: { new: 'Nouveau', updated: 'Mis à jour', read: 'Lue ✓', opened: 'Commencée' },
+		state: { new: 'Nouveau', updated: 'Mis à jour', read: 'Lue ✓', opened: 'En cours' },
 		/** Chapter page: toggles to filter the sheets by status (several may be on). */
 		filter: {
 			label: 'Filtrer les fiches',
 			all: 'Toutes',
 			status: {
 				new: 'Nouvelles',
-				opened: 'Commencées',
+				opened: 'En cours',
 				read: 'Lues',
 				acquired: 'Acquises',
 				failed: 'Ratées'

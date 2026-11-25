@@ -137,7 +137,12 @@
 					{#if subject.archived}<span class="badge badge-ghost">{t.hidden}</span>{/if}
 				</header>
 				<div class="flex flex-wrap gap-2">
-					<a class="btn btn-sm" href={resolve('/subject/[id]', { id: subject.id })}>{t.view}</a>
+					<a
+						class="btn btn-soft btn-primary btn-sm"
+						href={resolve('/subject/[id]', { id: subject.id })}
+					>
+						{t.view}
+					</a>
 					<button
 						class="btn btn-ghost btn-sm"
 						onclick={() => setArchived(familyId, 'subjects', subject.id, !subject.archived)}
@@ -154,14 +159,14 @@
 								<ul class="flex flex-col divide-y divide-base-300">
 									{#each chapters as chapter, i (chapter.id)}
 										<li
-											class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2"
+											class="group relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2 hover:bg-primary/15"
 											in:row
 											out:row={{ exit: true }}
 											animate:reorder
 										>
 											<a
 												class={[
-													'flex min-w-0 flex-1 basis-48 flex-col hover:underline',
+													'flex min-w-0 flex-1 basis-48 flex-col group-hover:underline after:absolute after:inset-0',
 													chapter.archived && 'text-base-content/50'
 												]}
 												href={resolve('/parent/chapters/[id]', { id: chapter.id })}
@@ -260,7 +265,7 @@
 							{#if result}
 								<ImportResult plan={result.plan}>
 									<a
-										class="btn btn-sm"
+										class="btn btn-soft btn-primary btn-sm"
 										href={resolve('/parent/chapters/[id]', { id: result.chapterId })}
 									>
 										{ti.openChapter}

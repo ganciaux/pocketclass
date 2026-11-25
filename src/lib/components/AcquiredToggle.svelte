@@ -24,7 +24,7 @@
 </script>
 
 <button
-	class={['btn gap-2', acquired ? 'btn-primary' : 'btn-outline']}
+	class={['btn gap-2', acquired ? 'btn-success' : 'btn-outline']}
 	aria-pressed={acquired}
 	title={fr.stamp.toggle(name, acquired)}
 	disabled={progressLive.status === 'loading'}

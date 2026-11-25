@@ -158,7 +158,7 @@
 				{/if}
 				{#if profileId && (acquired || assessment.failed || session.childView?.testing)}
 					<div class="flex flex-wrap items-center gap-3 pt-1">
-						{#if acquired}<AcquiredStamp {color} />{/if}
+						{#if acquired}<AcquiredStamp />{/if}
 						{#if assessment.failed}<FailedStamp />{/if}
 						{#if session.childView?.testing}
 							<button class="btn btn-ghost btn-xs" onclick={() => stampTest(concept)}>
@@ -335,7 +335,7 @@
 
 			<div class="grid grid-cols-2 gap-2">
 				<a
-					class="btn btn-secondary h-auto min-h-12 flex-col gap-0 py-1"
+					class="btn btn-soft btn-primary h-auto min-h-12 flex-col gap-0 py-1"
 					href={resolve('/concept/[id]/practice', { id: concept.id })}
 				>
 					<span class="flex items-center gap-1.5">
@@ -349,7 +349,7 @@
 					{/if}
 				</a>
 				<a
-					class="btn h-auto min-h-12 flex-col gap-0 py-1 btn-outline btn-secondary"
+					class="btn btn-soft btn-primary h-auto min-h-12 flex-col gap-0 py-1"
 					href={resolve('/concept/[id]/challenge', { id: concept.id })}
 				>
 					<span>{fr.challenge.title}</span>

@@ -76,6 +76,21 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
   `main` is already a column with gaps (base layer). Project classes in `app.css`: `.prose`
   (Markdown + KaTeX), `.code-display`, `.doodles` (home and sign-in only, never behind a
   sheet). Avoid custom class names that daisyUI already uses (`.status`, `.label`, `.card`…).
+- **Colour charter « trousse d'écolier »** (2026-11-25, design in
+  `docs/superpowers/specs/2026-11-25-styling-charter-design.md`): the teacher corrects in red
+  and green, the pupil writes in blue, yellow highlights what to do, pencil grey is a draft. A
+  colour keeps its meaning everywhere; button importance comes from intensity, not hue.
+  Buttons: main action (one per moment) `btn-primary`; navigation `btn-soft btn-primary`;
+  secondary / cancel / tools `btn-ghost`; the child's own voice (notes) `btn-secondary`;
+  self-assessed answers `btn-soft btn-success|btn-error`; delete / unlink `btn-soft btn-error`
+  (trash icon), final confirmation `btn-error`. Never a bare `btn` without a role. Sheet
+  statuses share one colour on filter chip, badge, path step and stamp (`STATUS_CHIP`,
+  `STATUS_BADGE`, `STATUS_STEP` in `binder/colors.ts`): new / updated blue, « En cours » grey,
+  read soft green + check, acquired solid green + star (the « Acquise » stamp too), failed
+  red + sad face; « Toutes » is plain ink (chip off = outlined, on = filled). Gold
+  (`badge-warning`) is for points and rewards. Parent management lists: one card per group,
+  rows (square, dividers) with a stretched link (`after:absolute after:inset-0`, actions `relative` above it) and
+  a pale highlighter hover (`hover:bg-primary/15`, title underlined).
 - **Child writes** (progress, notes, profile look) and **parent binder edits** (subjects,
   chapters, order, hide) go through `inBackground()` (`data/writes.ts`): not awaited, so they
   work offline (local cache first, live sources update at once). Parent actions that need the

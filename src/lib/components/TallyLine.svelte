@@ -19,7 +19,7 @@
 		{#if tally.acquired > 0}
 			<span class="flex items-center gap-1">
 				<span aria-hidden="true">·</span>
-				<Icon paths={UI_ICONS.star} class="size-4" />
+				<Icon paths={UI_ICONS.star} class="size-4 text-success" />
 				{fr.binder.acquired(tally.acquired)}
 			</span>
 		{/if}

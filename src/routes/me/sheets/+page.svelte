@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { session } from '#lib/auth.svelte.ts';
-	import { SUBJECT_BORDER, SUBJECT_TEXT } from '#lib/binder/colors.ts';
+	import { STATUS_CHIP, SUBJECT_BORDER, SUBJECT_TEXT } from '#lib/binder/colors.ts';
 	import { activeSubjectId, filterSeen, pickRandom, seenSheets } from '#lib/binder/seen.ts';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
@@ -49,7 +49,7 @@
 				<header class="flex items-center justify-between gap-2">
 					<h1>{t.title}</h1>
 					<button
-						class="btn btn-secondary btn-sm"
+						class="btn btn-soft btn-primary btn-sm"
 						disabled={shown.length === 0}
 						onclick={() => openRandom(shown.map((e) => e.sheet.id))}
 					>
@@ -69,7 +69,7 @@
 					/>
 					<div class="flex flex-wrap gap-2" role="group" aria-label={fr.binder.subject}>
 						<button
-							class={['btn btn-sm', active === null && 'btn-active']}
+							class={['btn btn-sm', active === null ? STATUS_CHIP.all.on : STATUS_CHIP.all.off]}
 							aria-pressed={active === null}
 							onclick={() => (subjectId = null)}
 						>

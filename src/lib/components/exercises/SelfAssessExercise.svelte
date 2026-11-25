@@ -34,7 +34,7 @@
 <div class="flex flex-col gap-3">
 	{#if help}<p class="text-sm text-base-content/60">{help}</p>{/if}
 	{#if !shown}
-		<button class="btn btn-secondary btn-lg" onclick={() => (shown = true)}>{reveal}</button>
+		<button class="btn btn-primary btn-lg" onclick={() => (shown = true)}>{reveal}</button>
 	{:else}
 		<div class="rounded-box border border-secondary/30 bg-secondary/5 p-4">
 			{#if answer}

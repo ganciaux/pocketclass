@@ -44,6 +44,11 @@ Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
 - **Contenu réel** : premier chapitre de 6e (Gemini) importé ; l'import refuse les QCM aux
   options répétées, les catégories en double et les réponses contenant « -> » (corrections
   laissées par l'IA).
+- **Charte graphique « trousse d'écolier »** : le prof corrige en rouge et vert, l'élève
+  écrit en bleu, le surligneur jaune montre quoi faire, le crayon gris est le brouillon.
+  Boutons classés par intensité ; une couleur par état de fiche, la même sur le filtre, la
+  pastille, le repère et le tampon (« Acquise » en vert) ; « Commencées » devient « En
+  cours » ; listes du parent avec survol surligneur sur toute la ligne.
 - **Ergonomie** : confirmations dans une fenêtre (plus de `confirm()` du navigateur), boutons
   de suppression rouges avec une corbeille, boutons de navigation moutarde doux, survols
   teintés, grandes lignes de liens sur l'accueil de l'enfant.
@@ -80,9 +85,8 @@ Tout est poussé sur `main`. Si ce n'est pas encore fait :
 
 Par ordre de demande ; le détail de chaque point est plus bas.
 
-1. **Charte graphique et mise en forme** (demandé le 2026-11-25) : listes du parent au style
-   des cartes enfant, charte de couleurs des boutons, filtres du chapitre colorés par état
-   (et « Commencées » → « En cours »).
+1. ~~Charte graphique et mise en forme~~ : **fait** (2026-11-25), charte « trousse
+   d'écolier » (CLAUDE.md, styling).
 2. **Cartes mentales** (demandé à nouveau le 2026-11-25).
 3. **Points de révision** (une fiche revue rapporte des points, pas plus d'une fois par
    semaine) et **historique d'activité** (à partir du journal des points).
@@ -103,14 +107,6 @@ Conception : `docs/superpowers/specs/2026-11-25-practice-design.md` et
 
 Notées telles quelles, sans décision. La colonne « À savoir » relie chaque idée à ce qui
 existe déjà ou signale ce qu'il faudra trancher.
-
-### Charte graphique et mise en forme (à faire, demandé le 2026-11-25)
-
-| Idée | À savoir |
-| --- | --- |
-| Revoir la mise en forme des liens de liste côté parent : matières sur `/parent/subjects`, chapitres sur `/parent/subjects/[id]`, fiches sur `/parent/chapters/[id]`. | Aujourd'hui des lignes avec `OrderActions` (↑ ↓ masquer supprimer). Viser le même style que les cartes enfant (bordure moutarde et titre souligné au survol) sans gêner les boutons d'action. |
-| Une charte de couleurs des boutons selon l'action. | À fixer une fois pour toutes dans `CLAUDE.md` (styling), par ex. : principale = moutarde plein, navigation = moutarde doux, secondaire = ghost, suppression = rouge doux, validation = vert. Puis passer sur toutes les pages. |
-| Colorer les filtres de `/chapter/[id]` selon l'état : Toutes = jaune, Acquises = vert, Ratées = rouge, etc. ; renommer « Commencées » en « En cours ». | Reprendre les couleurs des repères du parcours et des badges (`SheetStateBadge`) pour que filtre, badge et repère d'une même fiche aient la même couleur. |
 
 ### Remarques et photos
 

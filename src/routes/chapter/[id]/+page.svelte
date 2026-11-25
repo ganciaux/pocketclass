@@ -12,7 +12,13 @@
 		type SheetState,
 		type SheetStatus
 	} from '#lib/binder/binder.ts';
-	import { SUBJECT_TEXT, SUBJECT_TILE } from '#lib/binder/colors.ts';
+	import {
+		STATUS_BADGE,
+		STATUS_CHIP,
+		STATUS_STEP,
+		SUBJECT_TEXT,
+		SUBJECT_TILE
+	} from '#lib/binder/colors.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import Icon from '#lib/components/Icon.svelte';
@@ -54,20 +60,25 @@
 	const toggle = (status: SheetStatus) =>
 		(shown = shown.includes(status) ? shown.filter((s) => s !== status) : [...shown, status]);
 
+	/** Icon of a status, the same on its filter chip and its path step. */
+	const STATUS_ICON: Partial<Record<SheetStatus, 'check' | 'star' | 'sad'>> = {
+		read: 'check',
+		acquired: 'star',
+		failed: 'sad'
+	};
+
 	/**
 	 * Step marker of the sheet path: a star once acquired, a sad face after a failed assessment,
 	 * a check once read, else its number.
 	 */
 	const stepStyle = (state: SheetState | null, acquired: boolean, failed: boolean) =>
 		acquired
-			? ['border-4 border-double border-current bg-base-100', SUBJECT_TEXT[color]]
+			? STATUS_STEP.acquired
 			: failed
-				? 'border-2 border-dashed border-error bg-base-100 text-error'
-				: state === 'read'
-					? 'bg-success text-success-content'
-					: state === 'opened'
-						? ['border-2 border-current bg-base-100', SUBJECT_TEXT[color]]
-						: SUBJECT_TILE[color];
+				? STATUS_STEP.failed
+				: state === 'read' || state === 'opened'
+					? STATUS_STEP[state]
+					: SUBJECT_TILE[color];
 </script>
 
 <svelte:head>
@@ -126,7 +137,7 @@
 							<button
 								class={[
 									'btn rounded-full btn-sm',
-									shown.length === 0 ? 'btn-primary' : 'btn-outline'
+									shown.length === 0 ? STATUS_CHIP.all.on : STATUS_CHIP.all.off
 								]}
 								aria-pressed={shown.length === 0}
 								onclick={() => (shown = [])}
@@ -136,10 +147,16 @@
 							{#each counts as [status, count] (status)}
 								{@const on = shown.includes(status)}
 								<button
-									class={['btn rounded-full btn-sm', on ? 'btn-primary' : 'btn-outline']}
+									class={[
+										'btn rounded-full btn-sm',
+										on ? STATUS_CHIP[status].on : STATUS_CHIP[status].off
+									]}
 									aria-pressed={on}
 									onclick={() => toggle(status)}
 								>
+									{#if STATUS_ICON[status]}
+										<Icon paths={UI_ICONS[STATUS_ICON[status]]} class="size-4" />
+									{/if}
 									{t.filter.status[status]}
 									<span class="badge badge-sm">{count}</span>
 								</button>
@@ -181,15 +198,18 @@
 											{@html renderInline(sheet.title)}
 										</span>
 										{#if acquired}
-											<span class={['badge badge-sm shrink-0 badge-outline', SUBJECT_TEXT[color]]}>
+											<span class={['badge badge-sm shrink-0', STATUS_BADGE.acquired]}>
 												{fr.stamp.label}
 											</span>
 										{:else if failed}
-											<span class="badge shrink-0 badge-soft badge-sm badge-error">
+											<span class={['badge badge-sm shrink-0', STATUS_BADGE.failed]}>
 												{fr.assessment.failedStamp}
 											</span>
 										{/if}
-										{#if state && !(acquired && state === 'read')}<SheetStateBadge {state} />{/if}
+										<!-- After a stamp, only news (new / updated) still deserves a badge. -->
+										{#if state && (!(acquired || failed) || state === 'new' || state === 'updated')}
+											<SheetStateBadge {state} />
+										{/if}
 									</div>
 								</a>
 							</li>

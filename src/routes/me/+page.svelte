@@ -53,7 +53,7 @@
 					<p class="alert alert-warning alert-soft">{fr.common.needsOnline}</p>
 				{/if}
 				<button
-					class="btn btn-outline btn-error self-start"
+					class="btn btn-soft btn-error self-start"
 					onclick={() => (asking = true)}
 					disabled={unlinking || !connectivity.online}
 				>

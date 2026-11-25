@@ -120,7 +120,13 @@
 							</button>
 						{:else}
 							{#each reviewActions(note.status) as status (status)}
-								<button class="btn btn-outline btn-xs" onclick={() => review(note.id, status)}>
+								<button
+									class={[
+										'btn btn-xs',
+										status === 'resolved' ? 'btn-soft btn-success' : 'btn-ghost'
+									]}
+									onclick={() => review(note.id, status)}
+								>
 									{t.review[status]}
 								</button>
 							{/each}

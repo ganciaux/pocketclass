@@ -30,7 +30,7 @@
 <section class="card card-border bg-base-100">
 	<div class="card-body gap-3">
 		<h2 class="card-title">
-			<Icon paths={UI_ICONS.star} class="size-5 text-primary" />
+			<Icon paths={UI_ICONS.star} class="size-5 text-success" />
 			{t.title}
 		</h2>
 		<p class="text-sm text-base-content/70">{t.help}</p>

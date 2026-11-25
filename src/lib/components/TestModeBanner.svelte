@@ -47,7 +47,7 @@
 			>
 				{t.reset}
 			</button>
-			<button class="btn btn-sm" onclick={stop}>{t.stop}</button>
+			<button class="btn btn-soft btn-primary btn-sm" onclick={stop}>{t.stop}</button>
 		</div>
 		{#if resetError}
 			<p role="alert" class="alert alert-error alert-soft">{t.resetFailed}</p>

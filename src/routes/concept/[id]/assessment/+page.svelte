@@ -160,7 +160,7 @@
 									{t.score(score.correct, score.total)}
 								</p>
 								{#if outcome.pass}
-									<AcquiredStamp color={subjectLive.data?.color ?? 'amber'} />
+									<AcquiredStamp />
 									{#if outcome.earned > 0}
 										<p class="badge badge-warning badge-lg font-bold">{t.earned(outcome.earned)}</p>
 									{/if}

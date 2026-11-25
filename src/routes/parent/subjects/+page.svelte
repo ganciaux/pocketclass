@@ -68,7 +68,7 @@
 							<ul class="flex flex-col divide-y divide-base-300">
 								{#each list as subject, i (subject.id)}
 									<li
-										class="flex flex-wrap items-center gap-x-3 gap-y-1 py-2"
+										class="group relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2 hover:bg-primary/15"
 										in:row
 										out:row={{ exit: true }}
 										animate:reorder
@@ -76,7 +76,7 @@
 										<SubjectBadge {subject} size={2.5} />
 										<a
 											class={[
-												'min-w-0 flex-1 basis-20 font-bold hover:underline',
+												'min-w-0 flex-1 basis-20 font-bold group-hover:underline after:absolute after:inset-0',
 												subject.archived && 'text-base-content/50'
 											]}
 											href={resolve('/parent/subjects/[id]', { id: subject.id })}

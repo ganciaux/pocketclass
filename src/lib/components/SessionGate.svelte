@@ -44,7 +44,7 @@
 		<section class="card card-border bg-base-100">
 			<div class="card-body gap-3">
 				<h2 class="card-title">{fr.auth.parentTitle}</h2>
-				<button class="btn" onclick={signIn}>{fr.auth.signInWithGoogle}</button>
+				<button class="btn btn-outline" onclick={signIn}>{fr.auth.signInWithGoogle}</button>
 				{#if signInError}
 					<p role="alert" class="alert alert-error alert-soft">{fr.auth.signInFailed}</p>
 				{/if}
@@ -55,7 +55,9 @@
 {:else if session.status === 'error'}
 	<main>
 		<p role="alert" class="alert alert-error alert-soft">{fr.auth.loadFailed}</p>
-		<button class="btn" onclick={() => session.retry()}>{fr.auth.retry}</button>
+		<button class="btn btn-primary self-start" onclick={() => session.retry()}>
+			{fr.auth.retry}
+		</button>
 	</main>
 {:else}
 	<main>

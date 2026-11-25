@@ -51,7 +51,7 @@
 							<span>
 								{t.linkedOn(device.linkedAt ? formatDate(device.linkedAt.toDate()) : '…')}
 							</span>
-							<button class="btn btn-ghost btn-sm" onclick={() => unlink(device.id)}>
+							<button class="btn btn-soft btn-error btn-sm" onclick={() => unlink(device.id)}>
 								{t.unlink}
 							</button>
 						</li>
@@ -73,7 +73,11 @@
 		{#if !connectivity.online}
 			<p class="alert alert-warning alert-soft">{fr.common.needsOnline}</p>
 		{/if}
-		<button class="btn" onclick={newCode} disabled={creating || !connectivity.online}>
+		<button
+			class="btn btn-primary self-start"
+			onclick={newCode}
+			disabled={creating || !connectivity.online}
+		>
 			{creating ? t.creatingCode : t.createCode}
 		</button>
 	</div>

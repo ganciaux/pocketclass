@@ -114,7 +114,7 @@
 										</button>
 									{/if}
 									<button
-										class={['btn', wrong > 0 ? 'btn-outline' : 'btn-primary']}
+										class={['btn', wrong > 0 ? 'btn-ghost' : 'btn-primary']}
 										onclick={() => start(set)}
 									>
 										{t.newSeries}
