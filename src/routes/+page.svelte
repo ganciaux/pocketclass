@@ -17,6 +17,13 @@
 	const notesLive = live(
 		() => session.familyId && ownerId && watchNotes(session.familyId, ownerId)
 	);
+
+	/** The other parent pages, beside « Gérer les classeurs » (each with its icon). */
+	const parentLinks = [
+		{ href: resolve('/parent/profiles'), icon: UI_ICONS.users, label: fr.home.manageProfiles },
+		{ href: resolve('/parent/notes'), icon: UI_ICONS.message, label: fr.home.childrenNotes },
+		{ href: resolve('/parent/stats'), icon: UI_ICONS.chart, label: fr.home.stats }
+	];
 </script>
 
 <svelte:head><title>{fr.app.name}</title></svelte:head>
@@ -37,26 +44,20 @@
 			<div class="card-body gap-3">
 				<h2 class="card-title">{fr.home.parentSection}</h2>
 				<div class="flex flex-wrap gap-2">
-					<a class="btn btn-primary" href={resolve('/parent/subjects')}>{fr.home.manageBinder}</a>
+					<a class="btn btn-primary" href={resolve('/parent/subjects')}>
+						<Icon paths={UI_ICONS.binders} class="size-5" />
+						{fr.home.manageBinder}
+					</a>
 					<!-- Outline buttons take the page text colour: set the strip's own (readable on slate). -->
-					<a
-						class="btn btn-outline border-neutral-content/40 text-neutral-content"
-						href={resolve('/parent/profiles')}
-					>
-						{fr.home.manageProfiles}
-					</a>
-					<a
-						class="btn btn-outline border-neutral-content/40 text-neutral-content"
-						href={resolve('/parent/notes')}
-					>
-						{fr.home.childrenNotes}
-					</a>
-					<a
-						class="btn btn-outline border-neutral-content/40 text-neutral-content"
-						href={resolve('/parent/stats')}
-					>
-						{fr.home.stats}
-					</a>
+					{#each parentLinks as link (link.href)}
+						<a
+							class="btn btn-outline border-neutral-content/40 text-neutral-content"
+							href={link.href}
+						>
+							<Icon paths={link.icon} class="size-5" />
+							{link.label}
+						</a>
+					{/each}
 				</div>
 			</div>
 		</section>

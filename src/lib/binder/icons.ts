@@ -85,6 +85,17 @@ export const UI_ICONS = {
 		circle(12, 20.5, 1.5)
 	),
 	message: paths('M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z'),
+	/** Binders on a shelf: manage the binders. */
+	binders: paths('M4 4h4v16H4z', 'M10 4h4v16h-4z', 'm16.5 5 3.8-1 3 14.6-3.8 1z', 'M2 20h20'),
+	/** Two people: manage the profiles. */
+	users: paths(
+		circle(9, 8, 3.5),
+		'M2.5 20a6.5 6.5 0 0 1 13 0',
+		'M16 4.6a3.5 3.5 0 0 1 0 6.8',
+		'M18 14a6.5 6.5 0 0 1 3.5 6'
+	),
+	/** Bar chart: statistics. */
+	chart: paths('M4 20V10', 'M10 20V4', 'M16 20v-7', 'M22 20v-4', 'M2 20h20'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),
 	download: paths('M12 3v12', 'm7 10 5 5 5-5', 'M5 21h14'),
 	upload: paths('M12 21V9', 'm7 14 5-5 5 5', 'M5 3h14'),
