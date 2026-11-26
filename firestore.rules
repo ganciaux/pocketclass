@@ -277,7 +277,8 @@ service cloud.firestore {
         'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt',
         'assessmentLast', 'assessmentBest', 'assessedAt', 'failedAt', 'retakeLocked',
         'assessmentPoints', 'mapDrawn', 'openCount', 'seriesStarted', 'challengeStarted',
-        'assessmentStarted', 'revisedAt', 'revisionCount', 'revisionPoints'];
+        'assessmentStarted', 'revisedAt', 'revisionCount', 'revisionPoints', 'cardsKnown',
+        'cardsReview'];
     }
 
     function revisionKeys() {
@@ -340,7 +341,12 @@ service cloud.firestore {
         && validCounter('openCount')
         && validCounter('seriesStarted')
         && validCounter('challengeStarted')
-        && validCounter('assessmentStarted');
+        && validCounter('assessmentStarted')
+        // Revision cards sorted « Je sais » / « À revoir »: card ids.
+        && request.resource.data.get('cardsKnown', []) is list
+        && request.resource.data.get('cardsKnown', []).size() <= 50
+        && request.resource.data.get('cardsReview', []) is list
+        && request.resource.data.get('cardsReview', []).size() <= 50;
     }
 
     function assessmentPath(familyId, conceptId) {

@@ -103,6 +103,9 @@ export interface ProgressRecord {
 	seriesStarted?: number;
 	challengeStarted?: number;
 	assessmentStarted?: number;
+	/** Revision cards (`flashcards/cards.ts` ids) sorted « Je sais » / « À revoir ». */
+	cardsKnown?: string[];
+	cardsReview?: string[];
 }
 
 export interface PracticeScore {

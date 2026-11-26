@@ -7,6 +7,8 @@ import {
 	type RulesTestEnvironment
 } from '@firebase/rules-unit-testing';
 import {
+	arrayRemove,
+	arrayUnion,
 	collection,
 	deleteDoc,
 	deleteField,
@@ -343,6 +345,17 @@ describe('child writes', () => {
 		await assertFails(setDoc(at(kid, `${lea}/progress/c1`), { ...opened, score: 20 }));
 		await assertFails(setDoc(at(kid, `${lea}/progress/c1`), { openedAt: serverTimestamp() }));
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/profiles/tom/progress/c1`), opened));
+	});
+
+	it('sort revision cards in two bounded piles (known, to review)', async () => {
+		const kid = as('kid-phone');
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		const path = `${lea}/progress/c7`;
+		const set = (fields: object) => setDoc(at(kid, path), { ...where, ...fields }, { merge: true });
+		await assertSucceeds(set({ cardsKnown: arrayUnion('c7~a'), cardsReview: arrayRemove('c7~a') }));
+		await assertSucceeds(set({ cardsReview: arrayUnion('c7~b') }));
+		await assertFails(set({ cardsKnown: 'c7~a' }));
+		await assertFails(set({ cardsReview: Array.from({ length: 51 }, (_, i) => `c7~${i}`) }));
 	});
 
 	it('count sheet opens and started runs one at a time (statistics)', async () => {

@@ -1,4 +1,11 @@
-import { deleteField, increment, serverTimestamp, setDoc } from 'firebase/firestore';
+import {
+	arrayRemove,
+	arrayUnion,
+	deleteField,
+	increment,
+	serverTimestamp,
+	setDoc
+} from 'firebase/firestore';
 import { docSource, querySource } from './sources.ts';
 import { progressCol, progressRef } from './refs.ts';
 import type { ConceptRecord, WithId } from './types.ts';
@@ -89,4 +96,18 @@ export function saveMapDrawn(
 	drawn: string[]
 ): void {
 	writeProgress(familyId, profileId, sheet, { mapDrawn: drawn }, 'mind map draw');
+}
+
+/** A revision card sorted in a pile (removed from the other one). Works offline. */
+export function sortCard(
+	familyId: string,
+	profileId: string,
+	sheet: SheetRef,
+	cardId: string,
+	pile: 'known' | 'review'
+): void {
+	const [into, from] =
+		pile === 'known' ? ['cardsKnown', 'cardsReview'] : ['cardsReview', 'cardsKnown'];
+	const fields = { [into]: arrayUnion(cardId), [from]: arrayRemove(cardId) };
+	writeProgress(familyId, profileId, sheet, fields, 'card sorted');
 }
