@@ -543,13 +543,13 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   `binderRevisions`; client check with a 5-minute margin on the device clock, since a refused
   revision would lose the whole series batch). Same batch as the series (`saveSeries`, shared
   `earnPoints` with the assessment): `revisedAt`, `revisionCount`, `revisionPoints` on progress
-  + `pointsLedger/revision-<sheet>-<n>` + profile `increment()`. Rules (`revisionRecorded`,
-  `revisionLine`): acquired before, count + 1, `request.time` ≥ last + 7 d, `practiceLast` ≥ 70 %
-  written now, line of 2 × key points, `revisionPoints` grows by the line; never on a new
-  progress document. Points per subject add `revisionPoints`. UI: `<RevisionHourglass>` (sheet
-  page and end of a series; `ticking()` in `clock.svelte.ts` refreshes every 30 s), page
-  `/me/revisions` (ready first, then hourglasses, soonest first) linked from the child home with
-  the count ready.
+  - `pointsLedger/revision-<sheet>-<n>` + profile `increment()`. Rules (`revisionRecorded`,
+    `revisionLine`): acquired before, count + 1, `request.time` ≥ last + 7 d, `practiceLast` ≥ 70 %
+    written now, line of 2 × key points, `revisionPoints` grows by the line; never on a new
+    progress document. Points per subject add `revisionPoints`. UI: `<RevisionHourglass>` (sheet
+    page and end of a series; `ticking()` in `clock.svelte.ts` refreshes every 30 s), page
+    `/me/revisions` (ready first, then hourglasses, soonest first) linked from the child home with
+    the count ready.
 
 ## Firestore model
 
