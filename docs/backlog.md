@@ -105,13 +105,9 @@ Par ordre de demande ; le détail de chaque point est plus bas.
 6. ~~« Aujourd'hui » et série de jours~~ : **fait** (2026-11-26), carte en haut de l'accueil de
    l'enfant (jours d'affilée en bâtons, 3 choses à faire au plus).
 7. Suite de l'entraînement (ci-dessous).
-8. Harmoniser les polices : un même élément doit garder la même écriture d'une page à l'autre.
-   Exemple : sur l'accueil, le nom d'un classeur (« Mathématiques ») est en Atkinson gras ;
-   une fois cliqué, le bandeau de la matière l'écrit en Permanent Marker (`h1`). Faire
-   l'inventaire (titres de cartes, bandeaux, `h1` / `h2`, boutons Retour en Kalam) et fixer
-   une règle par rôle dans la charte. Polices manuscrites retenues : **Kalam** gras (en place
-   sur les boutons Retour), **Gochi Hand** en alternative (feutre plus enfantin) ; Patrick
-   Hand refusée.
+8. ~~Harmoniser les polices~~ : **fait** (2026-11-26), deux polices : Permanent Marker pour
+   l'écriture de l'app (nom, « Se déconnecter », boutons retour, étoile des points), Atkinson
+   pour tout le reste, titres compris. Kalam retirée.
 
 ### Suite de l'entraînement
 

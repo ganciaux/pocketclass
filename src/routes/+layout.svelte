@@ -56,7 +56,10 @@
 	{/if}
 	<!-- Children (anonymous accounts) never sign out: the account would be lost. See /me. -->
 	{#if session.user && !session.user.isAnonymous}
-		<button class="btn btn-ghost btn-sm text-neutral-content" onclick={() => session.signOut()}>
+		<button
+			class="btn btn-ghost btn-sm font-display text-base font-normal text-neutral-content"
+			onclick={() => session.signOut()}
+		>
 			{fr.auth.signOut}
 		</button>
 	{/if}

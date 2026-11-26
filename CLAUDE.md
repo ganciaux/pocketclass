@@ -39,9 +39,11 @@ ids already used), the parent pastes it into any AI, gets JSON back, pastes it i
   KaTeX + marked + DOMPurify for sheets (**always sanitise before `{@html}`**). Vitest.
 - **Tailwind 4 + daisyUI 5** (`@tailwindcss/vite`), mobile first. Two daisyUI themes from the logo in
   `src/app.css`: `pocketclass-light` (paper) and `pocketclass-dark` (slate, follows the phone).
-  Fonts bundled with `@fontsource` (offline): Atkinson Hyperlegible (text), Permanent Marker
-  (app name, `h1` and the numbers of the points stars), Kalam bold (felt-pen handwriting: the « back »
-  links at the top left of the pages, `font-hand`). Bits UI only if a complex interactive widget is ever needed.
+  Fonts bundled with `@fontsource` (offline), **two only** (2026-11-26): Permanent Marker
+  (`font-display`, the app's own writing: app name, « Se déconnecter », back buttons —
+  `<BackLink>`, « Retour à la fiche », « Retour à la carte », error page — and the points star
+  number; always `font-normal`, it has one weight) and Atkinson Hyperlegible for everything
+  else, page titles (`h1`, bold) included. Mono only for technical parent tools (JSON, ids). Bits UI only if a complex interactive widget is ever needed.
 
 ## Architecture & conventions (how to add code)
 
@@ -646,6 +648,13 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   from seeded test data (progress written without its ledger line), not from the app: a sheet's
   points and the profile counter are always written in the same batch (`earnPoints`); the only
   real gap is the other way (a deleted sheet's points stay on the profile).
+
+- 2026-11-26 — **Two fonts** (user's rule, backlog item 8). Permanent Marker is the app's own
+  writing on the binder: the app name, « Se déconnecter », the back buttons and the points
+  star. Atkinson Hyperlegible is the content, page titles included (`h1` bold): a binder or a
+  sheet keeps the same writing from its card to its page. Kalam (back links) removed with its
+  package. Other navigation buttons (« S'entraîner », « Carte mentale »…) stay in Atkinson:
+  Marker is hard to read on long or two-line labels.
 
 ## Firestore model
 

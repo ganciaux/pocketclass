@@ -2,7 +2,6 @@
 @import '@fontsource/atkinson-hyperlegible/400.css';
 @import '@fontsource/atkinson-hyperlegible/700.css';
 @import '@fontsource/permanent-marker/400.css';
-@import '@fontsource/kalam/700.css';
 @import 'tailwindcss';
 
 /* daisyUI 5: only our two themes, taken from the PocketClass logo. */
@@ -84,10 +83,11 @@
 
 @theme {
 	--font-sans: 'Atkinson Hyperlegible', system-ui, sans-serif;
-	/* Marker lettering: the app name and page titles only. */
+	/*
+	 * Marker lettering: the app's own writing on the binder (the app name, « Se déconnecter »,
+	 * the back buttons, the points sticker). Everything else, titles included, is Atkinson.
+	 */
 	--font-display: 'Permanent Marker', 'Comic Sans MS', cursive;
-	/* Handwriting of an exercise book: the « back » links at the top of the pages. */
-	--font-hand: 'Kalam', 'Comic Sans MS', cursive;
 	/* Motion (also `src/lib/motion.ts`): strong curves, the built-in ones are too weak. */
 	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -147,8 +147,8 @@ header.navbar {
 	}
 
 	h1 {
-		font-family: var(--font-display);
 		font-size: var(--text-3xl);
+		font-weight: 700;
 		line-height: 1.15;
 	}
 

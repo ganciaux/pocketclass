@@ -127,7 +127,10 @@
 						</header>
 						{#if test.questions.length === 0}
 							<p class="alert alert-info alert-soft">{t.noQuestions}</p>
-							<button class="btn btn-soft btn-primary self-start" onclick={() => (test = null)}>
+							<button
+								class="btn btn-soft btn-primary self-start font-display font-normal"
+								onclick={() => (test = null)}
+							>
 								{t.back}
 							</button>
 						{:else if finished}
@@ -144,7 +147,10 @@
 										>
 											{t.again}
 										</button>
-										<button class="btn btn-soft btn-primary" onclick={() => (test = null)}>
+										<button
+											class="btn btn-soft btn-primary font-display font-normal"
+											onclick={() => (test = null)}
+										>
 											{t.back}
 										</button>
 									</div>

@@ -143,7 +143,7 @@
 										{t.newSeries}
 									</button>
 									<a
-										class="btn btn-soft btn-primary"
+										class="btn btn-soft btn-primary font-display font-normal"
 										href={resolve('/concept/[id]', { id: concept.id })}
 									>
 										{t.backToSheet}
