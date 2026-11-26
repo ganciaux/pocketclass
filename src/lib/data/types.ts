@@ -110,7 +110,7 @@ export interface PracticeScore {
 	total: number;
 }
 
-export const ATTEMPT_MODES = ['series', 'timed', 'assessment'] as const;
+export const ATTEMPT_MODES = ['series', 'timed', 'assessment', 'review'] as const;
 export type AttemptMode = (typeof ATTEMPT_MODES)[number];
 
 /**

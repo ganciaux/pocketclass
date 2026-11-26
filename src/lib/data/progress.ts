@@ -1,9 +1,9 @@
 import { deleteField, increment, serverTimestamp, setDoc } from 'firebase/firestore';
 import { docSource, querySource } from './sources.ts';
 import { progressCol, progressRef } from './refs.ts';
-import type { AttemptMode, ConceptRecord, WithId } from './types.ts';
+import type { ConceptRecord, WithId } from './types.ts';
 import { inBackground } from './writes.ts';
-import { STARTED_FIELD } from '#lib/stats/stats.ts';
+import { STARTED_FIELD, type CountedMode } from '#lib/stats/stats.ts';
 
 // Progress of a profile on each sheet: opened (for "new" / "updated"), read, and the parent's
 // « Acquise » stamp.
@@ -48,7 +48,7 @@ export function countStart(
 	familyId: string,
 	profileId: string,
 	sheet: SheetRef,
-	mode: AttemptMode
+	mode: CountedMode
 ): void {
 	writeProgress(
 		familyId,

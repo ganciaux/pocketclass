@@ -100,7 +100,10 @@ Par ordre de demande ; le détail de chaque point est plus bas.
    70 % rapporte 2 points par point-clé, puis sablier d'une semaine (sur la fiche, en fin de
    série et sur la page « Mes révisions »). ~~Historique d'activité~~ : **fait** (2026-11-26),
    page « Mon activité » (enfant) et section « Activité » des statistiques (parent).
-5. Suite de l'entraînement (ci-dessous).
+5. ~~Erreurs à revoir~~ : **fait** (2026-11-26), page « Mes erreurs à revoir » (une question
+   ratée revient le lendemain, puis 3 jours après, et disparaît après deux réussites).
+6. « Aujourd'hui » sur l'accueil de l'enfant et série de jours (en cours).
+7. Suite de l'entraînement (ci-dessous).
 
 ### Suite de l'entraînement
 

@@ -329,6 +329,20 @@ export const fr = {
 		choice: { auto: 'Auto', light: 'Clair', dark: 'Sombre' },
 		help: 'Auto suit le réglage du téléphone. Le choix est retenu sur cet appareil.'
 	},
+	/** « Mes erreurs à revoir »: wrong answers come back after a while. */
+	mistakes: {
+		title: 'Mes erreurs à revoir',
+		hint: "Les questions ratées reviennent, jusqu'à ce que tu les saches.",
+		dueCount: (n: number) => `${n} à revoir`,
+		due: (n: number) => `${plural(n, 'question')} à revoir aujourd'hui.`,
+		start: (n: number) => `Revoir ${plural(n, 'question')}`,
+		again: (n: number) => `Encore ${plural(n, 'question')}`,
+		howItWorks:
+			'Une question ratée revient le lendemain, puis 3 jours plus tard ; réussie deux fois de suite, elle disparaît.',
+		nothingToday: (left: string) => `Rien à revoir aujourd'hui. Prochaine question dans ${left}.`,
+		none: 'Aucune erreur à revoir. Bravo !',
+		loadFailed: 'Impossible de charger tes erreurs.'
+	},
 	/** Activity history: finished runs with the points they earned, by day. */
 	activity: {
 		title: 'Mon activité',
@@ -342,6 +356,7 @@ export const fr = {
 			series: 'Entraînement',
 			timed: 'Défi',
 			assessment: 'Contrôle',
+			review: 'Erreurs revues',
 			points: 'Points'
 		},
 		passed: 'Réussi',

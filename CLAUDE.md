@@ -616,6 +616,18 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   stays below the UI); `<WriteErrorToast>` (root layout, top, until dismissed) says a result
   (labels `practice …`) or a change was not saved, with a hint (`permission-denied`: check the
   phone's automatic time, reload, try again; else the connection).
+- 2026-11-26 — **« Mes erreurs à revoir »** (first step of spaced repetition). Read from the
+  runs history only (`practice/mistakes.ts`): a question answered wrong comes back the next day;
+  right once, 3 days later; right twice in a row, it is done (right answers before a mistake do
+  not count; pending runs count as now). Generated questions are grouped under their generator
+  exercise (`gen~3` → `gen`) and come back as a new question (`gen~r`). Only practice exercises
+  and known generators are replayed (`reviewable`; written assessment questions stay for the
+  assessment; archived or deleted ones drop out). `watchReview` (`data/mistakes.ts`) follows
+  the attempts and opens a live listener on the exercises of each sheet with mistakes. Page
+  `/me/mistakes` (up to 10 questions, every sheet mixed, answer feedback as in a series), home
+  link with the count due. A finished review saves one `review` attempt per sheet in one batch
+  (`saveReview`; rules accept the mode; no progress fields, not counted as runs started by the
+  statistics: `CountedMode`). No `Map.groupBy` (iOS < 17.4).
 
 ## Firestore model
 
@@ -644,7 +656,7 @@ families/{familyId}                            { name, admins: [uid], createdAt 
                                                  a passed assessment; practice* / assessment* = { correct, total };
                                                  challengeBest = right answers in 60 s; failedAt = « Raté » stamp;
                                                  revisedAt = last paid revision, revisionCount = its ledger suffix)
-  profiles/{profileId}/attempts/{attemptId}    { conceptId, subjectId, chapterId, mode: series|timed|assessment, correct,
+  profiles/{profileId}/attempts/{attemptId}    { conceptId, subjectId, chapterId, mode: series|timed|assessment|review, correct,
                                                  total, answers: [{ exerciseId, correct }], createdAt }   (create only)
   profiles/{profileId}/pointsLedger/{entryId}  { kind: assessment|revision, conceptId, subjectId, chapterId, amount, createdAt }
                                                  (id assessment-<sheet>: once per sheet; revision-<sheet>-<n>: a

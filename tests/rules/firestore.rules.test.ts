@@ -421,6 +421,8 @@ describe('child writes', () => {
 		};
 		await assertSucceeds(setDoc(at(kid, `${lea}/attempts/a1`), attempt));
 		await assertSucceeds(setDoc(at(kid, `${lea}/attempts/a3`), { ...attempt, mode: 'timed' }));
+		await assertSucceeds(setDoc(at(kid, `${lea}/attempts/a4`), { ...attempt, mode: 'review' }));
+		await assertFails(setDoc(at(kid, `${lea}/attempts/a5`), { ...attempt, mode: 'cheat' }));
 		await assertSucceeds(getDoc(at(kid, `${lea}/attempts/a1`)));
 		await assertFails(updateDoc(at(kid, `${lea}/attempts/a1`), { correct: 2 }));
 		await assertFails(deleteDoc(at(kid, `${lea}/attempts/a1`)));

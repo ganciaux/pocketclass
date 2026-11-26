@@ -52,12 +52,15 @@ export interface GroupStats {
 	lastActivity: number | null;
 }
 
+/** Runs started and finished on one sheet (a mistakes review spans sheets: not counted). */
+export type CountedMode = Exclude<AttemptMode, 'review'>;
+
 /** The progress counter of the runs started, per mode. */
 export const STARTED_FIELD = {
 	series: 'seriesStarted',
 	timed: 'challengeStarted',
 	assessment: 'assessmentStarted'
-} as const satisfies Record<AttemptMode, Counter>;
+} as const satisfies Record<CountedMode, Counter>;
 
 /** Statistics of a set of sheets (one sheet, a chapter, a subject or the whole binder). */
 export function groupStats(
@@ -69,7 +72,7 @@ export function groupStats(
 	const own = attempts.filter((a) => ids.has(a.conceptId));
 	const docs = sheetIds.map((id) => progress.get(id));
 	const sum = (field: Counter) => docs.reduce((total, p) => total + (p?.[field] ?? 0), 0);
-	const runsOf = (mode: AttemptMode) =>
+	const runsOf = (mode: CountedMode) =>
 		runs(sum(STARTED_FIELD[mode]), own.filter((a) => a.mode === mode).length);
 
 	const series = own.filter((a) => a.mode === 'series' && a.total > 0);

@@ -216,7 +216,7 @@ service cloud.firestore {
             && request.resource.data.conceptId is string
             && request.resource.data.subjectId is string
             && request.resource.data.chapterId is string
-            && request.resource.data.mode in ['series', 'timed', 'assessment']
+            && request.resource.data.mode in ['series', 'timed', 'assessment', 'review']
             && validScore(request.resource.data)
             && request.resource.data.answers is list
             && request.resource.data.answers.size() == request.resource.data.total

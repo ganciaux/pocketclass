@@ -8,6 +8,8 @@
 	import { live } from '#lib/data/live.svelte.ts';
 	import { ticking } from '#lib/clock.svelte.ts';
 	import { binderRevisions } from '#lib/practice/revision.ts';
+	import { watchReview } from '#lib/data/mistakes.ts';
+	import { dueMistakes, mistakes, reviewable } from '#lib/practice/mistakes.ts';
 	import { watchNotes } from '#lib/data/notes.ts';
 	import { openCount } from '#lib/notes/notes.ts';
 	import { fr } from '#lib/i18n/fr.ts';
@@ -24,7 +26,17 @@
 	const binderLive = live(
 		() => session.childView && session.familyId && watchBinder(session.familyId, ownerId)
 	);
+	const reviewLive = live(
+		() => session.childView && session.familyId && ownerId && watchReview(session.familyId, ownerId)
+	);
 	const clock = ticking();
+	// Questions to review today (count on « Mes erreurs à revoir »).
+	const dueCount = $derived.by(() => {
+		const review = reviewLive.data;
+		if (!review) return 0;
+		const open = reviewable(mistakes(review.attempts, clock.now), review.exercises);
+		return dueMistakes(open, clock.now).due.length;
+	});
 	const readyRevisions = $derived(
 		binderLive.data && session.childView
 			? binderRevisions(binderLive.data, session.childView, clock.now).filter(
@@ -94,6 +106,13 @@
 				fr.revision.title,
 				fr.revision.hint,
 				readyRevisions > 0 ? fr.revision.readyCount(readyRevisions) : null
+			)}
+			{@render homeLink(
+				resolve('/me/mistakes'),
+				UI_ICONS.refresh,
+				fr.mistakes.title,
+				fr.mistakes.hint,
+				dueCount > 0 ? fr.mistakes.dueCount(dueCount) : null
 			)}
 			{@render homeLink(
 				resolve('/me/activity'),

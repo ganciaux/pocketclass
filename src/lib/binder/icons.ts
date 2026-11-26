@@ -94,6 +94,13 @@ export const UI_ICONS = {
 		'M16 4.6a3.5 3.5 0 0 1 0 6.8',
 		'M18 14a6.5 6.5 0 0 1 3.5 6'
 	),
+	/** Circular arrows: questions coming back (mistakes to review). */
+	refresh: paths(
+		'M3 12a9 9 0 0 1 15.5-6.2L21 8',
+		'M21 3v5h-5',
+		'M21 12a9 9 0 0 1-15.5 6.2L3 16',
+		'M3 21v-5h5'
+	),
 	/** Hourglass: time left before the next paid revision. */
 	hourglass: paths('M6 2h12', 'M6 22h12', 'M7 2v4l5 6 5-6V2', 'M7 22v-4l5-6 5 6v4', 'M10 19h4'),
 	/** Bar chart: statistics. */
