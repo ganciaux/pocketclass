@@ -15,6 +15,6 @@
 	<BackLink href={resolve('/')} label={fr.app.home} />
 	<h1>{t.title}</h1>
 	{#if session.familyId && session.ownerId && session.childView}
-		<ActivityFeed familyId={session.familyId} profileId={session.ownerId} />
+		<ActivityFeed familyId={session.familyId} profileId={session.ownerId} dayHeading="h2" />
 	{/if}
 </main>

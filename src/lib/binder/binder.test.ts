@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	childSheets,
 	freeColor,
 	groupChapters,
 	isAcquired,
@@ -282,5 +283,43 @@ describe('freeColor', () => {
 	it('picks the first unused colour, then cycles', () => {
 		expect(freeColor([])).toBe('amber');
 		expect(freeColor([{ color: 'amber' }, { color: 'emerald' }])).toBe('blue');
+	});
+});
+
+describe('childSheets', () => {
+	it('keeps the active sheets of visible subjects and active chapters, with their place', () => {
+		const subjects = [
+			subject('maths', '3e', 0),
+			subject('french', '6e', 0),
+			subject('art', '6e', 1)
+		];
+		const chapters = [
+			{ id: 'ch', archived: false },
+			{ id: 'hidden', archived: true }
+		];
+		const sheet = (id: string, subjectId: string, chapterId = 'ch', archived = false) => ({
+			id,
+			subjectId,
+			chapterId,
+			archived
+		});
+		const sheets = [
+			sheet('a', 'maths'),
+			sheet('b', 'french'),
+			sheet('c', 'maths', 'hidden'),
+			sheet('d', 'maths', 'ch', true),
+			sheet('e', 'art')
+		];
+		const view = { grade: '3e' as Grade, extraSubjects: ['art'] };
+		expect(
+			childSheets({ subjects, chapters, sheets }, view).map((p) => [
+				p.sheet.id,
+				p.subject.id,
+				p.chapter.id
+			])
+		).toEqual([
+			['a', 'maths', 'ch'],
+			['e', 'art', 'ch']
+		]);
 	});
 });

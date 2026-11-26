@@ -261,7 +261,7 @@
 											{run.createdAt ? formatDateTime(run.createdAt.toDate()) : t.pending}
 										</td>
 										<td>{@html renderInline(titles.get(run.conceptId) ?? t.hiddenSheet)}</td>
-										<td>{t.mode[run.mode]}</td>
+										<td>{fr.activity.kind[run.mode]}</td>
 										<td class="text-end font-bold whitespace-nowrap">
 											{fr.practice.score(run.correct, run.total)}
 										</td>

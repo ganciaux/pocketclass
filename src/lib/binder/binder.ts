@@ -49,7 +49,7 @@ export function moveItem(
 		.map(({ id, order }) => ({ id, order }));
 }
 
-type SubjectLike = { id: string } & Pick<Subject, 'name' | 'grade' | 'order' | 'archived'>;
+export type SubjectLike = { id: string } & Pick<Subject, 'name' | 'grade' | 'order' | 'archived'>;
 
 /** A child sees a subject of their grade, or one the parent added to their binder. */
 export const seesSubject = (
@@ -222,6 +222,28 @@ export function reachableSheets<S extends { chapterId: string; archived: boolean
 ): S[] {
 	const open = new Set(activeOnly(chapters).map((c) => c.id));
 	return activeOnly(sheets).filter((s) => open.has(s.chapterId));
+}
+
+/**
+ * The sheets a child can reach, each with its subject and chapter: a visible subject (their
+ * grade or an extra one), an active chapter, an active sheet. Base of « Mes fiches vues » and
+ * « Mes révisions ».
+ */
+export function childSheets<
+	S extends { subjectId: string; chapterId: string; archived: boolean },
+	Su extends SubjectLike,
+	C extends { id: string; archived: boolean }
+>(
+	binder: { subjects: Su[]; chapters: C[]; sheets: S[] },
+	view: Pick<Profile, 'grade' | 'extraSubjects'>
+): { sheet: S; subject: Su; chapter: C }[] {
+	const subjects = new Map(visibleSubjects(binder.subjects, view).map((s) => [s.id, s]));
+	const chapters = new Map(binder.chapters.map((c) => [c.id, c]));
+	return reachableSheets(binder.sheets, binder.chapters).flatMap((sheet) => {
+		const subject = subjects.get(sheet.subjectId);
+		const chapter = chapters.get(sheet.chapterId);
+		return subject && chapter ? [{ sheet, subject, chapter }] : [];
+	});
 }
 
 /** Progress documents by sheet id. */

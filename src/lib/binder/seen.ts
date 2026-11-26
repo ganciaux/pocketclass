@@ -1,17 +1,16 @@
-import type { Profile, Subject } from '#lib/data/types.ts';
+import type { Profile } from '#lib/data/types.ts';
 import {
-	reachableSheets,
+	childSheets,
 	sheetState,
-	visibleSubjects,
 	type SheetProgress,
-	type SheetState
+	type SheetState,
+	type SubjectLike
 } from './binder.ts';
 
 // "Mes fiches vues": the sheets a child already opened, searchable and drawable at random.
 // Pure module (unit-tested). Structural types, like binder.ts: real records fit.
 
 type Stamp = { toMillis(): number };
-type SubjectLike = { id: string } & Pick<Subject, 'name' | 'grade' | 'order' | 'archived'>;
 type ChapterLike = { id: string; title: string; archived: boolean };
 type SheetLike = {
 	id: string;
@@ -39,24 +38,19 @@ export function seenSheets<S extends SheetLike, Su extends SubjectLike, C extend
 	binder: { subjects: Su[]; chapters: C[]; sheets: S[]; progress: ProgressLike[] },
 	view: Pick<Profile, 'grade' | 'extraSubjects'>
 ): SeenSheet<S, Su, C>[] {
-	const subjects = new Map(visibleSubjects(binder.subjects, view).map((s) => [s.id, s]));
-	const chapters = new Map(binder.chapters.map((c) => [c.id, c]));
 	const progress = new Map(binder.progress.map((p) => [p.id, p]));
-	const entries: SeenSheet<S, Su, C>[] = [];
-	for (const sheet of reachableSheets(binder.sheets, binder.chapters)) {
-		const subject = subjects.get(sheet.subjectId);
-		const chapter = chapters.get(sheet.chapterId);
-		const opened = progress.get(sheet.id);
+	const entries = childSheets(binder, view).flatMap((place) => {
+		const opened = progress.get(place.sheet.id);
 		// A document holding only the parent's stamp: never opened, so not « seen ».
-		if (!subject || !chapter || !opened || opened.openedAt === undefined) continue;
-		entries.push({
-			sheet,
-			subject,
-			chapter,
-			state: sheetState(sheet, opened),
-			openedAt: opened.openedAt?.toMillis() ?? Infinity
-		});
-	}
+		if (opened?.openedAt === undefined) return [];
+		return [
+			{
+				...place,
+				state: sheetState(place.sheet, opened),
+				openedAt: opened.openedAt?.toMillis() ?? Infinity
+			}
+		];
+	});
 	return entries.sort((a, b) => b.openedAt - a.openedAt);
 }
 

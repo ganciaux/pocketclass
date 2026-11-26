@@ -20,18 +20,13 @@ import { ensureFamilyForUser, getProfile, watchProfile } from '#lib/data/family.
 import { isPermissionDenied } from '#lib/data/sources.ts';
 import type { Profile, WithId } from '#lib/data/types.ts';
 import { childViewOf } from '#lib/profile/childView.ts';
+import { clearPreference, readPreference, writePreference } from '#lib/preferences.ts';
 
-/** Remembers on this device which child a parent tests as (one key per family). */
-const testChildKey = (familyId: string) => `pocketclass.testChild.${familyId}`;
-
-/** Browser storage may be unavailable (private browsing): test mode then lasts the session. */
-function storage(action: (store: Storage) => string | null | void): string | null {
-	try {
-		return action(localStorage) ?? null;
-	} catch {
-		return null;
-	}
-}
+/**
+ * Remembers on this device which child a parent tests as (one key per family). Storage may be
+ * unavailable (private browsing): test mode then lasts the session.
+ */
+const testChildKey = (familyId: string) => `testChild.${familyId}`;
 
 type SessionStatus = 'loading' | 'signedOut' | 'ready' | 'notLinked' | 'error';
 
@@ -159,14 +154,14 @@ class Session {
 	startTest(childId: string): void {
 		const familyId = this.familyId;
 		if (!this.isAdmin || !familyId) return;
-		storage((store) => store.setItem(testChildKey(familyId), childId));
+		writePreference(testChildKey(familyId), childId);
 		this.#watchTestChild(familyId, childId);
 	}
 
 	/** Parent: back to the parent view (test data stays until reset). */
 	stopTest(): void {
 		const familyId = this.familyId;
-		if (familyId) storage((store) => store.removeItem(testChildKey(familyId)));
+		if (familyId) clearPreference(testChildKey(familyId));
 		this.#endTest();
 	}
 
@@ -242,7 +237,7 @@ class Session {
 			if (profile.role === 'admin') {
 				// iOS may clear an installed web app's data (and the session with it): ask to keep it.
 				navigator.storage?.persist?.().catch(() => {});
-				const testChildId = storage((store) => store.getItem(testChildKey(index.familyId)));
+				const testChildId = readPreference(testChildKey(index.familyId));
 				if (testChildId) this.#watchTestChild(index.familyId, testChildId);
 			}
 			// Open listeners are not re-checked when access is revoked: a child device watches

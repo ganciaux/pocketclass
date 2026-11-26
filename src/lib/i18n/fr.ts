@@ -12,6 +12,10 @@ export function plural(count: number, one: string, many = `${one}s`): string {
 export const formatDate = (date: Date) =>
 	date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 
+/** « 14:05 »: the time of the day (activity history). */
+export const formatTime = (date: Date) =>
+	date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
 /** « 25 nov., 14:05 »: a short date with the time (lists of attempts). */
 export const formatDateTime = (date: Date) =>
 	date.toLocaleString('fr-FR', {
@@ -451,7 +455,6 @@ export const fr = {
 		sheet: 'Fiche',
 		kind: 'Type',
 		score: 'Score',
-		mode: { series: 'Entraînement', timed: 'Défi', assessment: 'Contrôle' },
 		pending: "à l'instant",
 		countedSince:
 			'Ouvertures et essais « lancés » : comptés depuis la mise à jour de fin novembre 2026.'

@@ -10,6 +10,14 @@ export function readPreference(key: string): string | null {
 	}
 }
 
+export function clearPreference(key: string): void {
+	try {
+		localStorage.removeItem(`pocketclass.${key}`);
+	} catch {
+		// Nothing stored, nothing to clear.
+	}
+}
+
 export function writePreference(key: string, value: string): void {
 	try {
 		localStorage.setItem(`pocketclass.${key}`, value);

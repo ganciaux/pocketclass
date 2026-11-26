@@ -1,5 +1,5 @@
-import { reachableSheets, visibleSubjects } from '#lib/binder/binder.ts';
-import type { Profile, Subject } from '#lib/data/types.ts';
+import { childSheets, type SubjectLike } from '#lib/binder/binder.ts';
+import type { Profile } from '#lib/data/types.ts';
 import { passed } from './assessment.ts';
 import type { Score } from './series.ts';
 
@@ -74,26 +74,26 @@ export function timeLeft(ms: number): { days: number; hours: number; minutes: nu
 	};
 }
 
-/** « Mes révisions »: acquired sheets, ready ones first (in the given order), then by wait. */
-export function revisionList<S extends { id: string }>(
-	sheets: S[],
+/**
+ * « Mes révisions »: acquired sheets, ready ones first (in the given order), then by wait.
+ * `entries` carry the sheet (and anything else, e.g. its subject and chapter).
+ */
+export function revisionList<E extends { sheet: { id: string } }>(
+	entries: E[],
 	progress: ReadonlyMap<string, RevisionProgress>,
 	now: number
-): { sheet: S; status: Exclude<RevisionStatus, { kind: 'none' }> }[] {
-	const entries = sheets.flatMap((sheet) => {
-		const status = revisionStatus(progress.get(sheet.id), now);
-		return status.kind === 'none' ? [] : [{ sheet, status }];
+): (E & { status: Exclude<RevisionStatus, { kind: 'none' }> })[] {
+	const listed = entries.flatMap((entry) => {
+		const status = revisionStatus(progress.get(entry.sheet.id), now);
+		return status.kind === 'none' ? [] : [{ ...entry, status }];
 	});
 	const wait = (s: RevisionStatus) => (s.kind === 'waiting' ? s.readyAt : 0);
-	return entries.sort((a, b) => wait(a.status) - wait(b.status));
+	return listed.sort((a, b) => wait(a.status) - wait(b.status));
 }
-
-type SubjectLike = { id: string } & Pick<Subject, 'name' | 'grade' | 'order' | 'archived'>;
-type SheetLike = { id: string; subjectId: string; chapterId: string; archived: boolean };
 
 /** The revisions of a child's binder (visible subjects, reachable sheets), with their place. */
 export function binderRevisions<
-	S extends SheetLike,
+	S extends { id: string; subjectId: string; chapterId: string; archived: boolean },
 	Su extends SubjectLike,
 	C extends { id: string; archived: boolean }
 >(
@@ -106,15 +106,6 @@ export function binderRevisions<
 	view: Pick<Profile, 'grade' | 'extraSubjects'>,
 	now: number
 ) {
-	const subjects = new Map(visibleSubjects(binder.subjects, view).map((s) => [s.id, s]));
-	const chapters = new Map(binder.chapters.map((c) => [c.id, c]));
-	const sheets = reachableSheets(binder.sheets, binder.chapters).filter((s) =>
-		subjects.has(s.subjectId)
-	);
 	const progress = new Map(binder.progress.map((p) => [p.id, p]));
-	return revisionList(sheets, progress, now).map((entry) => ({
-		...entry,
-		subject: subjects.get(entry.sheet.subjectId)!,
-		chapter: chapters.get(entry.sheet.chapterId)!
-	}));
+	return revisionList(childSheets(binder, view), progress, now);
 }

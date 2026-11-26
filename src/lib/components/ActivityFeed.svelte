@@ -4,7 +4,7 @@
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import { watchActivity } from '#lib/data/activity.ts';
 	import { live } from '#lib/data/live.svelte.ts';
-	import { fr } from '#lib/i18n/fr.ts';
+	import { formatTime, fr } from '#lib/i18n/fr.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
 	import { activityDays, activityEntries } from '#lib/stats/activity.ts';
 	import { resolve } from '$app/paths';
@@ -13,7 +13,16 @@
 	 * Activity history of a profile, by day (newest first): each finished run with its score
 	 * and the points it earned. The last 30 days, then 30 more per « Voir plus ».
 	 */
-	let { familyId, profileId }: { familyId: string; profileId: string } = $props();
+	let {
+		familyId,
+		profileId,
+		dayHeading = 'h3'
+	}: {
+		familyId: string;
+		profileId: string;
+		/** Level of the day headings: `h2` on a page of its own, `h3` under a section title. */
+		dayHeading?: 'h2' | 'h3';
+	} = $props();
 
 	const t = fr.activity;
 	const WINDOW_DAYS = 30;
@@ -24,11 +33,7 @@
 
 	const dayLabel = (daysAgo: number, day: number) =>
 		daysAgo === 0 ? t.today : daysAgo === 1 ? t.yesterday : t.day(new Date(day));
-	const time = (ms: number) =>
-		new Date(Number.isFinite(ms) ? ms : now).toLocaleTimeString('fr-FR', {
-			hour: '2-digit',
-			minute: '2-digit'
-		});
+	const time = (ms: number) => formatTime(new Date(Number.isFinite(ms) ? ms : now));
 </script>
 
 <LoadState source={activityLive} failed={t.loadFailed}>
@@ -47,12 +52,15 @@
 		{/if}
 		{#each shown.days as day (day.day)}
 			<section class="flex flex-col gap-2">
-				<h3 class="flex items-center justify-between gap-2 font-bold first-letter:uppercase">
+				<svelte:element
+					this={dayHeading}
+					class="flex items-center justify-between gap-2 text-base font-bold first-letter:uppercase"
+				>
 					<span>{dayLabel(day.daysAgo, day.day)}</span>
 					{#if day.points > 0}
 						<span class="badge badge-success">{t.dayPoints(day.points)}</span>
 					{/if}
-				</h3>
+				</svelte:element>
 				<ul class="flex flex-col gap-2">
 					{#each day.entries as entry (entry.id)}
 						{@const sheet = sheets.get(entry.conceptId)}

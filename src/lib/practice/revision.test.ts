@@ -75,7 +75,7 @@ describe('hourglass', () => {
 	});
 
 	it('lists acquired sheets, ready first, then the soonest', () => {
-		const sheets = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }];
+		const sheets = ['a', 'b', 'c', 'd'].map((id) => ({ sheet: { id } }));
 		const progress = new Map([
 			['a', { acquiredAt: 1, revisedAt: at(now - DAY) }],
 			['b', {}],

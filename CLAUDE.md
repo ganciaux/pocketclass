@@ -604,8 +604,12 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   « 70 % » of the revision text comes from `REVISION_PASS_RATE`; a forced theme also sets the
   status bar colour (`theme-color` metas); one `ImageTooLargeError` and one « image too large »
   text; picture limits defined once in `schemas/sheet.ts` (`MAP_IMAGE_MAX_LENGTH`,
-  `MAX_MAP_IMAGES`). Left for later (optional): one shared « child's reachable sheets » helper
-  for `seen.ts` / `revision.ts` / stats, `auth.svelte.ts` using `preferences.ts`.
+  `MAX_MAP_IMAGES`). Then, same day: `childSheets` (binder.ts) gives the sheets a child can
+  reach with their subject and chapter, used by `seenSheets` and `binderRevisions` (stats and
+  the subject cards keep their own filter: they also serve the parent, who sees every subject);
+  `revisionList` takes entries carrying a sheet; the test child id goes through
+  `preferences.ts` (same `localStorage` key); one time format (`formatTime`) and one run label
+  set (`fr.activity.kind`); `<ActivityFeed dayHeading>` keeps heading levels in order.
 
 ## Firestore model
 
