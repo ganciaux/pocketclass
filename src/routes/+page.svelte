@@ -95,6 +95,12 @@
 				fr.revision.hint,
 				readyRevisions > 0 ? fr.revision.readyCount(readyRevisions) : null
 			)}
+			{@render homeLink(
+				resolve('/me/activity'),
+				UI_ICONS.chart,
+				fr.activity.title,
+				fr.activity.hint
+			)}
 			{@render homeLink(resolve('/me/sheets'), UI_ICONS.book, fr.home.seenTitle, fr.home.seenHint)}
 			{@render homeLink(
 				resolve('/me/notes'),

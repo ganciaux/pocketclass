@@ -8,6 +8,7 @@
 		visibleSubjects
 	} from '#lib/binder/binder.ts';
 	import { SUBJECT_BORDER } from '#lib/binder/colors.ts';
+	import ActivityFeed from '#lib/components/ActivityFeed.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import PointsBadge from '#lib/components/PointsBadge.svelte';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
@@ -170,6 +171,10 @@
 					<li class="text-base-content/70">{t.noSubjects}</li>
 				{/each}
 			</ul>
+			<section class="flex flex-col gap-3">
+				<h2>{fr.activity.parentTitle}</h2>
+				<ActivityFeed {familyId} {profileId} />
+			</section>
 		{:else}
 			{@const stats = groupStats(idsOf(subject.id), progress, attempts)}
 			{@const chapters = byOrder(

@@ -103,5 +103,7 @@ export const conceptRef = (familyId: string, conceptId: string) =>
 export const exercisesCol = (familyId: string, conceptId: string) =>
 	familyCol<ExerciseRecord>(familyId, COLLECTIONS.concepts, conceptId, COLLECTIONS.exercises);
 
+export const assessmentsCol = (familyId: string) =>
+	familyCol<AssessmentRecord>(familyId, COLLECTIONS.assessments);
 export const assessmentRef = (familyId: string, assessmentId: string) =>
 	typedDoc<AssessmentRecord>(familyId, COLLECTIONS.assessments, assessmentId);

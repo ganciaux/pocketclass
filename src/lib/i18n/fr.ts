@@ -299,6 +299,32 @@ export const fr = {
 		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
 		saved: 'Enregistré.'
 	},
+	/** Activity history: finished runs with the points they earned, by day. */
+	activity: {
+		title: 'Mon activité',
+		parentTitle: 'Activité',
+		hint: 'Ce que tu as fait, jour par jour, et tes points.',
+		today: "Aujourd'hui",
+		yesterday: 'Hier',
+		day: (date: Date) =>
+			date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }),
+		kind: {
+			series: 'Entraînement',
+			timed: 'Défi',
+			assessment: 'Contrôle',
+			points: 'Points'
+		},
+		passed: 'Réussi',
+		failed: 'Raté',
+		points: (n: number) => `+${n}`,
+		dayPoints: (n: number) => `+${plural(n, 'point')}`,
+		challengeScore: (n: number) => plural(n, 'bonne réponse', 'bonnes réponses'),
+		deletedSheet: 'Fiche supprimée',
+		more: 'Voir plus',
+		empty: 'Rien pour le moment : fais une série, un défi ou un contrôle !',
+		emptyWindow: 'Rien ces derniers jours.',
+		loadFailed: "Impossible de charger l'activité."
+	},
 	/** Revision points: a series at 70 % on an acquired sheet, once a week (the hourglass). */
 	revision: {
 		title: 'Mes révisions',

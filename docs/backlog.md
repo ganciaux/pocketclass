@@ -75,7 +75,7 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 Déploiement du 25 novembre fait et testé sur téléphone par l'utilisateur (2026-11-26).
 Depuis : mise à jour d'un chapitre par son JSON, boutons courts de l'Espace parent, points de
-révision. **Les règles Firestore ont changé** (révisions) :
+révision, historique d'activité. **Les règles Firestore ont changé** (révisions) :
 
 - Lancer `npm run prod` (app **et** règles ; jamais `deploy:app` seul avant les règles).
 - Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus
@@ -94,8 +94,8 @@ Par ordre de demande ; le détail de chaque point est plus bas.
 3. ~~Statistiques d'un enfant~~ : **fait** (2026-11-25), vue globale / détaillée.
 4. ~~Points de révision~~ : **fait** (2026-11-26) : sur une fiche acquise, une série à
    70 % rapporte 2 points par point-clé, puis sablier d'une semaine (sur la fiche, en fin de
-   série et sur la page « Mes révisions »). Reste l'**historique d'activité** (à partir du
-   journal des points ; les statistiques montrent déjà les essais terminés).
+   série et sur la page « Mes révisions »). ~~Historique d'activité~~ : **fait** (2026-11-26),
+   page « Mon activité » (enfant) et section « Activité » des statistiques (parent).
 5. Suite de l'entraînement (ci-dessous).
 
 ### Suite de l'entraînement
@@ -134,4 +134,4 @@ existe déjà ou signale ce qu'il faudra trancher.
 | ~~Chaque fiche a un quota de points.~~ | **Fait** : 10 points par point-clé par défaut, réglable par fiche. |
 | ~~Un contrôle est validé à 70 % de réussite minimum, et rapporte alors ses points.~~ | **Fait** : seuil réglable par fiche, points gagnés une seule fois (première réussite), tampon « Acquise » automatique, tampon « Raté » et nouvel essai après une série d'entraînement (conception : `docs/superpowers/specs/2026-11-25-assessment-design.md`). |
 | ~~Réviser une fiche rapporte des points ; on peut la revoir, mais elle ne rapporte plus rien pendant une semaine.~~ | **Fait (2026-11-26)** : série ≥ 70 % sur une fiche acquise, 2 points par point-clé, sablier de 7 jours, page « Mes révisions ». |
-| Garder l'historique des points comme un historique des activités (exercice, révision, contrôle…). | Le journal des points (`pointsLedger`) était prévu ; il deviendrait un journal d'activité. Il doit marcher hors ligne (écritures groupées, déjà prévu). |
+| ~~Garder l'historique des points comme un historique des activités (exercice, révision, contrôle…).~~ | **Fait (2026-11-26)** : essais terminés et points gagnés, par jour, 30 jours puis « Voir plus ». Construit sans nouvelle écriture, à partir des essais et du journal des points. |

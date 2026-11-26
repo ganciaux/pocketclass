@@ -550,6 +550,15 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
     page and end of a series; `ticking()` in `clock.svelte.ts` refreshes every 30 s), page
     `/me/revisions` (ready first, then hourglasses, soonest first) linked from the child home with
     the count ready.
+- 2026-11-26 — **Activity history** (user's choices: child and parent, runs + points, 30 days
+  then « Voir plus »). Nothing new is stored: `stats/activity.ts` merges the `attempts` with the
+  `pointsLedger` lines (a line is written in the same batch as its run, so both carry the same
+  server time: matched on sheet · run kind · time; an orphan line is shown alone), judges
+  assessments at the sheet's pass rate (assessments collection, 70 % by default) and groups by
+  local day (« Aujourd'hui », « Hier », weekday). `<ActivityFeed>` (source `watchActivity` in
+  `data/activity.ts`) on the child's `/me/activity` (home link) and under the overview of
+  `/parent/stats`. The window grows client-side (every run is read, as the statistics already
+  do); a `limit` query can come later if a profile ever has thousands of runs.
 
 ## Firestore model
 
