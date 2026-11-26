@@ -154,6 +154,45 @@
 										"pattern": "^data:image\\/(webp|jpeg|png);base64,"
 									}
 								},
+								"flashcards": {
+									"maxItems": 20,
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"tag": {
+												"type": "string",
+												"enum": [
+													"definition",
+													"rule",
+													"method",
+													"true_false",
+													"pitfall"
+												]
+											},
+											"front": {
+												"type": "string",
+												"minLength": 1,
+												"maxLength": 160
+											},
+											"back": {
+												"type": "string",
+												"minLength": 1,
+												"maxLength": 300
+											},
+											"example": {
+												"type": "string",
+												"minLength": 1,
+												"maxLength": 200
+											}
+										},
+										"required": [
+											"tag",
+											"front",
+											"back"
+										]
+									}
+								},
 								"sheet": {
 									"type": "object",
 									"properties": {

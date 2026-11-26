@@ -57,6 +57,7 @@ export function sheetDoc({ concept, exercises, assessment, mapImages }: StoredSh
 		prerequisites: concept.prerequisites,
 		keyPoints: concept.keyPoints,
 		mindMap: concept.mindMap,
+		flashcards: concept.flashcards,
 		mapImages: mapImages?.length ? mapImages : undefined,
 		sheet: concept.sheet,
 		summaryInstruction: concept.summaryInstruction,

@@ -223,6 +223,7 @@ export interface ConceptRecord {
 	tags?: SheetDoc['tags'];
 	/** Absent when the JSON had none (the app then builds the map from the sections). */
 	mindMap?: SheetDoc['mindMap'];
+	flashcards?: SheetDoc['flashcards'];
 	prerequisites: SheetDoc['prerequisites'];
 	keyPoints: SheetDoc['keyPoints'];
 	sheet: SheetDoc['sheet'];

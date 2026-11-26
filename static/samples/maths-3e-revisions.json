@@ -21,6 +21,16 @@
 				{ "keyPoint": "kp-divide", "leaves": ["× l'inverse", "$\\frac{3}{4}$ devient $\\frac{4}{3}$"] },
 				{ "keyPoint": "kp-irreducible", "leaves": ["plus rien à simplifier", "piège : s'arrêter trop tôt"] }
 			],
+			"flashcards": [
+				{ "tag": "definition", "front": "Qu'est-ce qu'une fraction irréductible ?", "back": "Une fraction qu'on ne peut plus simplifier : le seul diviseur commun du numérateur et du dénominateur est 1.", "example": "$\\frac{2}{3}$ est irréductible, $\\frac{4}{6}$ ne l'est pas." },
+				{ "tag": "rule", "front": "Comment simplifier une fraction ?", "back": "On divise le numérateur et le dénominateur par un même nombre non nul.", "example": "$\\frac{12}{18} = \\frac{2}{3}$ (on divise par 6)." },
+				{ "tag": "method", "front": "Comment additionner deux fractions de dénominateurs différents ?", "back": "On les écrit d'abord avec le même dénominateur, puis on additionne les numérateurs.", "example": "$\\frac{1}{2} + \\frac{1}{3} = \\frac{3}{6} + \\frac{2}{6} = \\frac{5}{6}$" },
+				{ "tag": "rule", "front": "Comment multiplier deux fractions ?", "back": "On multiplie les numérateurs entre eux et les dénominateurs entre eux.", "example": "$\\frac{2}{3} \\times \\frac{4}{5} = \\frac{8}{15}$" },
+				{ "tag": "rule", "front": "Comment diviser par une fraction ?", "back": "Diviser par une fraction, c'est multiplier par son inverse.", "example": "$\\frac{3}{4} \\div \\frac{2}{5} = \\frac{3}{4} \\times \\frac{5}{2} = \\frac{15}{8}$" },
+				{ "tag": "true_false", "front": "Vrai ou faux : $\\frac{6}{8} = \\frac{3}{4}$.", "back": "Vrai : on divise 6 et 8 par 2." },
+				{ "tag": "pitfall", "front": "$\\frac{1}{2} + \\frac{1}{3} = \\frac{2}{5}$ ?", "back": "Faux : on n'additionne jamais les dénominateurs. Il faut d'abord un dénominateur commun, et on trouve $\\frac{5}{6}$." },
+				{ "tag": "pitfall", "front": "$\\frac{45}{60} = \\frac{9}{12}$ : c'est fini ?", "back": "Non : $\\frac{9}{12}$ se simplifie encore par 3. Le résultat irréductible est $\\frac{3}{4}$." }
+			],
 			"sheet": {
 				"sections": [
 					{

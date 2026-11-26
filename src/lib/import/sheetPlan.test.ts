@@ -92,6 +92,16 @@ describe('planSheets', () => {
 		expect(dataOf(find(without.ops, 'concepts/maths-3e-fractions'))?.mindMap).toBeUndefined();
 	});
 
+	it('stores the revision cards, and none when the JSON has none', () => {
+		const flashcards = [{ tag: 'rule' as const, front: 'Recto ?', back: 'Verso.' }];
+		const withCards = planSheets([{ ...fractions, flashcards }], target, {});
+		expect(dataOf(find(withCards.ops, 'concepts/maths-3e-fractions'))).toMatchObject({
+			flashcards
+		});
+		const without = planSheets([{ ...fractions, flashcards: undefined }], target, {});
+		expect(dataOf(find(without.ops, 'concepts/maths-3e-fractions'))?.flashcards).toBeUndefined();
+	});
+
 	it('stamps the sheet (server updatedAt) but not its exercises', () => {
 		const plan = planSheets([fractions], target, {});
 		const touched = plan.ops.filter((op) => op.kind === 'set' && op.touch).map(key);

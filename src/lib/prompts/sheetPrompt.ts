@@ -41,6 +41,7 @@ const SHEET_SHAPE = `{
   "prerequisites": [],
   "keyPoints": [{ "id": "kp-…", "label": "<une idée essentielle>" }],
   "mindMap": [{ "keyPoint": "kp-…", "leaves": ["<mot>", "<formule $…$>", "<piège>"] }],
+  "flashcards": [{ "tag": "definition", "front": "<question courte>", "back": "<réponse en 1 ou 2 phrases>", "example": "<exemple tiré du cours>" }],
   "sheet": {
     "sections": [{
       "title": "…",
@@ -66,6 +67,7 @@ const RULES = `Règles :
 - "tags" : 3 à 8 mots-clés en français, en minuscules, ceux qu'un élève taperait pour retrouver la fiche (notions, vocabulaire, méthodes), sans répéter le nom de la matière.
 - Les parties ("sections") sont des rappels avant les exercices, pas un cours : dans "text", 3 à 6 lignes avec les règles, la méthode et les points importants (une courte liste à puces si ça aide), sans introduction ni répétition ; assez complet pour réviser seul. "summary" : 2 à 4 puces très courtes (une ligne chacune) qui condensent la partie.
 - "mindMap" : la carte mentale de la fiche, une branche par point-clé avec 1 à 4 feuilles très courtes (60 caractères au plus : un mot, une formule $…$, un exemple ou un piège), à relire d'un coup d'œil ; pas de phrase complète.
+- "flashcards" : 8 à 15 cartes de révision. Recto ("front") : une question courte (une règle, une définition, un vrai ou faux). Verso ("back") : la réponse en une ou deux phrases ; "example" (facultatif) : un exemple tiré du cours. "tag" : "definition", "rule", "method", "true_false" ou "pitfall". Inclus 2 ou 3 cartes "pitfall" sur les erreurs fréquentes. Une carte = une seule idée. Vérifie l'exactitude de chaque réponse avant de l'écrire.
 - 3 à 6 points-clés ("keyPoints", 8 au maximum). Chaque section, chaque exercice et chaque critère de "rubric" renvoie à un point-clé existant.
 - Exercices ("exercises") : environ 4 exercices d'entraînement ("usage": "practice") par point-clé, de types variés, et au moins 2 de contrôle ("usage": "assessment") par point-clé, "difficulty" de 1 à 3. Ajoute aussi 8 à 10 "true_false" en "practice" (affirmations courtes, vraies ou fausses, pour un défi de rapidité). Chaque exercice a une "explanation" : une phrase qui explique la bonne réponse, affichée après la réponse de l'élève. Types possibles :
   - "mcq" : "question", "answer", "distractors" (exactement 3 mauvaises réponses) ;

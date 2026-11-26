@@ -80,6 +80,40 @@ describe('sheetSchema', () => {
 		expect(errorsOf(leaves(['x'.repeat(61)]))).not.toEqual([]);
 	});
 
+	it('accepts revision cards (flashcards) with a tag, a front, a back and an optional example', () => {
+		const flashcards = [
+			{
+				tag: 'definition',
+				front: 'Une fraction irréductible ?',
+				back: 'On ne peut plus la simplifier.'
+			},
+			{
+				tag: 'pitfall',
+				front: '$\\frac{1}{2} + \\frac{1}{3} = \\frac{2}{5}$ ?',
+				back: 'Faux : on additionne avec le même dénominateur.',
+				example: '$\\frac{3}{6} + \\frac{2}{6} = \\frac{5}{6}$'
+			}
+		];
+		const result = validate(sheetSchema, { ...minimalSheet(), flashcards });
+		expect((result as { data: SheetImport }).data.flashcards).toEqual(flashcards);
+		expect(
+			(validate(sheetSchema, minimalSheet()) as { data: SheetImport }).data.flashcards
+		).toBeUndefined();
+	});
+
+	it('rejects an unknown card tag, too long a side or more than 20 cards', () => {
+		const card = { tag: 'rule', front: 'Recto ?', back: 'Verso.' };
+		const cards = (list: object[]) => errorsOf({ ...minimalSheet(), flashcards: list });
+		expect(cards([card])).toEqual([]);
+		expect(cards([{ ...card, tag: 'joke' }])).not.toEqual([]);
+		expect(cards([{ ...card, front: 'x'.repeat(161) }])).not.toEqual([]);
+		expect(cards([{ ...card, back: 'x'.repeat(301) }])).not.toEqual([]);
+		expect(cards([{ ...card, example: 'x'.repeat(201) }])).not.toEqual([]);
+		expect(
+			cards(Array.from({ length: 21 }, (_, i) => ({ ...card, front: `Q${i} ?` })))
+		).not.toEqual([]);
+	});
+
 	it('rejects a generator name that is not in the catalogue', () => {
 		const data = minimalSheet();
 		const base = { usage: 'practice', keyPoint: 'kp-add', type: 'generator' };

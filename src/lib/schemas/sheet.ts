@@ -62,6 +62,25 @@ const mindMapSchema = z
 	.array(z.object({ keyPoint: slug, leaves: z.array(text.max(60)).min(1).max(4) }))
 	.max(8);
 
+/** Theme of a revision card (its label on the card). */
+export const FLASHCARD_TAGS = ['definition', 'rule', 'method', 'true_false', 'pitfall'] as const;
+
+/**
+ * Revision cards of the sheet (written by the AI): a short question on the front, the answer
+ * and an optional example from the lesson on the back. Optional: without it the app builds
+ * cards from the key points and the pitfalls (`flashcards/cards.ts`).
+ */
+const flashcardsSchema = z
+	.array(
+		z.object({
+			tag: z.enum(FLASHCARD_TAGS),
+			front: text.max(160),
+			back: text.max(300),
+			example: text.max(200).optional()
+		})
+	)
+	.max(20);
+
 /** Data URL budget of a mind map picture (one Firestore document each, 1 MiB max). */
 export const MAP_IMAGE_MAX_LENGTH = 700_000;
 /** Mind map pictures per sheet (`data/mapImages.ts`, `MAP_IMAGE_SLOTS`). */
@@ -86,6 +105,7 @@ export const sheetBodySchema = z.object({
 	keyPoints: z.array(keyPointSchema).min(1).max(8),
 	mindMap: mindMapSchema.optional(),
 	mapImages: mapImagesSchema.optional(),
+	flashcards: flashcardsSchema.optional(),
 	sheet: z.object({
 		sections: z.array(sectionSchema).min(1),
 		pitfalls: z.array(text).default([])
@@ -97,6 +117,7 @@ export const sheetBodySchema = z.object({
 
 export type SheetDoc = z.infer<typeof sheetBodySchema>;
 export type KeyPoint = z.infer<typeof keyPointSchema>;
+export type Flashcard = z.infer<typeof flashcardsSchema>[number];
 export type SheetSection = z.infer<typeof sectionSchema>;
 export type AssessmentDoc = z.infer<typeof assessmentSchema>;
 

@@ -33,6 +33,13 @@ describe('prompts', () => {
 		expect(prompt).toContain('1 à 4 feuilles');
 	});
 
+	it('asks for revision cards with a few pitfalls, checked before writing', () => {
+		const prompt = sheetPrompt(ctx);
+		expect(prompt).toContain('"flashcards"');
+		expect(prompt).toContain('2 ou 3 cartes "pitfall"');
+		expect(prompt).toContain("Vérifie l'exactitude");
+	});
+
 	it('asks for tags a pupil would type', () => {
 		const prompt = sheetPrompt(ctx);
 		expect(prompt).toContain('"tags"');
