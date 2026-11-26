@@ -447,6 +447,10 @@ export const fr = {
 		testSet: 'Tamponner (test)',
 		testClear: 'Retirer le tampon (test)'
 	},
+	cards: {
+		readSection: (title: string) => `Relis la partie « ${title} ».`,
+		pitfallBack: 'Un piège fréquent : vérifie que tu ne le fais pas.'
+	},
 	stats: {
 		title: 'Statistiques',
 		who: 'Enfant',
