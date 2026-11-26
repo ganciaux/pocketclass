@@ -11,7 +11,7 @@
 </script>
 
 <a
-	class="btn btn-soft btn-primary back-link h-11 max-w-full self-start rounded-full ps-2 pe-4 font-hand text-lg font-normal"
+	class="btn btn-soft btn-primary back-link h-11 max-w-full self-start rounded-full ps-2 pe-4 font-hand text-lg font-bold"
 	{href}
 >
 	<Icon paths={UI_ICONS.chevronLeft} />

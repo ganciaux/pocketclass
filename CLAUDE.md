@@ -40,7 +40,7 @@ ids already used), the parent pastes it into any AI, gets JSON back, pastes it i
 - **Tailwind 4 + daisyUI 5** (`@tailwindcss/vite`), mobile first. Two daisyUI themes from the logo in
   `src/app.css`: `pocketclass-light` (paper) and `pocketclass-dark` (slate, follows the phone).
   Fonts bundled with `@fontsource` (offline): Atkinson Hyperlegible (text), Permanent Marker
-  (app name, `h1` and the numbers of the points stars), Patrick Hand (handwriting: the « back »
+  (app name, `h1` and the numbers of the points stars), Kalam bold (felt-pen handwriting: the « back »
   links at the top left of the pages, `font-hand`). Bits UI only if a complex interactive widget is ever needed.
 
 ## Architecture & conventions (how to add code)
@@ -641,8 +641,8 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   choices). The child's points per binder and total are a gold star with the number inside
   (`<PointsStar>`), stuck on the top-right corner of the binder card and of the subject banner
   (`absolute`, kept inside the 16 px page gutter), big next to « Bonjour … ! » on the home; the
-  badge used to overflow the card on a phone. `<BackLink>` uses Patrick Hand
-  (`@fontsource/patrick-hand`, offline). The « 6 points in total, 12 in maths » the user saw came
+  badge used to overflow the card on a phone. `<BackLink>` uses Kalam bold
+  (`@fontsource/kalam` 700, offline; Patrick Hand was tried first and refused). The « 6 points in total, 12 in maths » the user saw came
   from seeded test data (progress written without its ledger line), not from the app: a sheet's
   points and the profile counter are always written in the same batch (`earnPoints`); the only
   real gap is the other way (a deleted sheet's points stay on the profile).

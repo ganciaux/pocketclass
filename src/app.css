@@ -2,7 +2,7 @@
 @import '@fontsource/atkinson-hyperlegible/400.css';
 @import '@fontsource/atkinson-hyperlegible/700.css';
 @import '@fontsource/permanent-marker/400.css';
-@import '@fontsource/patrick-hand/400.css';
+@import '@fontsource/kalam/700.css';
 @import 'tailwindcss';
 
 /* daisyUI 5: only our two themes, taken from the PocketClass logo. */
@@ -87,7 +87,7 @@
 	/* Marker lettering: the app name and page titles only. */
 	--font-display: 'Permanent Marker', 'Comic Sans MS', cursive;
 	/* Handwriting of an exercise book: the « back » links at the top of the pages. */
-	--font-hand: 'Patrick Hand', 'Comic Sans MS', cursive;
+	--font-hand: 'Kalam', 'Comic Sans MS', cursive;
 	/* Motion (also `src/lib/motion.ts`): strong curves, the built-in ones are too weak. */
 	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
