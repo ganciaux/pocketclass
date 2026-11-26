@@ -15,6 +15,8 @@ import type { SubjectDoc } from '#lib/schemas/subject.ts';
 /** What already exists in Firestore for one sheet id (read before planning). */
 export interface ExistingSheet {
 	chapterId: string;
+	/** Title of its chapter (named in a conflict message). */
+	chapterTitle?: string;
 	order: number;
 	version: number;
 	archived: boolean;
@@ -46,6 +48,7 @@ export type WriteOp =
 export interface SheetConflict {
 	sheetId: string;
 	chapterId: string;
+	chapterTitle?: string;
 }
 
 export interface ImportPlan {
@@ -89,7 +92,11 @@ export function findSheetConflicts(
 	return sheets
 		.map((sheet) => ({ sheet, owner: existing[sheet.id] }))
 		.filter(({ owner }) => owner && !owner.archived && owner.chapterId !== chapterId)
-		.map(({ sheet, owner }) => ({ sheetId: sheet.id, chapterId: owner.chapterId }));
+		.map(({ sheet, owner }) => ({
+			sheetId: sheet.id,
+			chapterId: owner.chapterId,
+			chapterTitle: owner.chapterTitle
+		}));
 }
 
 /**

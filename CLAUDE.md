@@ -530,6 +530,13 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   `challengeStarted` / `assessmentStarted` (a new series, not the mistakes replay). Rules:
   `validCounter` = absent, unchanged or previous + 1. Counters only count since their release:
   « started » is hidden when it is below the finished runs. Mind map tests are not counted.
+- 2026-11-26 — **Re-import of a chapter** (user's report: a re-imported export was refused,
+  « déjà dans un autre chapitre »). The parent's chapter page also accepts a `chapter@1` file
+  (`sheetOrChapterSchema`, `sheetsOf`): its sheets are updated or added in **this** chapter (its
+  title / group in the file are ignored); the subject page still creates a new chapter. A
+  conflict now names the chapter that owns the sheet (`chapterTitle`, read by
+  `readExistingSheets`) with a link to it. Parent space buttons on the home: icon + one word
+  (Classeurs, Profils, Remarques, Statistiques).
 
 ## Firestore model
 

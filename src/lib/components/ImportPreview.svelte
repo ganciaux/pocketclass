@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { untrack } from 'svelte';
 	import { ImportConflictError, readExistingSheets } from '#lib/data/importSheets.ts';
 	import { fr } from '#lib/i18n/fr.ts';
@@ -109,7 +110,14 @@
 
 {#if conflicts.length > 0 || checkFailed}
 	<ul role="alert" class="alert alert-error alert-soft flex-col items-start" aria-live="polite">
-		{#each conflicts as c (c.sheetId)}<li>{t.conflict(c.sheetId)}</li>{/each}
+		{#each conflicts as c (c.sheetId)}
+			<li>
+				{t.conflict(c.sheetId, c.chapterTitle)}
+				<a class="link font-bold" href={resolve('/parent/chapters/[id]', { id: c.chapterId })}>
+					{t.openConflictChapter}
+				</a>
+			</li>
+		{/each}
 		{#if checkFailed}<li>{t.checkFailed}</li>{/if}
 	</ul>
 {/if}

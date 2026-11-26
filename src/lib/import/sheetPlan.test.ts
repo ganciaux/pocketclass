@@ -157,6 +157,14 @@ describe('findSheetConflicts', () => {
 			findSheetConflicts([fractions], 'numbers', existingAfter(fractions, 'geometry'))
 		).toEqual([{ sheetId: 'maths-3e-fractions', chapterId: 'geometry' }]);
 	});
+
+	it('names the chapter that owns the sheet when its title is known', () => {
+		const owned = existingAfter(fractions, 'geometry');
+		owned[fractions.id].chapterTitle = 'Géométrie';
+		expect(findSheetConflicts([fractions], 'numbers', owned)).toEqual([
+			{ sheetId: 'maths-3e-fractions', chapterId: 'geometry', chapterTitle: 'Géométrie' }
+		]);
+	});
 });
 
 describe('planChapter', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chapterSchema } from './chapter.ts';
+import { chapterSchema, sheetOrChapterSchema, sheetsOf } from './chapter.ts';
 import { validate } from './errors.ts';
 import { minimalSheet } from './sheet.fixture.ts';
 
@@ -44,5 +44,24 @@ describe('chapterSchema', () => {
 	it('requires at least one sheet', () => {
 		const errors = errorsOf({ format: 'pocketclass/chapter@1', title: 'Vide', sheets: [] });
 		expect(errors[0]).toMatch(/^sheets : Trop petit/);
+	});
+});
+
+describe('sheetOrChapterSchema (parent chapter page)', () => {
+	it('accepts one sheet or a whole chapter, and gives their sheets', () => {
+		const sheet = validate(sheetOrChapterSchema, minimalSheet());
+		const chapter = validate(sheetOrChapterSchema, {
+			format: 'pocketclass/chapter@1',
+			title: 'Calcul numérique',
+			sheets: [sheetBody('fractions'), sheetBody('powers')]
+		});
+		if (!sheet.success || !chapter.success) throw new Error('both should be valid');
+		expect(sheetsOf(sheet.data).map((s) => s.id)).toEqual([minimalSheet().id]);
+		expect(sheetsOf(chapter.data).map((s) => s.id)).toEqual(['fractions', 'powers']);
+	});
+
+	it('still reports the errors of the sheet', () => {
+		const result = validate(sheetOrChapterSchema, { ...minimalSheet(), keyPoints: [] });
+		expect(result.success).toBe(false);
 	});
 });

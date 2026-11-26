@@ -71,9 +71,9 @@ export const fr = {
 	},
 	home: {
 		parentSection: 'Espace parent',
-		manageBinder: 'Gérer les classeurs',
-		manageProfiles: 'Gérer les profils',
-		childrenNotes: 'Remarques des enfants',
+		manageBinder: 'Classeurs',
+		manageProfiles: 'Profils',
+		childrenNotes: 'Remarques',
 		stats: 'Statistiques',
 		myBinder: 'Mon classeur',
 		familyBinder: 'Classeurs',
@@ -86,7 +86,7 @@ export const fr = {
 	binder: {
 		loadFailed: 'Impossible de charger le classeur.',
 		noSubjects: 'Aucune matière pour le moment.',
-		noSubjectsParent: 'Aucune matière : crée-les dans « Gérer les classeurs ».',
+		noSubjectsParent: 'Aucune matière : crée-les dans Espace parent → « Classeurs ».',
 		noChapters: 'Aucun chapitre pour le moment.',
 		noSheets: 'Aucune fiche pour le moment.',
 		subjectNotFound: "Cette matière n'existe pas (ou plus).",
@@ -339,7 +339,7 @@ export const fr = {
 		title: 'Statistiques',
 		who: 'Enfant',
 		myTests: 'Mes tests',
-		noChildren: "Ajoute d'abord un enfant dans « Gérer les profils ».",
+		noChildren: "Ajoute d'abord un enfant dans Espace parent → « Profils ».",
 		loadFailed: "Les statistiques n'ont pas pu être chargées.",
 		overview: 'Vue globale',
 		points: 'Points',
@@ -560,10 +560,10 @@ export const fr = {
 	import: {
 		addSheet: 'Ajouter une fiche',
 		addSheetHelp:
-			"Décris la fiche voulue, copie le prompt dans l'IA de ton choix, puis colle sa réponse ici. Pour modifier une fiche, colle une nouvelle version avec le même identifiant.",
+			"Décris la fiche voulue, copie le prompt dans l'IA de ton choix, puis colle sa réponse ici. Pour modifier une fiche, colle une nouvelle version avec le même identifiant. Un chapitre exporté (puis retouché) peut aussi être collé ici : ses fiches sont mises à jour dans ce chapitre.",
 		importChapter: 'Importer un chapitre complet',
 		importChapterHelp:
-			"Pour démarrer une matière : l'IA produit un chapitre et toutes ses fiches d'un coup.",
+			"Pour démarrer une matière : l'IA produit un chapitre et toutes ses fiches d'un coup. Pour mettre à jour un chapitre existant, colle son JSON dans la page de ce chapitre.",
 		request: 'Sujet de la fiche',
 		requestPlaceholder: 'Ex. : les puissances de 10',
 		chapterRequest: 'Notions du chapitre',
@@ -587,11 +587,14 @@ export const fr = {
 			].join(' · '),
 		isNew: 'Nouvelle fiche',
 		isUpdate: (version: number) => `Mise à jour (version ${version} → ${version + 1})`,
-		conflict: (sheetId: string) =>
-			`La fiche « ${sheetId} » est déjà dans un autre chapitre. Change son identifiant dans le JSON, ou masque l'autre fiche.`,
+		conflict: (sheetId: string, chapter: string | undefined) =>
+			`La fiche « ${sheetId} » est déjà dans ${chapter ? `le chapitre « ${chapter} »` : 'un autre chapitre'}. Pour la mettre à jour, colle ce JSON dans ce chapitre ; sinon change son identifiant ou masque l'autre fiche.`,
+		openConflictChapter: 'Ouvrir ce chapitre',
 		checkFailed: 'Impossible de vérifier les fiches existantes.',
 		offline: "L'import nécessite une connexion internet.",
 		submitSheet: 'Enregistrer',
+		/** Chapter page: a `chapter@1` file updates (or adds) its sheets in this chapter. */
+		submitSheets: 'Enregistrer les fiches',
 		submitChapter: 'Créer le chapitre',
 		importing: 'Import en cours…',
 		failed: "L'import a échoué. Vérifie ta connexion et réessaie.",

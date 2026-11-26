@@ -33,7 +33,12 @@
 	import type { ImportPlan } from '#lib/import/sheetPlan.ts';
 	import { sheetPrompt } from '#lib/prompts/sheetPrompt.ts';
 	import { renderInline } from '#lib/render/markdown.ts';
-	import { sheetSchema, type SheetImport } from '#lib/schemas/sheet.ts';
+	import {
+		CHAPTER_FORMAT,
+		sheetOrChapterSchema,
+		sheetsOf,
+		type SheetOrChapterImport
+	} from '#lib/schemas/chapter.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -90,9 +95,9 @@
 		});
 	});
 
-	async function runImport(chapter: WithId<Chapter>, sheet: SheetImport) {
+	async function runImport(chapter: WithId<Chapter>, file: SheetOrChapterImport) {
 		if (!session.familyId) return;
-		result = await importSheets(session.familyId, chapter, [sheet]);
+		result = await importSheets(session.familyId, chapter, sheetsOf(file));
 		json = '';
 		request = '';
 	}
@@ -221,14 +226,18 @@
 							/>
 						</label>
 						{#if prompt}<PromptCopy {prompt} />{/if}
-						<JsonPaste schema={sheetSchema} bind:value={json} placeholder={ti.sheetPlaceholder}>
-							{#snippet children(sheet)}
+						<JsonPaste
+							schema={sheetOrChapterSchema}
+							bind:value={json}
+							placeholder={ti.sheetPlaceholder}
+						>
+							{#snippet children(file)}
 								<ImportPreview
 									{familyId}
-									sheets={[sheet]}
+									sheets={sheetsOf(file)}
 									chapterId={chapter.id}
-									submitLabel={ti.submitSheet}
-									onimport={() => runImport(chapter, sheet)}
+									submitLabel={file.format === CHAPTER_FORMAT ? ti.submitSheets : ti.submitSheet}
+									onimport={() => runImport(chapter, file)}
 								/>
 							{/snippet}
 						</JsonPaste>

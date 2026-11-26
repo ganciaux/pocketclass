@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { checkUniqueIds, text } from './common.ts';
-import { checkSheet, sheetBodySchema, type SheetDoc } from './sheet.ts';
+import { checkSheet, sheetBodySchema, sheetSchema, type SheetDoc } from './sheet.ts';
 
 export const CHAPTER_FORMAT = 'pocketclass/chapter@1';
 
@@ -37,3 +37,15 @@ export const chapterSchema = chapterBodySchema
 	.superRefine((chapter, ctx) => checkSheetsOf([chapter], () => [], ctx));
 
 export type ChapterImport = z.infer<typeof chapterSchema>;
+
+/**
+ * What the parent's chapter page accepts: one sheet, or a whole `chapter@1` (an export of this
+ * chapter given back by an AI) whose sheets are added to or updated in this chapter.
+ */
+export const sheetOrChapterSchema = z.discriminatedUnion('format', [sheetSchema, chapterSchema]);
+
+export type SheetOrChapterImport = z.infer<typeof sheetOrChapterSchema>;
+
+/** The sheets of a sheet or chapter file. */
+export const sheetsOf = (file: SheetOrChapterImport): SheetDoc[] =>
+	file.format === CHAPTER_FORMAT ? file.sheets : [file];

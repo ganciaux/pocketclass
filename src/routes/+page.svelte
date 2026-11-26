@@ -18,7 +18,7 @@
 		() => session.familyId && ownerId && watchNotes(session.familyId, ownerId)
 	);
 
-	/** The other parent pages, beside « Gérer les classeurs » (each with its icon). */
+	/** The other parent pages, beside « Classeurs » (each with its icon). */
 	const parentLinks = [
 		{ href: resolve('/parent/profiles'), icon: UI_ICONS.users, label: fr.home.manageProfiles },
 		{ href: resolve('/parent/notes'), icon: UI_ICONS.message, label: fr.home.childrenNotes },

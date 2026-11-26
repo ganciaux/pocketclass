@@ -12,6 +12,7 @@ import { freeColor, nextOrder } from '#lib/binder/binder.ts';
 import { MAX_BATCH_OPS } from './batches.ts';
 import {
 	assessmentRef,
+	chapterRef,
 	chaptersCol,
 	conceptRef,
 	conceptsCol,
@@ -51,17 +52,29 @@ export async function readExistingSheets(
 	familyId: string,
 	sheetIds: string[]
 ): Promise<ExistingSheets> {
+	// Chapter titles, read once per chapter (named when a sheet is in another chapter).
+	const titles = new Map<string, Promise<string | undefined>>();
+	const chapterTitle = (chapterId: string) => {
+		if (!titles.has(chapterId))
+			titles.set(
+				chapterId,
+				getDoc(chapterRef(familyId, chapterId)).then((c) => c.data()?.title)
+			);
+		return titles.get(chapterId)!;
+	};
 	const entries = await Promise.all(
 		sheetIds.map(async (id) => {
 			const sheet = await getDoc(conceptRef(familyId, id));
 			const data = sheet.data();
 			if (!data) return null;
-			const [exercises, assessment] = await Promise.all([
+			const [exercises, assessment, title] = await Promise.all([
 				getDocs(exercisesCol(familyId, id)),
-				getDoc(assessmentRef(familyId, id))
+				getDoc(assessmentRef(familyId, id)),
+				data.chapterId ? chapterTitle(data.chapterId) : undefined
 			]);
 			const existing = {
 				chapterId: data.chapterId,
+				chapterTitle: title,
 				order: data.order,
 				version: data.version,
 				archived: data.archived,

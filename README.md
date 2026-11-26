@@ -60,7 +60,7 @@ connecte ensuite avec Google ou avec l'e-mail et ce mot de passe. L'app ne crée
 compte e-mail à part. Prérequis console : fournisseur « Adresse e-mail/Mot de passe » activé.
 L'emulator Auth refuse ce rattachement (« e-mail déjà utilisé ») : à tester sur la vraie app.
 
-Les profils enfants se créent dans **Gérer les profils**. Pour connecter le téléphone d'un
+Les profils enfants se créent dans **Espace parent → Profils**. Pour connecter le téléphone d'un
 enfant : ouvrir son profil → **Lier un appareil** affiche un code (6 caractères, 10 minutes,
 usage unique) ; sur le téléphone de l'enfant, ouvrir l'app → « Je suis un enfant » → saisir le
 code. L'enfant reste connecté (compte anonyme Firebase) ; s'il perd la session (données
