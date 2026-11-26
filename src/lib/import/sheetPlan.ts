@@ -9,7 +9,7 @@ import type {
 } from '#lib/data/types.ts';
 import type { ChapterDoc } from '#lib/schemas/chapter.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
-import type { SheetDoc } from '#lib/schemas/sheet.ts';
+import { MAX_MAP_IMAGES, type SheetDoc } from '#lib/schemas/sheet.ts';
 import type { SubjectDoc } from '#lib/schemas/subject.ts';
 
 /** What already exists in Firestore for one sheet id (read before planning). */
@@ -85,7 +85,7 @@ export function batchesOf(ops: WriteOp[], maxOps: number, maxChars = 4_000_000):
 }
 
 /** Mind map picture ids (`data/mapImages.ts` uses the same slots). */
-export const MAP_IMAGE_SLOTS = ['image-1', 'image-2', 'image-3'];
+export const MAP_IMAGE_SLOTS = Array.from({ length: MAX_MAP_IMAGES }, (_, i) => `image-${i + 1}`);
 
 /** The assessment of a sheet whose JSON has none. */
 export const DEFAULT_ASSESSMENT = { type: 'test', draw: { perKeyPoint: 2 } } as const;

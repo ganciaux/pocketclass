@@ -17,8 +17,13 @@
 		<script>
 			try {
 				var theme = localStorage.getItem('pocketclass.theme');
-				if (theme === 'light' || theme === 'dark')
+				if (theme === 'light' || theme === 'dark') {
 					document.documentElement.dataset.theme = 'pocketclass-' + theme;
+					var bar = theme === 'dark' ? '#131418' : '#1f2127';
+					document.querySelectorAll('meta[name="theme-color"]').forEach(function (meta) {
+						meta.content = bar;
+					});
+				}
 			} catch (e) {}
 		</script>
 		%sveltekit.head%

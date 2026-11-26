@@ -4,6 +4,7 @@
 	import Icon from '#lib/components/Icon.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import {
+		REVISION_PASS_RATE,
 		revisionPoints,
 		revisionStatus,
 		timeLeft,
@@ -27,7 +28,7 @@
 {#if status.kind === 'ready'}
 	<p class="alert alert-success alert-soft">
 		<Icon paths={UI_ICONS.star} class="size-5" />
-		<span>{t.ready(revisionPoints(keyPointCount))}</span>
+		<span>{t.ready(revisionPoints(keyPointCount), REVISION_PASS_RATE)}</span>
 	</p>
 {:else if status.kind === 'waiting'}
 	<p class="alert alert-soft">

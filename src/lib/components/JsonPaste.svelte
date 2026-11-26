@@ -52,12 +52,14 @@
 	});
 </script>
 
-<label class="btn btn-soft btn-primary btn-sm self-start">
+<label
+	class="btn btn-soft btn-primary btn-sm self-start focus-within:outline-2 focus-within:outline-offset-2"
+>
 	<Icon paths={UI_ICONS.upload} class="size-4" />
-	{fr.export.chooseFile}
-	<input class="hidden" type="file" accept="application/json,.json,.txt" onchange={pick} />
+	{t.chooseFile}
+	<input class="sr-only" type="file" accept="application/json,.json,.txt" onchange={pick} />
 </label>
-{#if fileFailed}<p role="alert" class="alert alert-error alert-soft">{fr.export.fileFailed}</p>{/if}
+{#if fileFailed}<p role="alert" class="alert alert-error alert-soft">{t.fileFailed}</p>{/if}
 
 <label class="fieldset">
 	<span class="fieldset-legend">{label}</span>

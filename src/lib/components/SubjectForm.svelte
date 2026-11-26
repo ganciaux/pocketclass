@@ -13,7 +13,7 @@
 		type WithId
 	} from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
-	import { AvatarTooLargeError, imageFileToAvatar } from '#lib/profile/avatar.ts';
+	import { ImageTooLargeError, imageFileToAvatar } from '#lib/profile/avatar.ts';
 
 	/** Parent: name, colour, icon and optional image (picture or logo) of a subject. */
 	let { familyId, subject }: { familyId: string; subject: WithId<Subject> } = $props();
@@ -42,7 +42,7 @@
 		} catch (error) {
 			console.error('[subject] image', error);
 			imageError =
-				error instanceof AvatarTooLargeError ? fr.look.imageTooLarge : fr.look.imageFailed;
+				error instanceof ImageTooLargeError ? fr.look.imageTooLarge : fr.look.imageFailed;
 		}
 	}
 

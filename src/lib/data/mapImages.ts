@@ -7,9 +7,7 @@ import { inBackground } from './writes.ts';
 // Pictures of a sheet's mind map (parent): at most MAX_MAP_IMAGES, ids `image-1`… Each one is
 // its own document (a picture is large), read only on the mind map page.
 
-export const MAX_MAP_IMAGES = MAP_IMAGE_SLOTS.length;
-/** Slot ids, in display order. */
-const MAP_IMAGE_IDS = MAP_IMAGE_SLOTS;
+export { MAX_MAP_IMAGES } from '#lib/schemas/sheet.ts';
 
 export const watchMapImages = (familyId: string, conceptId: string) =>
 	querySource(mapImagesCol(familyId, conceptId));
@@ -21,9 +19,9 @@ export function addMapImage(
 	usedIds: string[],
 	dataUrl: string
 ): void {
-	const slot = MAP_IMAGE_IDS.findIndex((id) => !usedIds.includes(id));
+	const slot = MAP_IMAGE_SLOTS.findIndex((id) => !usedIds.includes(id));
 	if (slot < 0) return;
-	const ref = mapImageRef(familyId, conceptId, MAP_IMAGE_IDS[slot]);
+	const ref = mapImageRef(familyId, conceptId, MAP_IMAGE_SLOTS[slot]);
 	inBackground(setDoc(ref, { dataUrl, order: slot + 1 }), 'map image added');
 }
 

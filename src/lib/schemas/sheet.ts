@@ -62,15 +62,20 @@ const mindMapSchema = z
 	.array(z.object({ keyPoint: slug, leaves: z.array(text.max(60)).min(1).max(4) }))
 	.max(8);
 
+/** Data URL budget of a mind map picture (one Firestore document each, 1 MiB max). */
+export const MAP_IMAGE_MAX_LENGTH = 700_000;
+/** Mind map pictures per sheet (`data/mapImages.ts`, `MAP_IMAGE_SLOTS`). */
+export const MAX_MAP_IMAGES = 3;
+
 /** Pictures of the mind map added by the parent (in an exported backup, never from the AI). */
 const mapImagesSchema = z
 	.array(
 		z
 			.string()
-			.max(700_000)
+			.max(MAP_IMAGE_MAX_LENGTH)
 			.regex(/^data:image\/(webp|jpeg|png);base64,/, { error: fr.validation.imageDataUrl })
 	)
-	.max(3);
+	.max(MAX_MAP_IMAGES);
 
 /** One revision sheet (a "concept"): key points, study sheet, exercises, assessment. */
 export const sheetBodySchema = z.object({

@@ -3,7 +3,7 @@
 	import { updateProfileLook } from '#lib/data/family.ts';
 	import type { Profile, WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
-	import { AvatarTooLargeError, imageFileToAvatar } from '#lib/profile/avatar.ts';
+	import { ImageTooLargeError, imageFileToAvatar } from '#lib/profile/avatar.ts';
 	import { NICKNAME_MAX } from '#lib/profile/display.ts';
 	import { untrack } from 'svelte';
 
@@ -36,7 +36,7 @@
 			avatar = await imageFileToAvatar(file);
 		} catch (error) {
 			console.error('[look] image', error);
-			errorMessage = error instanceof AvatarTooLargeError ? t.imageTooLarge : t.imageFailed;
+			errorMessage = error instanceof ImageTooLargeError ? t.imageTooLarge : t.imageFailed;
 		}
 	}
 

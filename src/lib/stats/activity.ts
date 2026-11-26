@@ -125,7 +125,10 @@ export function activityDays(
 	days: number
 ): { days: ActivityDay[]; more: boolean } {
 	const today = startOfDay(now);
-	const from = today - (days - 1) * DAY_MS;
+	// Calendar days, not 24 h steps: a clock change in the window must not drop a day.
+	const first = new Date(today);
+	first.setDate(first.getDate() - (days - 1));
+	const from = first.getTime();
 	const groups = new Map<number, ActivityEntry[]>();
 	let more = false;
 	for (const entry of entries) {

@@ -123,8 +123,8 @@ alert-soft` (`role="alert"` for errors); field = `label.fieldset` + `span.fields
 
 ### To plan in later phases (not coded on purpose)
 
-- Phase 3 (rest): more points (revision, activity history) on the same ledger (deterministic ids +
-  `increment()`, transactions do not work offline). Notes on exercises: `NoteTarget.exerciseId` already exists.
+- Notes on exercises: `NoteTarget.exerciseId` already exists. More ways to earn points go on
+  the same ledger (deterministic ids + `increment()`: transactions do not work offline).
 - Device linking: a QR code was left out on purpose (on iOS a QR opens Safari, whose storage
   is separate from the installed PWA). Expired link codes are never deleted (harmless, could
   be cleaned by the parent later). Converting an anonymous account (`linkWithCredential`)
@@ -589,6 +589,23 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   `<html>`, applied before the first paint by a small script in `app.html`. Charter: the « all »
   chip is now ink on paper (`bg-base-content text-base-100`; `btn-neutral` vanished on the dark
   theme); activity rows are whole-card links (`link-card`), never underlined.
+- 2026-11-26 — **Update prompt on phones** (user's report: the « Mettre à jour » toast was
+  rare, sometimes never shown on the children's phones). An installed app is suspended and
+  resumed, not reloaded: the hourly timer stops, and once dismissed (« Plus tard ») the waiting
+  version was never offered again. `appUpdate.check()` now runs when the app comes back to the
+  foreground (`visibilitychange`) or online, at most every 5 minutes: it offers a version
+  already waiting again, then asks the server for a newer one. Check on a phone (the Playwright
+  browser blocks service workers).
+- 2026-11-26 — **Global review before deploying** (3 reviewer agents, no high-severity bug; the
+  revision rules were found sound). Fixed: clock margin of the revision check raised to 1 hour
+  (a phone clock ahead made the server refuse the revision, and with it the whole series
+  batch); `activityDays` counts calendar days (a clock change no longer hides the oldest day);
+  file pickers reachable with the keyboard (`sr-only` input, focus ring on the label); the
+  « 70 % » of the revision text comes from `REVISION_PASS_RATE`; a forced theme also sets the
+  status bar colour (`theme-color` metas); one `ImageTooLargeError` and one « image too large »
+  text; picture limits defined once in `schemas/sheet.ts` (`MAP_IMAGE_MAX_LENGTH`,
+  `MAX_MAP_IMAGES`). Left for later (optional): one shared « child's reachable sheets » helper
+  for `seen.ts` / `revision.ts` / stats, `auth.svelte.ts` using `preferences.ts`.
 
 ## Firestore model
 
@@ -611,10 +628,12 @@ families/{familyId}                            { name, admins: [uid], createdAt 
                                                  practiceBest?, practicedAt?, challengeBest?, challengedAt?,
                                                  assessmentLast?, assessmentBest?, assessedAt?, failedAt?, retakeLocked?,
                                                  assessmentPoints?, mapDrawn?, openCount?, seriesStarted?,
-                                                 challengeStarted?, assessmentStarted? }
+                                                 challengeStarted?, assessmentStarted?, revisedAt?, revisionCount?,
+                                                 revisionPoints? }
                                                  (sheet opened / read; acquiredAt = « Acquise » stamp, by the parent or
                                                  a passed assessment; practice* / assessment* = { correct, total };
-                                                 challengeBest = right answers in 60 s; failedAt = « Raté » stamp)
+                                                 challengeBest = right answers in 60 s; failedAt = « Raté » stamp;
+                                                 revisedAt = last paid revision, revisionCount = its ledger suffix)
   profiles/{profileId}/attempts/{attemptId}    { conceptId, subjectId, chapterId, mode: series|timed|assessment, correct,
                                                  total, answers: [{ exerciseId, correct }], createdAt }   (create only)
   profiles/{profileId}/pointsLedger/{entryId}  { kind: assessment|revision, conceptId, subjectId, chapterId, amount, createdAt }
@@ -669,7 +688,7 @@ Phase 1 (done): skeleton, import, map, sheet. Done after phase 1: child device l
 (one-time code), nickname / avatar, "sheet read" progress + dashboard, notes, binder
 (subjects / chapters / sheets, replaces paths; a curated "path" may come back later as a
 selection of sheets). Phase 2 (in progress): practice series and 60 s timed challenge
-done (player, 10 playable types, attempts, scores), exercise generators done (25, four families). Phase 3 (in progress): sheet assessment with pass rate, stamps and points done; next: other ways to earn points (revision, activity history).
+done (player, 10 playable types, attempts, scores), exercise generators done (25, four families). Phase 3 (done): sheet assessment with pass rate, stamps and points, revision points (once a week, hourglass), activity history.
 Phase 4: summary photo flow. Phase 5: child-side extras (QR code if needed). Phase 6:
 spaced repetition, in-app AI prompts, quick lesson entry (`lesson@1`).
 

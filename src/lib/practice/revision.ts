@@ -14,9 +14,9 @@ export const REVISION_POINTS_PER_KEY_POINT = 2;
 export const REVISION_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 /**
  * Margin on the device's clock: the rules compare with the server time, and a refused revision
- * would lose the whole series batch.
+ * would lose the whole series batch (a phone clock can be minutes, even an hour, off).
  */
-const CLOCK_MARGIN_MS = 5 * 60 * 1000;
+const CLOCK_MARGIN_MS = 60 * 60 * 1000;
 
 type Stamp = { toMillis(): number };
 

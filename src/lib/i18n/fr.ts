@@ -259,15 +259,13 @@ export const fr = {
 		restoreTitle: 'Restaurer une sauvegarde',
 		restoreHelp:
 			"Un fichier « matière », « classeurs » ou « sauvegarde complète » exporté par PocketClass : ses matières sont ajoutées comme nouvelles matières. Une fiche déjà présente (même identifiant) bloque l'import : supprime-la ou masque-la d'abord.",
-		chooseFile: 'Choisir un fichier',
 		/** Full backup, in the parent's « Mon profil ». */
 		familyTitle: 'Sauvegarde complète',
 		familyHelp:
-			'Tout dans un fichier : les classeurs (fiches, exercices, images) et, pour chaque profil, la progression, les remarques, les essais et les points. À garder en lieu sûr, au cas où les données en ligne seraient perdues. La restauration (Classeurs) remet les classeurs ; le reste sert d’archive.',
+			"Tout dans un fichier : les classeurs (fiches, exercices, images) et, pour chaque profil, la progression, les remarques, les essais et les points. À garder en lieu sûr, au cas où les données en ligne seraient perdues. La restauration (Classeurs) remet les classeurs ; le reste sert d'archive.",
 		familyButton: 'Télécharger la sauvegarde complète',
 		familyArchive: (profiles: number) =>
 			`Sauvegarde complète : seuls les classeurs sont restaurés. Les données de ${plural(profiles, 'profil')} (progression, remarques, points) restent dans le fichier, comme archive.`,
-		fileFailed: 'Impossible de lire ce fichier.',
 		pasteLabel: 'Ou colle le contenu du fichier (JSON)',
 		placeholder: '{ "format": "pocketclass/binder@1", … }',
 		summary: (subjects: number, chapters: number, sheets: number) =>
@@ -349,8 +347,8 @@ export const fr = {
 		title: 'Mes révisions',
 		hint: 'Revois tes fiches acquises pour gagner des points.',
 		readyCount: (n: number) => plural(n, 'prête', 'prêtes'),
-		ready: (points: number) =>
-			`Révision prête : une série à 70 % rapporte ${plural(points, 'point')}.`,
+		ready: (points: number, rate: number) =>
+			`Révision prête : une série à ${rate} % rapporte ${plural(points, 'point')}.`,
 		waiting: (left: string) => `Prochaine révision qui rapporte des points dans ${left}.`,
 		left: ({ days, hours, minutes }: { days: number; hours: number; minutes: number }) =>
 			days > 0
@@ -363,7 +361,7 @@ export const fr = {
 		waitingHeading: 'Sablier en cours',
 		practise: 'Réviser',
 		empty:
-			'Aucune fiche acquise pour le moment : réussis le contrôle d’une fiche, puis reviens la réviser chaque semaine.',
+			"Aucune fiche acquise pour le moment : réussis le contrôle d'une fiche, puis reviens la réviser chaque semaine.",
 		loadFailed: 'Impossible de charger tes révisions.'
 	},
 	seen: {
@@ -384,7 +382,6 @@ export const fr = {
 		addImage: 'Ajouter une image',
 		imagesHelp: (max: number) =>
 			`Jusqu'à ${max} images (photo d'une carte dessinée à la main…), réduites automatiquement.`,
-		imageTooLarge: 'Image trop lourde, même réduite : essaie une photo moins détaillée.',
 		deleteImage: 'Supprimer cette image ?',
 		/** Button on the sheet page. */
 		open: 'Carte mentale',
@@ -661,6 +658,8 @@ export const fr = {
 				plural(practice, "exercice d'entraînement", "exercices d'entraînement"),
 				plural(assessment, 'exercice de contrôle', 'exercices de contrôle')
 			].join(' · '),
+		chooseFile: 'Choisir un fichier',
+		fileFailed: 'Impossible de lire ce fichier.',
 		isNew: 'Nouvelle fiche',
 		/** Opens the sheet as the child will read it, before saving. */
 		preview: 'Aperçu',

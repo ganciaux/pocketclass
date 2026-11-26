@@ -1,18 +1,18 @@
+import { MAP_IMAGE_MAX_LENGTH } from '#lib/schemas/sheet.ts';
 import { AVATAR_MAX_LENGTH, AVATAR_SIZE, centerSquare } from './display.ts';
 
-export class AvatarTooLargeError extends Error {
+export class ImageTooLargeError extends Error {
 	constructor() {
 		super('Image too large');
 	}
 }
 
-/** Largest side of a mind map picture, and its data URL budget (one Firestore document each). */
-export const PICTURE_MAX_SIDE = 1200;
-export const PICTURE_MAX_LENGTH = 700_000;
+/** Largest side of a mind map picture (its data URL budget is in the sheet schema). */
+const PICTURE_MAX_SIDE = 1200;
 
 /**
  * Canvas → data URL: WebP (JPEG if unsupported), quality lowered until it fits `maxLength`.
- * Throws `AvatarTooLargeError` when even the lowest quality is too large.
+ * Throws `ImageTooLargeError` when even the lowest quality is too large.
  */
 function encode(canvas: HTMLCanvasElement, maxLength: number, qualities: number[]): string {
 	for (const quality of qualities) {
@@ -21,7 +21,7 @@ function encode(canvas: HTMLCanvasElement, maxLength: number, qualities: number[
 		if (!url.startsWith('data:image/webp')) url = canvas.toDataURL('image/jpeg', quality);
 		if (url.length <= maxLength) return url;
 	}
-	throw new AvatarTooLargeError();
+	throw new ImageTooLargeError();
 }
 
 function canvasOf(width: number, height: number) {
@@ -48,7 +48,7 @@ export async function imageFileToAvatar(file: Blob): Promise<string> {
 
 /**
  * Picked image → data URL of a whole picture (a photo of a mind map): scaled down to
- * PICTURE_MAX_SIDE (never up), then PICTURE_MAX_LENGTH. Browser only (canvas).
+ * PICTURE_MAX_SIDE (never up), then MAP_IMAGE_MAX_LENGTH. Browser only (canvas).
  */
 export async function imageFileToPicture(file: Blob): Promise<string> {
 	const bitmap = await createImageBitmap(file);
@@ -61,5 +61,5 @@ export async function imageFileToPicture(file: Blob): Promise<string> {
 	context.fillRect(0, 0, width, height);
 	context.drawImage(bitmap, 0, 0, width, height);
 	bitmap.close();
-	return encode(canvas, PICTURE_MAX_LENGTH, [0.8, 0.65, 0.5, 0.35]);
+	return encode(canvas, MAP_IMAGE_MAX_LENGTH, [0.8, 0.65, 0.5, 0.35]);
 }

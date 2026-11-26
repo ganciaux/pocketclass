@@ -10,7 +10,7 @@
 		watchMapImages
 	} from '#lib/data/mapImages.ts';
 	import { fr } from '#lib/i18n/fr.ts';
-	import { AvatarTooLargeError, imageFileToPicture } from '#lib/profile/avatar.ts';
+	import { ImageTooLargeError, imageFileToPicture } from '#lib/profile/avatar.ts';
 
 	/**
 	 * Pictures of a sheet's mind map, under the drawn map: tap to enlarge. The parent (`canEdit`)
@@ -46,7 +46,7 @@
 			);
 		} catch (failure) {
 			console.error('[map image]', failure);
-			error = failure instanceof AvatarTooLargeError ? t.imageTooLarge : fr.look.imageFailed;
+			error = failure instanceof ImageTooLargeError ? fr.look.imageTooLarge : fr.look.imageFailed;
 		} finally {
 			busy = false;
 		}
@@ -91,11 +91,16 @@
 		{/if}
 		{#if canEdit}
 			{#if images.length < MAX_MAP_IMAGES}
-				<label class={['btn btn-soft btn-primary btn-sm self-start', busy && 'btn-disabled']}>
+				<label
+					class={[
+						'btn btn-soft btn-primary btn-sm self-start focus-within:outline-2 focus-within:outline-offset-2',
+						busy && 'btn-disabled'
+					]}
+				>
 					{#if busy}<span class="loading loading-spinner loading-sm"></span>
 					{:else}<Icon paths={UI_ICONS.upload} class="size-4" />{/if}
 					{t.addImage}
-					<input class="hidden" type="file" accept="image/*" onchange={pick} disabled={busy} />
+					<input class="sr-only" type="file" accept="image/*" onchange={pick} disabled={busy} />
 				</label>
 			{/if}
 			<p class="text-sm text-base-content/60">{t.imagesHelp(MAX_MAP_IMAGES)}</p>
