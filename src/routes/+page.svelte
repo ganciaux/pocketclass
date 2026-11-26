@@ -2,7 +2,7 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import { UI_ICONS, type IconPath } from '#lib/binder/icons.ts';
 	import Icon from '#lib/components/Icon.svelte';
-	import PointsBadge from '#lib/components/PointsBadge.svelte';
+	import PointsStar from '#lib/components/PointsStar.svelte';
 	import SubjectCards from '#lib/components/SubjectCards.svelte';
 	import { watchBinder } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
@@ -98,14 +98,18 @@
 <svelte:head><title>{fr.app.name}</title></svelte:head>
 
 <main class="doodles">
-	<h1>
-		{fr.auth.hello(
-			session.childView?.name ?? (session.profile ? displayName(session.profile) : '')
-		)}
-	</h1>
+	<div class="flex items-center justify-between gap-3">
+		<h1>
+			{fr.auth.hello(
+				session.childView?.name ?? (session.profile ? displayName(session.profile) : '')
+			)}
+		</h1>
+		{#if session.childView && session.profile}
+			<!-- Points earned (the owner's profile, also in test mode): a big star sticker. -->
+			<PointsStar points={session.profile.points ?? 0} size="lg" class="-rotate-6" />
+		{/if}
+	</div>
 	{#if session.childView && session.profile}
-		<!-- Points earned by passed assessments (the owner's profile, also in test mode). -->
-		<p class="self-start"><PointsBadge points={session.profile.points ?? 0} size="lg" /></p>
 		{#if today}
 			<TodayCard
 				streak={today.streak}

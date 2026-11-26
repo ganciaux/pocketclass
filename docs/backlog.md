@@ -75,7 +75,7 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 Déploiement du 25 novembre fait et testé sur téléphone par l'utilisateur (2026-11-26).
 Depuis : mise à jour d'un chapitre par son JSON, boutons courts de l'Espace parent, points de
-révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales, import depuis un fichier avec aperçu, sauvegarde complète, mode jour / nuit, erreurs à revoir, carte « Aujourd'hui », message quand un enregistrement échoue. **Les règles Firestore ont changé** (révisions, images) :
+révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales, import depuis un fichier avec aperçu, sauvegarde complète, mode jour / nuit, erreurs à revoir, carte « Aujourd'hui », message quand un enregistrement échoue, points en gommette étoile (classeur, bandeau, accueil) et boutons Retour en écriture manuscrite. **Les règles Firestore ont changé** (révisions, images) :
 
 - Lancer `npm run prod` (app **et** règles ; jamais `deploy:app` seul avant les règles).
 - Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus

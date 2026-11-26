@@ -50,6 +50,7 @@
 		"vitest": "^5.1.0"
 	},
 	"dependencies": {
+		"@fontsource/patrick-hand": "^5.3.0",
 		"dompurify": "^3.5.0",
 		"firebase": "^13.4.0",
 		"katex": "^0.19.1",

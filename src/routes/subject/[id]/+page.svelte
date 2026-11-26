@@ -14,7 +14,7 @@
 	import BackLink from '#lib/components/BackLink.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
-	import PointsBadge from '#lib/components/PointsBadge.svelte';
+	import PointsStar from '#lib/components/PointsStar.svelte';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import { pointsBySubject } from '#lib/practice/assessment.ts';
 	import TallyLine from '#lib/components/TallyLine.svelte';
@@ -65,7 +65,14 @@
 					{@const next = asChild ? nextUnread(chapters, sheets, progress) : null}
 
 					<!-- Banner in the subject's colour: its picture, name and overall progress. -->
-					<header class={['card', SUBJECT_TINT[subject.color]]}>
+					<header class={['card relative', SUBJECT_TINT[subject.color]]}>
+						{#if asChild}
+							{@const points = pointsBySubject(content.progress).get(subject.id) ?? 0}
+							<!-- Gold star sticker on the corner, as on the binder card. -->
+							{#if points > 0}
+								<PointsStar {points} class="absolute -top-4 -right-2 z-10 rotate-12" />
+							{/if}
+						{/if}
 						<div class="card-body gap-3">
 							<div class="flex items-center gap-4">
 								<SubjectBadge {subject} size={4} />
@@ -74,12 +81,8 @@
 									{#if !session.childView || subject.grade !== session.childView.grade}
 										<span class="badge badge-ghost badge-sm self-start">{subject.grade}</span>
 									{/if}
-									<h1>{subject.name}</h1>
+									<h1 class="break-words">{subject.name}</h1>
 								</div>
-								{#if asChild}
-									{@const points = pointsBySubject(content.progress).get(subject.id) ?? 0}
-									{#if points > 0}<PointsBadge {points} size="lg" />{/if}
-								{/if}
 							</div>
 							{#if asChild}
 								<span class="text-sm text-base-content/70">
