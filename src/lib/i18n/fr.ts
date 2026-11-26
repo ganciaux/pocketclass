@@ -329,6 +329,17 @@ export const fr = {
 		choice: { auto: 'Auto', light: 'Clair', dark: 'Sombre' },
 		help: 'Auto suit le réglage du téléphone. Le choix est retenu sur cet appareil.'
 	},
+	/** The child's « Aujourd'hui » card on the home page. */
+	today: {
+		title: "Aujourd'hui",
+		streak: (days: number) => `${plural(days, "jour d'affilée", "jours d'affilée")}`,
+		startStreak: "Commence ta série aujourd'hui !",
+		keepStreak: "Une activité aujourd'hui pour la continuer.",
+		mistakes: (n: number) => `Revoir ${plural(n, 'erreur')}`,
+		revision: (title: string, points: number) => `Réviser « ${title} » (+${points})`,
+		read: (title: string) => `Lire « ${title} »`,
+		allDone: "Tout est à jour : choisis une fiche dans ton classeur pour t'entraîner."
+	},
 	/** « Mes erreurs à revoir »: wrong answers come back after a while. */
 	mistakes: {
 		title: 'Mes erreurs à revoir',

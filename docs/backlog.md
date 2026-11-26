@@ -75,7 +75,7 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 Déploiement du 25 novembre fait et testé sur téléphone par l'utilisateur (2026-11-26).
 Depuis : mise à jour d'un chapitre par son JSON, boutons courts de l'Espace parent, points de
-révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales, import depuis un fichier avec aperçu, sauvegarde complète, mode jour / nuit. **Les règles Firestore ont changé** (révisions, images) :
+révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales, import depuis un fichier avec aperçu, sauvegarde complète, mode jour / nuit, erreurs à revoir, carte « Aujourd'hui », message quand un enregistrement échoue. **Les règles Firestore ont changé** (révisions, images) :
 
 - Lancer `npm run prod` (app **et** règles ; jamais `deploy:app` seul avant les règles).
 - Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus
@@ -102,7 +102,8 @@ Par ordre de demande ; le détail de chaque point est plus bas.
    page « Mon activité » (enfant) et section « Activité » des statistiques (parent).
 5. ~~Erreurs à revoir~~ : **fait** (2026-11-26), page « Mes erreurs à revoir » (une question
    ratée revient le lendemain, puis 3 jours après, et disparaît après deux réussites).
-6. « Aujourd'hui » sur l'accueil de l'enfant et série de jours (en cours).
+6. ~~« Aujourd'hui » et série de jours~~ : **fait** (2026-11-26), carte en haut de l'accueil de
+   l'enfant (jours d'affilée en bâtons, 3 choses à faire au plus).
 7. Suite de l'entraînement (ci-dessous).
 
 ### Suite de l'entraînement

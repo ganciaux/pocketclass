@@ -7,7 +7,16 @@
 	import { watchBinder } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { ticking } from '#lib/clock.svelte.ts';
-	import { binderRevisions } from '#lib/practice/revision.ts';
+	import { binderRevisions, revisionPoints } from '#lib/practice/revision.ts';
+	import TodayCard from '#lib/components/TodayCard.svelte';
+	import {
+		activeOnly,
+		nextUnread,
+		progressById,
+		reachableSheets,
+		visibleSubjects
+	} from '#lib/binder/binder.ts';
+	import { streak } from '#lib/stats/streak.ts';
 	import { watchReview } from '#lib/data/mistakes.ts';
 	import { dueMistakes, mistakes, reviewable } from '#lib/practice/mistakes.ts';
 	import { watchNotes } from '#lib/data/notes.ts';
@@ -37,13 +46,46 @@
 		const open = reviewable(mistakes(review.attempts, clock.now), review.exercises);
 		return dueMistakes(open, clock.now).due.length;
 	});
-	const readyRevisions = $derived(
+	const ready = $derived(
 		binderLive.data && session.childView
 			? binderRevisions(binderLive.data, session.childView, clock.now).filter(
 					(e) => e.status.kind === 'ready'
-				).length
-			: 0
+				)
+			: []
 	);
+	const readyRevisions = $derived(ready.length);
+
+	/** « Aujourd'hui »: the days in a row with a finished run, and the next sheet to read. */
+	const today = $derived.by(() => {
+		const binder = binderLive.data;
+		const review = reviewLive.data;
+		const view = session.childView;
+		if (!binder || !review || !view) return null;
+		const now = clock.now;
+		const progress = progressById(binder.progress);
+		const sheets = reachableSheets(binder.sheets, binder.chapters);
+		const chapters = activeOnly(binder.chapters);
+		let nextSheet = null;
+		for (const subject of visibleSubjects(binder.subjects, view)) {
+			nextSheet = nextUnread(
+				chapters.filter((c) => c.subjectId === subject.id),
+				sheets.filter((s) => s.subjectId === subject.id),
+				progress
+			);
+			if (nextSheet) break;
+		}
+		const first = ready[0]?.sheet;
+		return {
+			streak: streak(
+				review.attempts.map((a) => a.createdAt?.toMillis() ?? now),
+				now
+			),
+			revision: first
+				? { id: first.id, title: first.title, points: revisionPoints(first.keyPoints.length) }
+				: null,
+			nextSheet
+		};
+	});
 
 	/** The other parent pages, beside « Classeurs » (each with its icon). */
 	const parentLinks = [
@@ -64,6 +106,14 @@
 	{#if session.childView && session.profile}
 		<!-- Points earned by passed assessments (the owner's profile, also in test mode). -->
 		<p class="self-start"><PointsBadge points={session.profile.points ?? 0} size="lg" /></p>
+		{#if today}
+			<TodayCard
+				streak={today.streak}
+				dueMistakes={dueCount}
+				revision={today.revision}
+				nextSheet={today.nextSheet}
+			/>
+		{/if}
 	{/if}
 
 	{#if session.isAdmin && !session.childView}
