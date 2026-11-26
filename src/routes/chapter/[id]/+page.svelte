@@ -128,6 +128,14 @@
 					{#if asChild && sheets.length > 0}
 						<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[color]} />
 					{/if}
+					{#if sheets.length > 0}
+						<a
+							class="btn btn-soft btn-primary self-start"
+							href={resolve('/chapter/[id]/cards', { id: chapter.id })}
+						>
+							<Icon paths={UI_ICONS.cards} class="size-4" />{fr.cards.openDeck}
+						</a>
+					{/if}
 
 					{@const statuses = new Map(
 						sheets.map((sheet) => [sheet.id, sheetStatus(sheet, progress.get(sheet.id))])

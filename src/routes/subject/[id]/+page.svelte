@@ -106,6 +106,14 @@
 							{/if}
 						</div>
 					</header>
+					{#if sheets.length > 0}
+						<a
+							class="btn btn-soft btn-primary self-start"
+							href={resolve('/subject/[id]/cards', { id: subject.id })}
+						>
+							<Icon paths={UI_ICONS.cards} class="size-4" />{fr.cards.openDeck}
+						</a>
+					{/if}
 
 					{#if next}
 						<a

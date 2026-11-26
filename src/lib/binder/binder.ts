@@ -224,6 +224,19 @@ export function reachableSheets<S extends { chapterId: string; archived: boolean
 	return activeOnly(sheets).filter((s) => open.has(s.chapterId));
 }
 
+/** Active sheets of active chapters in binder order: chapter after chapter, each in its order. */
+export function sheetsInBinderOrder<
+	S extends Ordered & { chapterId: string; title: string; archived: boolean },
+	C extends Ordered & { id: string; title: string; archived: boolean }
+>(sheets: S[], chapters: C[]): S[] {
+	return byOrder(activeOnly(chapters), (c) => c.title).flatMap((chapter) =>
+		byOrder(
+			activeOnly(sheets).filter((s) => s.chapterId === chapter.id),
+			(s) => s.title
+		)
+	);
+}
+
 /**
  * The sheets a child can reach, each with its subject and chapter: a visible subject (their
  * grade or an extra one), an active chapter, an active sheet. Base of « Mes fiches vues » and

@@ -103,6 +103,20 @@ export const UI_ICONS = {
 	),
 	/** Hourglass: time left before the next paid revision. */
 	hourglass: paths('M6 2h12', 'M6 22h12', 'M7 2v4l5 6 5-6V2', 'M7 22v-4l5-6 5 6v4', 'M10 19h4'),
+	/** Two stacked cards: revision cards. */
+	cards: paths(
+		'M8 3h11a2 2 0 0 1 2 2v12',
+		'M5 7h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z'
+	),
+	/** Crossed arrows: shuffle. */
+	shuffle: paths('M16 3h5v5', 'M4 20 21 3', 'M21 16v5h-5', 'm15 15 6 6', 'M4 4l5 5'),
+	/** Turning arrows: flip a card. */
+	flip: paths(
+		'M3 12a9 9 0 0 1 15.4-6.4L21 8',
+		'M21 3v5h-5',
+		'M21 12a9 9 0 0 1-15.4 6.4L3 16',
+		'M3 21v-5h5'
+	),
 	/** Bar chart: statistics. */
 	chart: paths('M4 20V10', 'M10 20V4', 'M16 20v-7', 'M22 20v-4', 'M2 20h20'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),

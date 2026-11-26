@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	sheetsInBinderOrder,
 	childSheets,
 	freeColor,
 	groupChapters,
@@ -321,5 +322,30 @@ describe('childSheets', () => {
 			['a', 'maths', 'ch'],
 			['e', 'art', 'ch']
 		]);
+	});
+});
+
+describe('sheetsInBinderOrder', () => {
+	it('lists the active sheets of active chapters, chapter after chapter, each in its order', () => {
+		const chapters = [
+			{ id: 'c2', title: 'B', order: 1, archived: false },
+			{ id: 'c1', title: 'A', order: 0, archived: false },
+			{ id: 'c3', title: 'C', order: 2, archived: true }
+		];
+		const sheet = (id: string, chapterId: string, order: number, archived = false) => ({
+			id,
+			chapterId,
+			title: id,
+			order,
+			archived
+		});
+		const sheets = [
+			sheet('s4', 'c2', 0),
+			sheet('s2', 'c1', 1),
+			sheet('s1', 'c1', 0),
+			sheet('s5', 'c3', 0),
+			sheet('s3', 'c1', 2, true)
+		];
+		expect(sheetsInBinderOrder(sheets, chapters).map((s) => s.id)).toEqual(['s1', 's2', 's4']);
 	});
 });

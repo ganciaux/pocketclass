@@ -104,6 +104,8 @@ Par ordre de demande ; le détail de chaque point est plus bas.
    ratée revient le lendemain, puis 3 jours après, et disparaît après deux réussites).
 6. ~~« Aujourd'hui » et série de jours~~ : **fait** (2026-11-26), carte en haut de l'accueil de
    l'enfant (jours d'affilée en bâtons, 3 choses à faire au plus).
+9. ~~Cartes de révision~~ : **fait** (2026-11-26), paquet d'une fiche, d'un chapitre ou d'un
+   classeur ; cartes écrites par l'IA (fiches à réimporter pour en avoir) ou fabriquées.
 7. Suite de l'entraînement (ci-dessous).
 8. ~~Harmoniser les polices~~ : **fait** (2026-11-26), deux polices : Permanent Marker pour
    l'écriture de l'app (nom, « Se déconnecter », boutons retour, étoile des points), Atkinson
