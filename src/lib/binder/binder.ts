@@ -224,6 +224,20 @@ export function reachableSheets<S extends { chapterId: string; archived: boolean
 	return activeOnly(sheets).filter((s) => open.has(s.chapterId));
 }
 
+/**
+ * Where a sheet stands among the active sheets of its chapter (« 3 / 6 ») and the one after it.
+ * Null for a hidden or unknown sheet.
+ */
+export function sheetPosition<S extends Ordered & { id: string; title: string; archived: boolean }>(
+	chapterSheets: S[],
+	sheetId: string
+): { position: number; total: number; next: S | null } | null {
+	const list = byOrder(activeOnly(chapterSheets), (s) => s.title);
+	const index = list.findIndex((s) => s.id === sheetId);
+	if (index < 0) return null;
+	return { position: index + 1, total: list.length, next: list[index + 1] ?? null };
+}
+
 /** Active sheets of active chapters in binder order: chapter after chapter, each in its order. */
 export function sheetsInBinderOrder<
 	S extends Ordered & { chapterId: string; title: string; archived: boolean },

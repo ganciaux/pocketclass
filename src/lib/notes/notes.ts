@@ -18,6 +18,13 @@ export const newestFirst = <N extends NoteLike>(notes: N[]) =>
 /** Notes the parent has not looked at yet. */
 export const openCount = (notes: NoteLike[]) => notes.filter((n) => n.status === 'open').length;
 
+/** Notes still to handle: not seen yet (`open`), seen but not settled (`seen`). */
+export function unresolvedCount(notes: Pick<NoteLike, 'status'>[]) {
+	const open = notes.filter((n) => n.status === 'open').length;
+	const seen = notes.filter((n) => n.status === 'seen').length;
+	return { open, seen, total: open + seen };
+}
+
 /** Statuses the parent can move a note to, from its current status. */
 export function reviewActions(status: NoteStatus): NoteStatus[] {
 	if (status === 'open') return ['seen', 'resolved'];

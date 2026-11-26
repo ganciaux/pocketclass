@@ -40,10 +40,12 @@ ids already used), the parent pastes it into any AI, gets JSON back, pastes it i
 - **Tailwind 4 + daisyUI 5** (`@tailwindcss/vite`), mobile first. Two daisyUI themes from the logo in
   `src/app.css`: `pocketclass-light` (paper) and `pocketclass-dark` (slate, follows the phone).
   Fonts bundled with `@fontsource` (offline), **two only** (2026-11-26): Permanent Marker
-  (`font-display`, the app's own writing: app name, « Se déconnecter », back buttons —
-  `<BackLink>`, « Retour à la fiche », « Retour à la carte », error page — and the points star
-  number; always `font-normal`, it has one weight) and Atkinson Hyperlegible for everything
-  else, page titles (`h1`, bold) included. Mono only for technical parent tools (JSON, ids). Bits UI only if a complex interactive widget is ever needed.
+  (`font-display`, the app's own writing: app name, the home headings — « Bonjour … ! »,
+  « Espace parent », « Classeurs » / « Mon classeur » —, back buttons — `<BackLink>`, « Retour à
+  la fiche », « Retour à la carte », error page — and the points star number; always
+  `font-normal`, it has one weight) and Atkinson Hyperlegible for everything else, content
+  titles (`h1` of a subject, chapter, sheet, bold) included. Sign out is an icon (`signOut`).
+  Mono only for technical parent tools (JSON, ids). Bits UI only if a complex interactive widget is ever needed.
 
 ## Architecture & conventions (how to add code)
 
@@ -670,6 +672,16 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   « Mélanger », « Seulement les cartes à revoir ». Piles saved on each sheet's progress
   (`cardsKnown` / `cardsReview`, ≤ 50 ids, `arrayUnion` / `arrayRemove`, offline); parent outside
   test mode: kept for the visit. No points.
+
+- 2026-11-26 — **Home and sheet touches** (user's requests). Home headings in Marker (greeting,
+  « Espace parent », « Classeurs » / « Mon classeur »); « Se déconnecter » is an icon button
+  (`title` + `aria-label`). Parent home: one `<details>` shelf per grade, closed by default
+  (chevron, « n matières »). The grade badge on a binder card is gone (it showed nowhere
+  after); the child page shows the grade badge bold, like the points. « Remarques » (parent home)
+  carries « n à voir » (gold) or « n à régler » (seen, not resolved; `unresolvedCount`) from every
+  child's notes. Sheet page: a ring « 2/6 » (place in the chapter, `sheetPosition`, subject ink)
+  right of the back link, and « Fiche suivante » (next sheet of the chapter) beside « J'ai lu
+  cette fiche ».
 
 ## Firestore model
 

@@ -87,7 +87,8 @@ export const fr = {
 		seenHint: 'Retrouve les fiches que tu as ouvertes.',
 		notesTitle: 'Mes remarques',
 		notesHint: 'Ce que tu as trouvé difficile.',
-		notesOpen: (n: number) => `${n} à voir`
+		notesOpen: (n: number) => `${n} à voir`,
+		notesSeen: (n: number) => `${n} à régler`
 	},
 	binder: {
 		loadFailed: 'Impossible de charger le classeur.',
@@ -99,6 +100,7 @@ export const fr = {
 		chapterNotFound: "Ce chapitre n'existe pas (ou plus).",
 		sheets: (count: number) => plural(count, 'fiche'),
 		chapterCount: (count: number) => plural(count, 'chapitre'),
+		subjectCount: (count: number) => plural(count, 'matière'),
 		read: (read: number, total: number) => `${read} / ${plural(total, 'fiche lue', 'fiches lues')}`,
 		fresh: (count: number) => plural(count, 'nouveauté'),
 		acquired: (count: number) => plural(count, 'acquise'),
@@ -124,6 +126,8 @@ export const fr = {
 		chapter: 'Chapitre'
 	},
 	concept: {
+		position: (n: number, total: number) => `Fiche ${n} sur ${total} du chapitre`,
+		nextSheet: 'Fiche suivante',
 		/** « Détails | Résumé » switch above the sections (when the sheet has summaries). */
 		viewLabel: 'Affichage de la fiche',
 		viewDetails: 'Détails',

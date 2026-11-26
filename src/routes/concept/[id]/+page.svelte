@@ -4,7 +4,7 @@
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportSheet } from '#lib/data/catalogExport.ts';
 	import { exportFileName } from '#lib/import/catalogExport.ts';
-	import { isAcquired, isRead as readOf } from '#lib/binder/binder.ts';
+	import { isAcquired, isRead as readOf, sheetPosition } from '#lib/binder/binder.ts';
 	import AcquiredStamp from '#lib/components/AcquiredStamp.svelte';
 	import AcquiredStamps from '#lib/components/AcquiredStamps.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
@@ -17,9 +17,10 @@
 	import NoteList from '#lib/components/NoteList.svelte';
 	import { watchNotes } from '#lib/data/notes.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import { SUBJECT_TEXT } from '#lib/binder/colors.ts';
 	import Icon from '#lib/components/Icon.svelte';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
-	import { watchChapter, watchConcept, watchSubject } from '#lib/data/catalog.ts';
+	import { watchChapter, watchConcept, watchSheetsOf, watchSubject } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import {
 		markOpened,
@@ -73,6 +74,13 @@
 	const chapterLive = live(
 		() => session.familyId && chapterId && watchChapter(session.familyId, chapterId)
 	);
+	// Place in the chapter (« 3 / 6 ») and the next sheet.
+	const chapterSheetsLive = live(
+		() => session.familyId && chapterId && watchSheetsOf(session.familyId, chapterId)
+	);
+	const place = $derived(
+		chapterSheetsLive.data ? sheetPosition(chapterSheetsLive.data, conceptId) : null
+	);
 	const subjectId = $derived(conceptLive.data?.subjectId);
 	const subjectLive = live(
 		() => session.familyId && subjectId && watchSubject(session.familyId, subjectId)
@@ -103,10 +111,29 @@
 <main>
 	<LoadState source={conceptLive} notFound={t.notFound} failed={t.loadFailed}>
 		{#snippet children(concept)}
-			<BackLink
-				href={resolve('/chapter/[id]', { id: concept.chapterId })}
-				label={chapterLive.data?.title ?? fr.binder.chapter}
-			/>
+			<div class="flex items-center justify-between gap-3">
+				<BackLink
+					href={resolve('/chapter/[id]', { id: concept.chapterId })}
+					label={chapterLive.data?.title ?? fr.binder.chapter}
+				/>
+				{#if place}
+					<!-- Where this sheet stands in its chapter, as a ring in the subject's ink. -->
+					<div
+						class={[
+							'radial-progress shrink-0 bg-base-100 text-xs font-bold shadow-[inset_0_0_0_4px_var(--color-base-300)]',
+							SUBJECT_TEXT[color]
+						]}
+						style:--value={(place.position / place.total) * 100}
+						style:--size="2.75rem"
+						style:--thickness="4px"
+						role="img"
+						aria-label={t.position(place.position, place.total)}
+						title={t.position(place.position, place.total)}
+					>
+						<span class="text-base-content">{place.position}/{place.total}</span>
+					</div>
+				{/if}
+			</div>
 			<header class="flex flex-col gap-1">
 				{#if subjectLive.data}
 					<span class="flex min-w-0 items-center gap-2 text-sm font-bold text-base-content/60">
@@ -160,24 +187,40 @@
 
 			<SheetView keyPoints={concept.keyPoints} sheet={concept.sheet} {color} />
 
-			{#if profileId}
-				<div class="flex flex-col items-center gap-1">
-					{#if isRead}
+			<!-- The end of the sheet: « J'ai lu cette fiche », and on to the next one of the chapter. -->
+			{#if profileId || place?.next}
+				<div class="flex flex-col items-center gap-2">
+					{#if profileId && isRead}
 						<p role="status" class="alert alert-success alert-soft w-full justify-center">
 							<Icon paths={UI_ICONS.check} />
 							<strong>{t.isRead}</strong>
 						</p>
-						{#if !acquired}
+					{/if}
+					<div class="flex flex-wrap items-center justify-center gap-2">
+						{#if profileId && !isRead}
+							<button class="btn btn-primary" onclick={() => markRead(concept, true)}>
+								<Icon paths={UI_ICONS.check} />
+								{t.markRead}
+							</button>
+						{:else if profileId && !acquired}
 							<button class="btn btn-ghost btn-sm" onclick={() => markRead(concept, false)}>
 								{t.markUnread}
 							</button>
 						{/if}
-					{:else}
-						<button class="btn btn-primary btn-wide" onclick={() => markRead(concept, true)}>
-							<Icon paths={UI_ICONS.check} />
-							{t.markRead}
-						</button>
-					{/if}
+						{#if place?.next}
+							<a
+								class="btn btn-soft btn-primary h-auto min-h-12 flex-col gap-0 py-1"
+								href={resolve('/concept/[id]', { id: place.next.id })}
+							>
+								<span class="flex items-center gap-1.5">
+									{t.nextSheet}<Icon paths={UI_ICONS.chevronRight} class="size-4" />
+								</span>
+								<small class="max-w-56 truncate font-normal opacity-80">
+									{@html renderInline(place.next.title)}
+								</small>
+							</a>
+						{/if}
+					</div>
 				</div>
 			{/if}
 

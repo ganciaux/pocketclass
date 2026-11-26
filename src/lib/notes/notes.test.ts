@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { newestFirst, noteContext, notePlace, openCount, reviewActions } from './notes.ts';
+import {
+	newestFirst,
+	noteContext,
+	notePlace,
+	openCount,
+	reviewActions,
+	unresolvedCount
+} from './notes.ts';
 
 const at = (ms: number) => ({ toMillis: () => ms });
 
@@ -99,5 +106,14 @@ describe('notePlace', () => {
 			kind: 'gone',
 			of: 'subject'
 		});
+	});
+});
+
+describe('unresolvedCount', () => {
+	it('counts the notes not seen yet and the ones seen but not settled', () => {
+		const note = (status: 'open' | 'seen' | 'resolved') => ({ status, createdAt: null });
+		const notes = [note('open'), note('seen'), note('seen'), note('resolved'), note('open')];
+		expect(unresolvedCount(notes)).toEqual({ open: 2, seen: 2, total: 4 });
+		expect(unresolvedCount([])).toEqual({ open: 0, seen: 0, total: 0 });
 	});
 });

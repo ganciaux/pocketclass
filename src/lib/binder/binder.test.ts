@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	sheetPosition,
 	sheetsInBinderOrder,
 	childSheets,
 	freeColor,
@@ -347,5 +348,26 @@ describe('sheetsInBinderOrder', () => {
 			sheet('s3', 'c1', 2, true)
 		];
 		expect(sheetsInBinderOrder(sheets, chapters).map((s) => s.id)).toEqual(['s1', 's2', 's4']);
+	});
+});
+
+describe('sheetPosition', () => {
+	const sheet = (id: string, order: number, archived = false) => ({
+		id,
+		title: id,
+		order,
+		archived
+	});
+	const chapter = [sheet('c', 2), sheet('a', 0), sheet('x', 1, true), sheet('b', 1)];
+
+	it('gives the place of a sheet among the active sheets of its chapter, and the next one', () => {
+		expect(sheetPosition(chapter, 'a')).toMatchObject({ position: 1, total: 3, next: { id: 'b' } });
+		expect(sheetPosition(chapter, 'b')).toMatchObject({ position: 2, total: 3, next: { id: 'c' } });
+		expect(sheetPosition(chapter, 'c')).toMatchObject({ position: 3, total: 3, next: null });
+	});
+
+	it('has no place for a hidden or unknown sheet', () => {
+		expect(sheetPosition(chapter, 'x')).toBeNull();
+		expect(sheetPosition(chapter, 'nope')).toBeNull();
 	});
 });

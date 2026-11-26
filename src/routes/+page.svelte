@@ -20,7 +20,9 @@
 	import { watchReview } from '#lib/data/mistakes.ts';
 	import { dueMistakes, mistakes, reviewable } from '#lib/practice/mistakes.ts';
 	import { watchNotes } from '#lib/data/notes.ts';
-	import { openCount } from '#lib/notes/notes.ts';
+	import { openCount, unresolvedCount } from '#lib/notes/notes.ts';
+	import { watchChildProfiles } from '#lib/data/family.ts';
+	import { combine } from '#lib/data/sources.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { displayName } from '#lib/profile/display.ts';
 	import { resolve } from '$app/paths';
@@ -88,18 +90,44 @@
 	});
 
 	/** The other parent pages, beside « Classeurs » (each with its icon). */
-	const parentLinks = [
+	// Parent: the children's notes still to handle, on the « Remarques » button.
+	const childrenLive = live(
+		() =>
+			session.isAdmin &&
+			!session.childView &&
+			session.familyId &&
+			watchChildProfiles(session.familyId)
+	);
+	const childIds = $derived((childrenLive.data ?? []).map((c) => c.id).join(','));
+	const childNotesLive = live(() => {
+		const familyId = session.familyId;
+		if (!familyId || !childIds) return null;
+		const ids = childIds.split(',');
+		return combine(Object.fromEntries(ids.map((id) => [id, watchNotes(familyId, id)])));
+	});
+	const toHandle = $derived(unresolvedCount(Object.values(childNotesLive.data ?? {}).flat()));
+
+	const parentLinks = $derived([
 		{ href: resolve('/parent/profiles'), icon: UI_ICONS.users, label: fr.home.manageProfiles },
-		{ href: resolve('/parent/notes'), icon: UI_ICONS.message, label: fr.home.childrenNotes },
+		{
+			href: resolve('/parent/notes'),
+			icon: UI_ICONS.message,
+			label: fr.home.childrenNotes,
+			badge: toHandle.open
+				? { text: fr.home.notesOpen(toHandle.open), tone: 'badge-warning' }
+				: toHandle.seen
+					? { text: fr.home.notesSeen(toHandle.seen), tone: 'badge-ghost' }
+					: null
+		},
 		{ href: resolve('/parent/stats'), icon: UI_ICONS.chart, label: fr.home.stats }
-	];
+	]);
 </script>
 
 <svelte:head><title>{fr.app.name}</title></svelte:head>
 
 <main class="doodles">
 	<div class="flex items-center justify-between gap-3">
-		<h1>
+		<h1 class="font-display font-normal">
 			{fr.auth.hello(
 				session.childView?.name ?? (session.profile ? displayName(session.profile) : '')
 			)}
@@ -123,7 +151,7 @@
 	{#if session.isAdmin && !session.childView}
 		<section class="card bg-neutral text-neutral-content">
 			<div class="card-body gap-3">
-				<h2 class="card-title">{fr.home.parentSection}</h2>
+				<h2 class="card-title font-display font-normal">{fr.home.parentSection}</h2>
 				<div class="flex flex-wrap gap-2">
 					<a class="btn btn-primary" href={resolve('/parent/subjects')}>
 						<Icon paths={UI_ICONS.binders} class="size-5" />
@@ -137,6 +165,9 @@
 						>
 							<Icon paths={link.icon} class="size-5" />
 							{link.label}
+							{#if 'badge' in link && link.badge}
+								<span class={['badge badge-sm', link.badge.tone]}>{link.badge.text}</span>
+							{/if}
 						</a>
 					{/each}
 				</div>
@@ -146,7 +177,9 @@
 
 	{#if session.familyId && session.profile}
 		<section class="flex flex-col gap-2">
-			<h2>{session.childView ? fr.home.myBinder : fr.home.familyBinder}</h2>
+			<h2 class="font-display font-normal">
+				{session.childView ? fr.home.myBinder : fr.home.familyBinder}
+			</h2>
 			<SubjectCards familyId={session.familyId} view={session.childView} {ownerId} />
 		</section>
 	{/if}

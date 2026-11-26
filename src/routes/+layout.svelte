@@ -2,7 +2,9 @@
 	import 'katex/dist/katex.min.css';
 	import '../app.css';
 	import { session } from '#lib/auth.svelte.ts';
+	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
+	import Icon from '#lib/components/Icon.svelte';
 	import NoteFab from '#lib/components/NoteFab.svelte';
 	import TestModeBanner from '#lib/components/TestModeBanner.svelte';
 	import SessionGate from '#lib/components/SessionGate.svelte';
@@ -57,10 +59,12 @@
 	<!-- Children (anonymous accounts) never sign out: the account would be lost. See /me. -->
 	{#if session.user && !session.user.isAnonymous}
 		<button
-			class="btn btn-ghost btn-sm font-display text-base font-normal text-neutral-content"
+			class="btn btn-ghost btn-square btn-sm text-neutral-content"
+			title={fr.auth.signOut}
+			aria-label={fr.auth.signOut}
 			onclick={() => session.signOut()}
 		>
-			{fr.auth.signOut}
+			<Icon paths={UI_ICONS.signOut} class="size-5" />
 		</button>
 	{/if}
 </header>

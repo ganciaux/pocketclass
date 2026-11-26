@@ -117,6 +117,8 @@ export const UI_ICONS = {
 		'M21 12a9 9 0 0 1-15.4 6.4L3 16',
 		'M3 21v-5h5'
 	),
+	/** A door with an arrow going out: sign out. */
+	signOut: paths('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4', 'm16 17 5-5-5-5', 'M21 12H9'),
 	/** Bar chart: statistics. */
 	chart: paths('M4 20V10', 'M10 20V4', 'M16 20v-7', 'M22 20v-4', 'M2 20h20'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),

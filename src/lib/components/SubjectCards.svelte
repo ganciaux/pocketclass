@@ -8,6 +8,8 @@
 		visibleSubjects
 	} from '#lib/binder/binder.ts';
 	import { SUBJECT_BORDER } from '#lib/binder/colors.ts';
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import PointsStar from '#lib/components/PointsStar.svelte';
 	import { pointsBySubject } from '#lib/practice/assessment.ts';
@@ -59,8 +61,7 @@
 		)}
 		{@const points = pointsBySubject(binder.progress)}
 		{#each shelves(binder.subjects) as shelf (shelf.grade)}
-			<section class="flex flex-col gap-2">
-				{#if shelf.grade}<h3 class="text-lg font-bold">{shelf.grade}</h3>{/if}
+			{#snippet cards()}
 				<div class="grid gap-3 sm:grid-cols-2">
 					{#each shelf.subjects as subject (subject.id)}
 						{@const tally = tallies.get(subject.id) ?? { total: 0, read: 0, fresh: 0, acquired: 0 }}
@@ -81,12 +82,7 @@
 							<div class="card-body flex-row items-center gap-4">
 								<SubjectBadge {subject} />
 								<div class="flex min-w-0 flex-1 flex-col gap-2">
-									<span class="flex items-center gap-2">
-										<strong class="flex-1 text-lg">{subject.name}</strong>
-										{#if view && subject.grade !== view.grade}
-											<span class="badge badge-ghost badge-sm">{subject.grade}</span>
-										{/if}
-									</span>
+									<strong class="text-lg">{subject.name}</strong>
 									{#if view}
 										<TallyLine {tally} />
 									{:else}
@@ -99,7 +95,25 @@
 						<p class="text-base-content/70">{t.noSubjects}</p>
 					{/each}
 				</div>
-			</section>
+			{/snippet}
+			{#if shelf.grade}
+				<!-- Parent home: one shelf per grade, closed until opened (several grades = a long page). -->
+				<details class="group flex flex-col">
+					<summary
+						class="flex cursor-pointer list-none items-center gap-2 rounded-box py-1 [&::-webkit-details-marker]:hidden"
+					>
+						<Icon
+							paths={UI_ICONS.chevronRight}
+							class="size-5 transition-transform duration-200 group-open:rotate-90"
+						/>
+						<h3 class="text-lg font-bold">{shelf.grade}</h3>
+						<span class="badge badge-ghost badge-sm">{t.subjectCount(shelf.subjects.length)}</span>
+					</summary>
+					<div class="pt-2">{@render cards()}</div>
+				</details>
+			{:else}
+				{@render cards()}
+			{/if}
 		{:else}
 			<p class="text-base-content/70">{t.noSubjectsParent}</p>
 		{/each}
