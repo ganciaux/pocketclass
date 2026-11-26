@@ -676,8 +676,8 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
 - 2026-11-26 — **Home and sheet touches** (user's requests). Home headings in Marker (greeting,
   « Espace parent », « Classeurs » / « Mon classeur »); « Se déconnecter » is an icon button
   (`title` + `aria-label`). Parent home: one `<details>` shelf per grade, closed by default
-  (chevron, « n matières »). The grade badge on a binder card is gone (it showed nowhere
-  after); the child page shows the grade badge bold, like the points. « Remarques » (parent home)
+  (chevron, « n matières »). The grade badge is gone from the binder card and the subject
+  banner (the shelf already names the grade); the child page shows the grade badge bold, like the points. « Remarques » (parent home)
   carries « n à voir » (gold) or « n à régler » (seen, not resolved; `unresolvedCount`) from every
   child's notes. Sheet page: a ring « 2/6 » (place in the chapter, `sheetPosition`, subject ink)
   right of the back link, and « Fiche suivante » (next sheet of the chapter) beside « J'ai lu

@@ -76,13 +76,7 @@
 						<div class="card-body gap-3">
 							<div class="flex items-center gap-4">
 								<SubjectBadge {subject} size={4} />
-								<div class="flex min-w-0 flex-1 flex-col">
-									<!-- A child knows their grade: only show it for a subject of another grade. -->
-									{#if !session.childView || subject.grade !== session.childView.grade}
-										<span class="badge badge-ghost badge-sm self-start">{subject.grade}</span>
-									{/if}
-									<h1 class="break-words">{subject.name}</h1>
-								</div>
+								<h1 class="min-w-0 flex-1 break-words">{subject.name}</h1>
 							</div>
 							{#if asChild}
 								<span class="text-sm text-base-content/70">
