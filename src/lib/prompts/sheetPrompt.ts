@@ -44,7 +44,8 @@ const SHEET_SHAPE = `{
   "sheet": {
     "sections": [{
       "title": "…",
-      "text": "<cours en Markdown, formules KaTeX entre $…$ ou $$…$$>",
+      "text": "<rappel en Markdown, formules KaTeX entre $…$ ou $$…$$>",
+      "summary": ["<règle ou méthode en une ligne>", "…"],
       "examples": [{ "statement": "…", "solution": "…" }],
       "keyPoints": ["kp-…"]
     }],
@@ -63,6 +64,7 @@ const RULES = `Règles :
 - Réponds uniquement avec le JSON, sans texte autour. Les clés JSON restent en anglais, le contenu est en français, adapté au niveau.
 - Identifiants : minuscules, chiffres, « - » ou « _ » (ex. "kp-simplify", "add-1").
 - "tags" : 3 à 8 mots-clés en français, en minuscules, ceux qu'un élève taperait pour retrouver la fiche (notions, vocabulaire, méthodes), sans répéter le nom de la matière.
+- Les parties ("sections") sont des rappels avant les exercices, pas un cours : dans "text", 3 à 6 lignes avec les règles, la méthode et les points importants (une courte liste à puces si ça aide), sans introduction ni répétition ; assez complet pour réviser seul. "summary" : 2 à 4 puces très courtes (une ligne chacune) qui condensent la partie.
 - "mindMap" : la carte mentale de la fiche, une branche par point-clé avec 1 à 4 feuilles très courtes (60 caractères au plus : un mot, une formule $…$, un exemple ou un piège), à relire d'un coup d'œil ; pas de phrase complète.
 - 3 à 6 points-clés ("keyPoints", 8 au maximum). Chaque section, chaque exercice et chaque critère de "rubric" renvoie à un point-clé existant.
 - Exercices ("exercises") : environ 4 exercices d'entraînement ("usage": "practice") par point-clé, de types variés, et au moins 2 de contrôle ("usage": "assessment") par point-clé, "difficulty" de 1 à 3. Ajoute aussi 8 à 10 "true_false" en "practice" (affirmations courtes, vraies ou fausses, pour un défi de rapidité). Chaque exercice a une "explanation" : une phrase qui explique la bonne réponse, affichée après la réponse de l'élève. Types possibles :

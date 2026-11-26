@@ -203,6 +203,16 @@ export interface Chapter {
 	archived: boolean;
 }
 
+/**
+ * families/{familyId}/concepts/{conceptId}/mapImages/{imageId}: a picture of the sheet's mind
+ * map (e.g. a photo of one drawn by hand), added by the parent. Ids `image-1` to `image-3`.
+ */
+export interface MapImageRecord {
+	/** WebP (or JPEG) data URL, at most 1200 px and 700 000 characters. */
+	dataUrl: string;
+	order: number;
+}
+
 /** families/{familyId}/concepts/{conceptId}: a sheet (id = JSON id, family-wide). */
 export interface ConceptRecord {
 	subjectId: string;

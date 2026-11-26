@@ -42,7 +42,8 @@ export type DocPath = [string, ...string[]];
 export type WriteOp =
 	/** `touch`: the executor adds a server `updatedAt` timestamp. */
 	| { kind: 'set'; path: DocPath; data: Record<string, unknown>; touch?: true }
-	| { kind: 'archive'; path: DocPath };
+	| { kind: 'archive'; path: DocPath }
+	| { kind: 'delete'; path: DocPath };
 
 /** A sheet id already used by an active sheet of another chapter. */
 export interface SheetConflict {
@@ -60,6 +61,31 @@ export interface ImportPlan {
 		archivedExercises: number;
 	};
 }
+
+/**
+ * Write operations cut into batches of at most `maxOps` operations and about `maxChars`
+ * characters of data (mind map pictures are large; a Firestore request is limited to 10 MiB).
+ */
+export function batchesOf(ops: WriteOp[], maxOps: number, maxChars = 4_000_000): WriteOp[][] {
+	const batches: WriteOp[][] = [];
+	let current: WriteOp[] = [];
+	let chars = 0;
+	for (const op of ops) {
+		const size = op.kind === 'set' ? JSON.stringify(op.data).length : 100;
+		if (current.length > 0 && (current.length >= maxOps || chars + size > maxChars)) {
+			batches.push(current);
+			current = [];
+			chars = 0;
+		}
+		current.push(op);
+		chars += size;
+	}
+	if (current.length > 0) batches.push(current);
+	return batches;
+}
+
+/** Mind map picture ids (`data/mapImages.ts` uses the same slots). */
+export const MAP_IMAGE_SLOTS = ['image-1', 'image-2', 'image-3'];
 
 /** The assessment of a sheet whose JSON has none. */
 export const DEFAULT_ASSESSMENT = { type: 'test', draw: { perKeyPoint: 2 } } as const;
@@ -151,6 +177,19 @@ export function planSheets(
 			if (newExerciseIds.has(oldId)) continue;
 			ops.push({ kind: 'archive', path: [...sheetPath, COLLECTIONS.exercises, oldId] });
 			stats.archivedExercises++;
+		}
+
+		// Mind map pictures come only from a backup: a JSON without them keeps those in place.
+		if (sheet.mapImages) {
+			MAP_IMAGE_SLOTS.forEach((id, i) => {
+				const path: DocPath = [...sheetPath, COLLECTIONS.mapImages, id];
+				const dataUrl = sheet.mapImages?.[i];
+				ops.push(
+					dataUrl
+						? { kind: 'set', path, data: { dataUrl, order: i + 1 } }
+						: { kind: 'delete', path }
+				);
+			});
 		}
 
 		// Every sheet has an assessment (its questions may all be generated).

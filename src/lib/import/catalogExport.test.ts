@@ -61,6 +61,20 @@ describe('export', () => {
 		expect(back.sheets).toEqual(withAssessment(sample));
 	});
 
+	it('carries the mind map pictures, and leaves the field out when there are none', () => {
+		const docs = written(
+			planChapter(sample, { subjectId: 's', chapterId: 'ch', order: 0 }, {}).ops
+		);
+		const [first] = storedSheets(docs, [ids[0]]);
+		const image = 'data:image/webp;base64,AAAA';
+		const exported = chapterExport({ title: 'T', group: null } as Chapter, [
+			{ ...first, mapImages: [image] },
+			{ ...first, mapImages: [] }
+		]);
+		expect(exported.sheets[0].mapImages).toEqual([image]);
+		expect('mapImages' in exported.sheets[1]).toBe(false);
+	});
+
 	it('leaves hidden exercises out and keeps the parent assessment settings', () => {
 		const docs = written(
 			planChapter(sample, { subjectId: 's', chapterId: 'ch', order: 0 }, {}).ops

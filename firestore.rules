@@ -115,6 +115,10 @@ service cloud.firestore {
         match /exercises/{exerciseId} {
           allow read: if isMember(familyId);
         }
+        // Pictures of the mind map, added by the parent (written through the admin rule).
+        match /mapImages/{imageId} {
+          allow read: if isMember(familyId);
+        }
       }
       match /assessments/{assessmentId} {
         allow read: if isMember(familyId);

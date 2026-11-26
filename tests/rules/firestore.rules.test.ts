@@ -145,6 +145,7 @@ describe('linked devices', () => {
 			'/chapters/ch1',
 			'/concepts/c1',
 			'/concepts/c1/exercises/e1',
+			'/concepts/c1/mapImages/image-1',
 			'/assessments/c1'
 		]) {
 			await assertSucceeds(getDoc(at(kid, `families/${FAMILY}${path}`)));
@@ -152,6 +153,11 @@ describe('linked devices', () => {
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/concepts/c1`), { t: 1 }));
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/chapters/ch1`), { t: 1 }));
 		await assertFails(setDoc(at(kid, `families/${FAMILY}/subjects/maths`), { t: 1 }));
+		const image = { dataUrl: 'data:image/webp;base64,AAAA', order: 1 };
+		await assertFails(setDoc(at(kid, `families/${FAMILY}/concepts/c1/mapImages/image-1`), image));
+		await assertSucceeds(
+			setDoc(at(as('alice'), `families/${FAMILY}/concepts/c1/mapImages/image-1`), image)
+		);
 	});
 
 	it('cannot write points, their extra subjects or their device link without a code', async () => {

@@ -19,5 +19,7 @@ export const COLLECTIONS = {
 	progress: 'progress',
 	notes: 'notes',
 	attempts: 'attempts',
-	pointsLedger: 'pointsLedger'
+	pointsLedger: 'pointsLedger',
+	/** Under a concept: pictures added to its mind map by the parent. */
+	mapImages: 'mapImages'
 } as const;

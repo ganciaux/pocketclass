@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { STATUS_CHIP } from '#lib/binder/colors.ts';
+	import { readPreference, writePreference } from '#lib/preferences.ts';
 	import RevisionHourglass from '#lib/components/RevisionHourglass.svelte';
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportSheet } from '#lib/data/catalogExport.ts';
@@ -94,6 +96,16 @@
 	function stampTest(concept: WithId<ConceptRecord>) {
 		if (session.familyId && profileId) setAcquired(session.familyId, profileId, concept, !acquired);
 	}
+
+	/** « Résumé »: each section's bullets instead of its text (remembered on this device). */
+	let summaryView = $state(readPreference('sheetView') === 'summary');
+	function setSummaryView(on: boolean) {
+		summaryView = on;
+		writePreference('sheetView', on ? 'summary' : 'details');
+	}
+	const hasSummary = $derived(
+		conceptLive.data?.sheet.sections.some((section) => section.summary) ?? false
+	);
 
 	/** Key point number (1-based) shown as a badge next to each section. */
 	const keyPointNumber = $derived(
@@ -224,6 +236,25 @@
 				</div>
 			</section>
 
+			{#if hasSummary}
+				<div class="join self-center" role="group" aria-label={t.viewLabel}>
+					<button
+						class={['join-item btn btn-sm', summaryView ? STATUS_CHIP.all.off : STATUS_CHIP.all.on]}
+						aria-pressed={!summaryView}
+						onclick={() => setSummaryView(false)}
+					>
+						{t.viewDetails}
+					</button>
+					<button
+						class={['join-item btn btn-sm', summaryView ? STATUS_CHIP.all.on : STATUS_CHIP.all.off]}
+						aria-pressed={summaryView}
+						onclick={() => setSummaryView(true)}
+					>
+						{t.viewSummary}
+					</button>
+				</div>
+			{/if}
+
 			{#each concept.sheet.sections as section, s (s)}
 				<!-- Target of the key point links: kept clear of the sticky header. -->
 				<section
@@ -256,7 +287,15 @@
 								{/each}
 							</span>
 						</header>
-						<div class="prose">{@html renderMarkdown(section.text)}</div>
+						{#if summaryView && section.summary}
+							<ul class="prose list-disc pl-5">
+								{#each section.summary as point, p (p)}
+									<li>{@html renderInline(point)}</li>
+								{/each}
+							</ul>
+						{:else}
+							<div class="prose">{@html renderMarkdown(section.text)}</div>
+						{/if}
 
 						{#each section.examples as example, e (e)}
 							<details class="collapse-arrow collapse border border-secondary/30 bg-secondary/5">

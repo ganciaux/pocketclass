@@ -46,7 +46,9 @@ export const fr = {
 		confirmWord: 'SUPPRIMER',
 		confirmPrompt: (word: string) => `Pour confirmer, tape ${word} :`,
 		deleting: 'Suppression…',
-		deleteFailed: 'La suppression a échoué. Vérifie ta connexion et réessaie.'
+		deleteFailed: 'La suppression a échoué. Vérifie ta connexion et réessaie.',
+		delete: 'Supprimer',
+		close: 'Fermer'
 	},
 	auth: {
 		signInWithGoogle: 'Se connecter avec Google',
@@ -118,6 +120,10 @@ export const fr = {
 		chapter: 'Chapitre'
 	},
 	concept: {
+		/** « Détails | Résumé » switch above the sections (when the sheet has summaries). */
+		viewLabel: 'Affichage de la fiche',
+		viewDetails: 'Détails',
+		viewSummary: 'Résumé',
 		notFound: "Cette fiche n'existe pas (ou plus).",
 		loadFailed: 'Impossible de charger la fiche.',
 		keyPoints: "L'essentiel",
@@ -358,6 +364,15 @@ export const fr = {
 	},
 	mindMap: {
 		title: 'Carte mentale',
+		/** Pictures added by the parent under the drawn map. */
+		imagesTitle: 'Images de la carte',
+		imageAlt: (n: number) =>
+			n > 0 ? `Image ${n} de la carte mentale` : 'Image de la carte mentale',
+		addImage: 'Ajouter une image',
+		imagesHelp: (max: number) =>
+			`Jusqu'à ${max} images (photo d'une carte dessinée à la main…), réduites automatiquement.`,
+		imageTooLarge: 'Image trop lourde, même réduite : essaie une photo moins détaillée.',
+		deleteImage: 'Supprimer cette image ?',
 		/** Button on the sheet page. */
 		open: 'Carte mentale',
 		testBranch: 'Me tester',
@@ -658,6 +673,8 @@ export const fr = {
 			'réponse invalide : un nombre (ex. 3 ou 2,5) ou une fraction « a/b » est attendu',
 		clozeNoBlank: 'le texte doit contenir au moins un trou [[…]]',
 		clozeEmptyBlank: 'un trou [[ ]] est vide',
+		imageDataUrl:
+			'image invalide : une image WebP, JPEG ou PNG en base64 (data:image/…) est attendue',
 		draftAnswer: (value: string) =>
 			`« ${value} » contient « -> » : l'IA a laissé une correction en cours, garde seulement la bonne réponse`,
 		duplicateId: (id: string) => `l'identifiant « ${id} » est utilisé plusieurs fois`,

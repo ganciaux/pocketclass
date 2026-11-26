@@ -25,7 +25,7 @@ import type { SheetDoc } from '#lib/schemas/sheet.ts';
 import { subjectsOf, type BackupImport } from '#lib/schemas/subject.ts';
 import type { SubjectColor } from './types.ts';
 import {
-	chunk,
+	batchesOf,
 	findSheetConflicts,
 	planChapter,
 	planSheets,
@@ -92,11 +92,12 @@ export async function readExistingSheets(
 }
 
 async function run(familyId: string, ops: WriteOp[]): Promise<void> {
-	for (const part of chunk(ops, MAX_BATCH_OPS)) {
+	for (const part of batchesOf(ops, MAX_BATCH_OPS)) {
 		const batch = writeBatch(db);
 		for (const op of part) {
 			const ref = familyDoc(familyId, ...op.path);
 			if (op.kind === 'archive') batch.update(ref, { archived: true });
+			else if (op.kind === 'delete') batch.delete(ref);
 			else batch.set(ref, op.touch ? { ...op.data, updatedAt: serverTimestamp() } : op.data);
 		}
 		await batch.commit();

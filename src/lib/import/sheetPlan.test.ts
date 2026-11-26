@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { chapterSchema, type ChapterImport } from '#lib/schemas/chapter.ts';
 import type { SheetDoc } from '#lib/schemas/sheet.ts';
 import {
+	batchesOf,
 	chunk,
 	findSheetConflicts,
 	planChapter,
@@ -37,6 +38,23 @@ function existingAfter(sheet: SheetDoc, chapterId: string, version = 1, order = 
 }
 
 describe('planSheets', () => {
+	it('writes mind map pictures only when the JSON has them, clearing the empty slots', () => {
+		const image = 'data:image/webp;base64,AAAA';
+		const without = planSheets([fractions], target, {});
+		expect(without.ops.some((op) => op.path.includes('mapImages'))).toBe(false);
+		const withOne = planSheets([{ ...fractions, mapImages: [image] }], target, {});
+		const images = withOne.ops.filter((op) => op.path.includes('mapImages')).map(key);
+		expect(images).toEqual([
+			'set concepts/maths-3e-fractions/mapImages/image-1',
+			'delete concepts/maths-3e-fractions/mapImages/image-2',
+			'delete concepts/maths-3e-fractions/mapImages/image-3'
+		]);
+		expect(dataOf(find(withOne.ops, 'concepts/maths-3e-fractions/mapImages/image-1'))).toEqual({
+			dataUrl: image,
+			order: 1
+		});
+	});
+
 	it('creates a new sheet at the end of the chapter, with exercises and assessment', () => {
 		const plan = planSheets([fractions, powers], target, {});
 		const keys = plan.ops.map(key);
@@ -199,5 +217,25 @@ describe('chunk', () => {
 		const chunks = chunk(items, 450);
 		expect(chunks.map((c) => c.length)).toEqual([450, 450, 100]);
 		expect(chunks.flat()).toEqual(items);
+	});
+});
+
+describe('batchesOf', () => {
+	const set = (n: number, chars: number): WriteOp => ({
+		kind: 'set',
+		path: ['x', String(n)],
+		data: { blob: 'a'.repeat(chars) }
+	});
+
+	it('cuts by number of operations and by size of data', () => {
+		const small = Array.from({ length: 5 }, (_, i) => set(i, 10));
+		expect(batchesOf(small, 2).map((b) => b.length)).toEqual([2, 2, 1]);
+		const big = [
+			set(1, 600),
+			set(2, 600),
+			set(3, 10),
+			{ kind: 'delete', path: ['x', '4'] } as WriteOp
+		];
+		expect(batchesOf(big, 450, 1000).map((b) => b.length)).toEqual([1, 3]);
 	});
 });

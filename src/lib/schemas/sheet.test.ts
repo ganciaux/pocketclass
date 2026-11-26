@@ -19,6 +19,17 @@ describe('sheetSchema', () => {
 		expect(concept.exercises[0].difficulty).toBe(1);
 	});
 
+	it('accepts an optional short summary per section (1 to 5 bullets)', () => {
+		const withSummary = (summary: unknown) => {
+			const data = minimalSheet();
+			(data.sheet.sections[0] as Record<string, unknown>).summary = summary;
+			return errorsOf(data);
+		};
+		expect(withSummary(['Règle 1', 'Méthode'])).toEqual([]);
+		expect(withSummary([])).not.toEqual([]);
+		expect(withSummary(Array.from({ length: 6 }, (_, i) => `R${i}`))).not.toEqual([]);
+	});
+
 	it('defaults tags to an empty list', () => {
 		const result = validate(sheetSchema, minimalSheet());
 		expect((result as { data: SheetImport }).data.tags).toEqual([]);

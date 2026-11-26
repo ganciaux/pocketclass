@@ -75,12 +75,13 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 Déploiement du 25 novembre fait et testé sur téléphone par l'utilisateur (2026-11-26).
 Depuis : mise à jour d'un chapitre par son JSON, boutons courts de l'Espace parent, points de
-révision, historique d'activité. **Les règles Firestore ont changé** (révisions) :
+révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales. **Les règles Firestore ont changé** (révisions, images) :
 
 - Lancer `npm run prod` (app **et** règles ; jamais `deploy:app` seul avant les règles).
 - Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus
   affiche « +n points de révision », puis le sablier (fiche, « Mes révisions ») ; une
   deuxième série la même semaine ne rapporte rien.
+- Images de carte mentale : en ajouter une depuis un téléphone (photo), la voir côté enfant.
 - Réimport : coller un chapitre exporté (puis retouché) dans la page de **ce** chapitre ;
   corriger d'abord les « -> » laissés par Gemini dans le chapitre de français.
 
@@ -90,7 +91,8 @@ Par ordre de demande ; le détail de chaque point est plus bas.
 
 1. ~~Charte graphique et mise en forme~~ : **fait** (2026-11-25), charte « trousse
    d'écolier » (CLAUDE.md, styling).
-2. ~~Cartes mentales~~ : **fait** (2026-11-25).
+2. ~~Cartes mentales~~ : **fait** (2026-11-25) ; images ajoutées par le parent (3 par fiche,
+   2026-11-26).
 3. ~~Statistiques d'un enfant~~ : **fait** (2026-11-25), vue globale / détaillée.
 4. ~~Points de révision~~ : **fait** (2026-11-26) : sur une fiche acquise, une série à
    70 % rapporte 2 points par point-clé, puis sablier d'une semaine (sur la fiche, en fin de

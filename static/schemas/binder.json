@@ -155,6 +155,15 @@
 													]
 												}
 											},
+											"mapImages": {
+												"maxItems": 3,
+												"type": "array",
+												"items": {
+													"type": "string",
+													"maxLength": 700000,
+													"pattern": "^data:image\\/(webp|jpeg|png);base64,"
+												}
+											},
 											"sheet": {
 												"type": "object",
 												"properties": {
@@ -198,6 +207,16 @@
 																	"items": {
 																		"type": "string",
 																		"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+																	}
+																},
+																"summary": {
+																	"minItems": 1,
+																	"maxItems": 5,
+																	"type": "array",
+																	"items": {
+																		"type": "string",
+																		"minLength": 1,
+																		"maxLength": 200
 																	}
 																}
 															},

@@ -5,6 +5,7 @@
 	import ExercisePlayer from '#lib/components/exercises/ExercisePlayer.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import MapImages from '#lib/components/MapImages.svelte';
 	import MindMap from '#lib/components/MindMap.svelte';
 	import { watchConcept, watchSubject } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
@@ -109,6 +110,13 @@
 							</button>
 						{:else}
 							<p class="alert alert-info alert-soft">{t.noQuestions}</p>
+						{/if}
+						{#if session.familyId}
+							<MapImages
+								familyId={session.familyId}
+								conceptId={concept.id}
+								canEdit={session.isAdmin && !session.childView}
+							/>
 						{/if}
 					{:else}
 						<header class="flex flex-col gap-1">

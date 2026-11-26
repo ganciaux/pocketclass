@@ -17,7 +17,9 @@ const sectionSchema = z.object({
 	title: text,
 	text: text,
 	examples: z.array(z.object({ statement: text, solution: text })).default([]),
-	keyPoints: z.array(slug)
+	keyPoints: z.array(slug),
+	/** Short version of `text` (a few bullets), shown by the sheet's « Résumé » view. */
+	summary: z.array(text.max(200)).min(1).max(5).optional()
 });
 
 const assessmentSchema = z.object({
@@ -60,6 +62,16 @@ const mindMapSchema = z
 	.array(z.object({ keyPoint: slug, leaves: z.array(text.max(60)).min(1).max(4) }))
 	.max(8);
 
+/** Pictures of the mind map added by the parent (in an exported backup, never from the AI). */
+const mapImagesSchema = z
+	.array(
+		z
+			.string()
+			.max(700_000)
+			.regex(/^data:image\/(webp|jpeg|png);base64,/, { error: fr.validation.imageDataUrl })
+	)
+	.max(3);
+
 /** One revision sheet (a "concept"): key points, study sheet, exercises, assessment. */
 export const sheetBodySchema = z.object({
 	id: slug,
@@ -68,6 +80,7 @@ export const sheetBodySchema = z.object({
 	prerequisites: z.array(slug).default([]),
 	keyPoints: z.array(keyPointSchema).min(1).max(8),
 	mindMap: mindMapSchema.optional(),
+	mapImages: mapImagesSchema.optional(),
 	sheet: z.object({
 		sections: z.array(sectionSchema).min(1),
 		pitfalls: z.array(text).default([])
