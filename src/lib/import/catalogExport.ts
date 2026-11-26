@@ -9,7 +9,12 @@ import type {
 import { CHAPTER_FORMAT, type ChapterDoc } from '#lib/schemas/chapter.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
 import { SHEET_FORMAT, type AssessmentDoc, type SheetDoc } from '#lib/schemas/sheet.ts';
-import { BINDER_FORMAT, SUBJECT_FORMAT, type SubjectDoc } from '#lib/schemas/subject.ts';
+import {
+	BINDER_FORMAT,
+	FAMILY_FORMAT,
+	SUBJECT_FORMAT,
+	type SubjectDoc
+} from '#lib/schemas/subject.ts';
 import { DEFAULT_ASSESSMENT } from './sheetPlan.ts';
 
 /**
@@ -98,6 +103,38 @@ export const subjectExport = (...args: Parameters<typeof subjectDoc>) => ({
 });
 
 export const binderExport = (subjects: SubjectDoc[]) => ({ format: BINDER_FORMAT, subjects });
+
+/** Firestore values as plain JSON: timestamps (anything with `toDate`) become ISO dates. */
+export function plainData(value: unknown): unknown {
+	if (value === null || typeof value !== 'object') return value;
+	if ('toDate' in value && typeof value.toDate === 'function') {
+		return (value.toDate() as Date).toISOString();
+	}
+	if (Array.isArray(value)) return value.map(plainData);
+	return Object.fromEntries(Object.entries(value).map(([key, field]) => [key, plainData(field)]));
+}
+
+type Row = { id: string } & Record<string, unknown>;
+
+/** A profile and its sub-collections, as read from Firestore. */
+export interface ProfileArchive {
+	profile: Row & { firstName: string };
+	progress: Row[];
+	notes: Row[];
+	attempts: Row[];
+	pointsLedger: Row[];
+}
+
+/** `family@1`: the binders plus every profile's data (dates as ISO text). */
+export const familyExport = (subjects: SubjectDoc[], profiles: ProfileArchive[], at: Date) => ({
+	format: FAMILY_FORMAT,
+	exportedAt: at.toISOString(),
+	subjects,
+	profiles: profiles.map(({ profile, ...rows }) => ({
+		...(plainData(profile) as Row & { firstName: string }),
+		...(plainData(rows) as Omit<ProfileArchive, 'profile'>)
+	}))
+});
 
 /** « pocketclass-chapitre-les-fractions.json »: readable, safe on every system. */
 export function exportFileName(kind: string, title: string): string {

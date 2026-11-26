@@ -1,7 +1,8 @@
-import { getDoc, getDocs, query, where } from 'firebase/firestore';
+import { getDoc, getDocs, query, where, type Query } from 'firebase/firestore';
 import { activeOnly, byOrder, sortSubjects } from '#lib/binder/binder.ts';
 import {
 	binderExport,
+	familyExport,
 	chapterExport,
 	sheetExport,
 	subjectDoc,
@@ -10,6 +11,11 @@ import {
 } from '#lib/import/catalogExport.ts';
 import {
 	assessmentRef,
+	attemptsCol,
+	notesCol,
+	pointsLedgerCol,
+	profilesCol,
+	progressCol,
 	chapterRef,
 	chaptersCol,
 	conceptRef,
@@ -91,14 +97,47 @@ export async function exportSubject(familyId: string, subjectId: string) {
 }
 
 /** Every active subject of the family (all grades): a full backup of the binders. */
-export async function exportBinder(familyId: string) {
+async function binderSubjects(familyId: string) {
 	const subjects = await getDocs(subjectsCol(familyId));
 	const active: WithId<Subject>[] = sortSubjects(
 		activeOnly(subjects.docs.map((d) => ({ id: d.id, ...d.data() })))
 	);
-	return binderExport(
-		await Promise.all(
-			active.map(async (subject) => subjectDoc(subject, await subjectContent(familyId, subject.id)))
-		)
+	return Promise.all(
+		active.map(async (subject) => subjectDoc(subject, await subjectContent(familyId, subject.id)))
 	);
+}
+
+export async function exportBinder(familyId: string) {
+	return binderExport(await binderSubjects(familyId));
+}
+
+/**
+ * Full backup (`family@1`): the binders and every profile with its progress, notes, runs and
+ * points lines (linked devices are left out: they cannot be restored anyway).
+ */
+export async function exportFamily(familyId: string) {
+	const rows = async (col: Query) =>
+		(await getDocs(col)).docs.map((d) => ({ id: d.id, ...(d.data() as Record<string, unknown>) }));
+	const profiles = await getDocs(profilesCol(familyId));
+	const [subjects, archives] = await Promise.all([
+		binderSubjects(familyId),
+		Promise.all(
+			profiles.docs.map(async (profile) => {
+				const [progress, notes, attempts, pointsLedger] = await Promise.all([
+					rows(progressCol(familyId, profile.id)),
+					rows(notesCol(familyId, profile.id)),
+					rows(attemptsCol(familyId, profile.id)),
+					rows(pointsLedgerCol(familyId, profile.id))
+				]);
+				return {
+					profile: { id: profile.id, ...profile.data() },
+					progress,
+					notes,
+					attempts,
+					pointsLedger
+				};
+			})
+		)
+	]);
+	return familyExport(subjects, archives, new Date());
 }

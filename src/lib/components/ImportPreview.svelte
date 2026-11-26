@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { untrack } from 'svelte';
 	import { ImportConflictError, readExistingSheets } from '#lib/data/importSheets.ts';
+	import SheetView from '#lib/components/SheetView.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import {
 		findSheetConflicts,
@@ -33,6 +34,14 @@
 	} = $props();
 
 	const t = fr.import;
+
+	/** The sheet shown in the preview window, as the child will read it. */
+	let previewed = $state<SheetDoc | null>(null);
+	let dialog = $state<HTMLDialogElement>();
+	function preview(sheet: SheetDoc) {
+		previewed = sheet;
+		dialog?.showModal();
+	}
 
 	let existing = $state<ExistingSheets | null>(null);
 	let checkFailed = $state(false);
@@ -104,6 +113,12 @@
 			<span class="text-sm text-base-content/70">
 				{t.sheetLine(stats.keyPoints, stats.practice, stats.assessment)}
 			</span>
+			<button
+				class="btn btn-soft btn-primary btn-xs mt-1 self-start"
+				onclick={() => preview(sheet)}
+			>
+				{t.preview}
+			</button>
 		</li>
 	{/each}
 </ul>
@@ -126,3 +141,25 @@
 <button class="btn btn-primary self-start" onclick={run} disabled={!canImport}>
 	{importing ? t.importing : submitLabel}
 </button>
+
+<!-- The sheet as the child will read it (before it is saved). -->
+<dialog bind:this={dialog} class="modal" onclose={() => (previewed = null)}>
+	<div class="modal-box flex max-w-3xl flex-col gap-4 bg-base-200">
+		{#if previewed}
+			<header class="flex items-start justify-between gap-2">
+				<div class="flex flex-col">
+					<span class="text-sm font-bold text-base-content/60">{t.preview}</span>
+					<h2 class="text-2xl font-bold">{@html renderInline(previewed.title)}</h2>
+				</div>
+				<form method="dialog"><button class="btn btn-ghost btn-sm">{fr.common.close}</button></form>
+			</header>
+			<SheetView
+				keyPoints={previewed.keyPoints}
+				sheet={previewed.sheet}
+				color="amber"
+				idPrefix="preview-"
+			/>
+		{/if}
+	</div>
+	<form method="dialog" class="modal-backdrop"><button>{fr.common.close}</button></form>
+</dialog>

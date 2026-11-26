@@ -70,7 +70,8 @@ type StatusKey = 'new' | 'updated' | 'opened' | 'read' | 'acquired' | 'failed';
 
 /** Filter chip of the chapter page, off (outlined) and on (filled); `all` is plain ink. */
 export const STATUS_CHIP: Record<StatusKey | 'all', { off: string; on: string }> = {
-	all: { off: 'btn-outline', on: 'btn-neutral' },
+	// Ink on paper (and chalk on the board): `neutral` disappears on the dark theme.
+	all: { off: 'btn-outline', on: 'border-base-content bg-base-content text-base-100' },
 	new: { off: 'btn-outline btn-secondary', on: 'btn-secondary' },
 	updated: { off: 'btn-outline btn-secondary', on: 'btn-secondary' },
 	opened: {

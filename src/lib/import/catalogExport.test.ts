@@ -3,11 +3,19 @@ import { describe, expect, it } from 'vitest';
 import type { Chapter, Subject, WithId } from '#lib/data/types.ts';
 import { chapterSchema, type ChapterImport } from '#lib/schemas/chapter.ts';
 import { validate } from '#lib/schemas/errors.ts';
-import { backupSchema, binderSchema, subjectSchema, subjectsOf } from '#lib/schemas/subject.ts';
+import {
+	backupSchema,
+	binderSchema,
+	subjectSchema,
+	subjectsOf,
+	type BackupImport
+} from '#lib/schemas/subject.ts';
 import {
 	binderExport,
 	chapterExport,
 	exportFileName,
+	familyExport,
+	plainData,
 	subjectDoc,
 	subjectExport,
 	type StoredSheet
@@ -135,6 +143,42 @@ describe('export', () => {
 		const exported = chapterExport({ title: 'T', group: null } as Chapter, [first]);
 		expect(exported.sheets[0].assessment).toEqual({ type: 'test', passRate: 80 });
 		expect(validate(chapterSchema, exported).success).toBe(true);
+	});
+
+	it('a full backup holds the binders and each profile, dates as ISO text, and restores the binders', () => {
+		const at = { toDate: () => new Date('2026-11-26T10:00:00Z') };
+		expect(plainData({ a: [{ when: at }], n: 1, s: null })).toEqual({
+			a: [{ when: '2026-11-26T10:00:00.000Z' }],
+			n: 1,
+			s: null
+		});
+		const docs = written(
+			planChapter(sample, { subjectId: 's', chapterId: 'ch', order: 0 }, {}).ops
+		);
+		const subject = { name: 'Maths', grade: '3e', order: 0, archived: false } as Subject;
+		const chapter = docs.get('chapters/ch') as unknown as WithId<Chapter>;
+		const family = familyExport(
+			[subjectDoc(subject, [{ chapter, sheets: storedSheets(docs, ids) }])],
+			[
+				{
+					profile: { id: 'lea', firstName: 'Léa', role: 'child', points: 30 },
+					progress: [{ id: ids[0], acquiredAt: at }],
+					notes: [],
+					attempts: [{ id: 'x', mode: 'series', createdAt: at }],
+					pointsLedger: []
+				}
+			],
+			new Date('2026-11-26T12:00:00Z')
+		);
+		expect(family.profiles[0]).toMatchObject({
+			firstName: 'Léa',
+			points: 30,
+			progress: [{ id: ids[0], acquiredAt: '2026-11-26T10:00:00.000Z' }]
+		});
+		const result = validate(backupSchema, JSON.parse(JSON.stringify(family)));
+		expect(result.success).toBe(true);
+		const backup = (result as { data: BackupImport }).data;
+		expect(subjectsOf(backup).map((s) => s.chapters[0].sheets.length)).toEqual([ids.length]);
 	});
 
 	it('names files readably', () => {

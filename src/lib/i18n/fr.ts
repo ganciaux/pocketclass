@@ -258,8 +258,15 @@ export const fr = {
 		failed: "L'export a échoué. Vérifie ta connexion et réessaie.",
 		restoreTitle: 'Restaurer une sauvegarde',
 		restoreHelp:
-			"Un fichier « matière » ou « classeurs » exporté par PocketClass : ses matières sont ajoutées comme nouvelles matières. Une fiche déjà présente (même identifiant) bloque l'import : supprime-la ou masque-la d'abord.",
+			"Un fichier « matière », « classeurs » ou « sauvegarde complète » exporté par PocketClass : ses matières sont ajoutées comme nouvelles matières. Une fiche déjà présente (même identifiant) bloque l'import : supprime-la ou masque-la d'abord.",
 		chooseFile: 'Choisir un fichier',
+		/** Full backup, in the parent's « Mon profil ». */
+		familyTitle: 'Sauvegarde complète',
+		familyHelp:
+			'Tout dans un fichier : les classeurs (fiches, exercices, images) et, pour chaque profil, la progression, les remarques, les essais et les points. À garder en lieu sûr, au cas où les données en ligne seraient perdues. La restauration (Classeurs) remet les classeurs ; le reste sert d’archive.',
+		familyButton: 'Télécharger la sauvegarde complète',
+		familyArchive: (profiles: number) =>
+			`Sauvegarde complète : seuls les classeurs sont restaurés. Les données de ${plural(profiles, 'profil')} (progression, remarques, points) restent dans le fichier, comme archive.`,
 		fileFailed: 'Impossible de lire ce fichier.',
 		pasteLabel: 'Ou colle le contenu du fichier (JSON)',
 		placeholder: '{ "format": "pocketclass/binder@1", … }',
@@ -304,6 +311,12 @@ export const fr = {
 		imageFailed: "Cette image n'a pas pu être lue. Essaie une autre image.",
 		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
 		saved: 'Enregistré.'
+	},
+	/** Day / night in « Mon profil ». */
+	theme: {
+		title: 'Affichage',
+		choice: { auto: 'Auto', light: 'Clair', dark: 'Sombre' },
+		help: 'Auto suit le réglage du téléphone. Le choix est retenu sur cet appareil.'
 	},
 	/** Activity history: finished runs with the points they earned, by day. */
 	activity: {
@@ -649,6 +662,8 @@ export const fr = {
 				plural(assessment, 'exercice de contrôle', 'exercices de contrôle')
 			].join(' · '),
 		isNew: 'Nouvelle fiche',
+		/** Opens the sheet as the child will read it, before saving. */
+		preview: 'Aperçu',
 		isUpdate: (version: number) => `Mise à jour (version ${version} → ${version + 1})`,
 		conflict: (sheetId: string, chapter: string | undefined) =>
 			`La fiche « ${sheetId} » est déjà dans ${chapter ? `le chapitre « ${chapter} »` : 'un autre chapitre'}. Pour la mettre à jour, colle ce JSON dans ce chapitre ; sinon change son identifiant ou masque l'autre fiche.`,

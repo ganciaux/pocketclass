@@ -57,12 +57,24 @@
 					{#each day.entries as entry (entry.id)}
 						{@const sheet = sheets.get(entry.conceptId)}
 						{@const subject = subjects.get(entry.subjectId)}
-						<li
-							class={[
-								'card card-border border-l-8 bg-base-100',
-								subject ? SUBJECT_BORDER[subject.color] : 'border-base-300'
-							]}
-						>
+						{@const cardClass = [
+							'card card-border border-l-8 bg-base-100',
+							subject ? SUBJECT_BORDER[subject.color] : 'border-base-300'
+						]}
+						<!-- A row opens its sheet: the whole card is the link (mustard border on hover). -->
+						<li>
+							{#if sheet}
+								<a
+									class={['link-card', cardClass]}
+									href={resolve('/concept/[id]', { id: sheet.id })}
+								>
+									{@render rowBody()}
+								</a>
+							{:else}
+								<div class={cardClass}>{@render rowBody()}</div>
+							{/if}
+						</li>
+						{#snippet rowBody()}
 							<div class="card-body flex-row items-center gap-3 px-4 py-2.5">
 								{#if subject}<SubjectBadge {subject} size={1.75} />{/if}
 								<div class="flex min-w-0 flex-1 flex-col">
@@ -71,12 +83,7 @@
 										{t.kind[entry.kind]}
 									</span>
 									{#if sheet}
-										<a
-											class="link font-bold link-hover"
-											href={resolve('/concept/[id]', { id: sheet.id })}
-										>
-											{@html renderInline(sheet.title)}
-										</a>
+										<span class="font-bold">{@html renderInline(sheet.title)}</span>
 									{:else}
 										<span class="font-bold text-base-content/60">{t.deletedSheet}</span>
 									{/if}
@@ -106,7 +113,7 @@
 									</span>
 								</div>
 							</div>
-						</li>
+						{/snippet}
 					{/each}
 				</ul>
 			</section>

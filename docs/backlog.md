@@ -75,13 +75,15 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 Déploiement du 25 novembre fait et testé sur téléphone par l'utilisateur (2026-11-26).
 Depuis : mise à jour d'un chapitre par son JSON, boutons courts de l'Espace parent, points de
-révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales. **Les règles Firestore ont changé** (révisions, images) :
+révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales, import depuis un fichier avec aperçu, sauvegarde complète, mode jour / nuit. **Les règles Firestore ont changé** (révisions, images) :
 
 - Lancer `npm run prod` (app **et** règles ; jamais `deploy:app` seul avant les règles).
 - Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus
   affiche « +n points de révision », puis le sablier (fiche, « Mes révisions ») ; une
   deuxième série la même semaine ne rapporte rien.
 - Images de carte mentale : en ajouter une depuis un téléphone (photo), la voir côté enfant.
+- Télécharger la sauvegarde complète (« Mon profil ») et la garder hors de Firebase ; sur iPhone, vérifier le téléchargement (« Partager → Enregistrer dans Fichiers » si besoin).
+- Mode jour / nuit : choisir Sombre puis relancer l'app installée (pas de flash clair).
 - Réimport : coller un chapitre exporté (puis retouché) dans la page de **ce** chapitre ;
   corriger d'abord les « -> » laissés par Gemini dans le chapitre de français.
 

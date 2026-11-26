@@ -1,13 +1,16 @@
 <script lang="ts" generics="T extends { warnings?: string[] }">
 	import type { Snippet } from 'svelte';
 	import type { z } from 'zod';
+	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import Icon from '#lib/components/Icon.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { parseJsonLoose } from '#lib/import/parseJsonLoose.ts';
 	import { validate } from '#lib/schemas/errors.ts';
 
 	/**
-	 * Paste area for the AI's JSON: parsed and validated on every change (French errors with
-	 * the field path). `children` renders the valid document (preview, import button).
+	 * Paste area for the AI's JSON, or a chosen `.json` file (its text fills the area): parsed
+	 * and validated on every change (French errors with the field path). `children` renders the
+	 * valid document (preview, import button).
 	 */
 	let {
 		schema,
@@ -25,6 +28,21 @@
 	} = $props();
 
 	const t = fr.import;
+	let fileFailed = $state(false);
+
+	async function pick(event: Event) {
+		const input = event.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		input.value = '';
+		fileFailed = false;
+		if (!file) return;
+		try {
+			value = await file.text();
+		} catch (error) {
+			console.error('[import] file', error);
+			fileFailed = true;
+		}
+	}
 
 	const parsed = $derived.by(() => {
 		if (!value.trim()) return null;
@@ -33,6 +51,13 @@
 		return validate(schema, json.value);
 	});
 </script>
+
+<label class="btn btn-soft btn-primary btn-sm self-start">
+	<Icon paths={UI_ICONS.upload} class="size-4" />
+	{fr.export.chooseFile}
+	<input class="hidden" type="file" accept="application/json,.json,.txt" onchange={pick} />
+</label>
+{#if fileFailed}<p role="alert" class="alert alert-error alert-soft">{fr.export.fileFailed}</p>{/if}
 
 <label class="fieldset">
 	<span class="fieldset-legend">{label}</span>

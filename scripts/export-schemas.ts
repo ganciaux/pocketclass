@@ -6,7 +6,7 @@ import { chapterSchema } from '#lib/schemas/chapter.ts';
 import { lessonSchema } from '#lib/schemas/lesson.ts';
 import { sheetSchema } from '#lib/schemas/sheet.ts';
 import { summarySchema } from '#lib/schemas/summary.ts';
-import { binderSchema, subjectSchema } from '#lib/schemas/subject.ts';
+import { binderSchema, familySchema, subjectSchema } from '#lib/schemas/subject.ts';
 
 const outDir = 'static/schemas';
 const schemas = {
@@ -15,7 +15,8 @@ const schemas = {
 	lesson: lessonSchema,
 	summary: summarySchema,
 	subject: subjectSchema,
-	binder: binderSchema
+	binder: binderSchema,
+	family: familySchema
 };
 
 mkdirSync(outDir, { recursive: true });

@@ -7,7 +7,12 @@
 	import { importBackup } from '#lib/data/importSheets.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import type { ImportPlan } from '#lib/import/sheetPlan.ts';
-	import { backupSchema, subjectsOf, type BackupImport } from '#lib/schemas/subject.ts';
+	import {
+		backupSchema,
+		FAMILY_FORMAT,
+		subjectsOf,
+		type BackupImport
+	} from '#lib/schemas/subject.ts';
 
 	/**
 	 * Parent: restore a `subject@1` / `binder@1` file exported by the app, as new subjects.
@@ -17,21 +22,7 @@
 
 	const t = fr.export;
 	let json = $state('');
-	let fileFailed = $state(false);
 	let result = $state<{ subjectIds: string[]; plan: ImportPlan } | null>(null);
-
-	async function pick(event: Event) {
-		const file = (event.currentTarget as HTMLInputElement).files?.[0];
-		fileFailed = false;
-		if (!file) return;
-		try {
-			json = await file.text();
-			result = null;
-		} catch (error) {
-			console.error('[restore] file', error);
-			fileFailed = true;
-		}
-	}
 
 	async function restore(backup: BackupImport) {
 		result = await importBackup(familyId, backup);
@@ -46,12 +37,6 @@
 			{t.restoreTitle}
 		</h2>
 		<p class="text-sm text-base-content/70">{t.restoreHelp}</p>
-		<label class="btn btn-soft btn-primary btn-sm self-start">
-			<Icon paths={UI_ICONS.upload} class="size-4" />
-			{t.chooseFile}
-			<input class="hidden" type="file" accept="application/json,.json" onchange={pick} />
-		</label>
-		{#if fileFailed}<p role="alert" class="alert alert-error alert-soft">{t.fileFailed}</p>{/if}
 		<JsonPaste
 			schema={backupSchema}
 			bind:value={json}
@@ -61,6 +46,9 @@
 			{#snippet children(backup)}
 				{@const subjects = subjectsOf(backup)}
 				{@const chapters = subjects.flatMap((s) => s.chapters)}
+				{#if backup.format === FAMILY_FORMAT}
+					<p class="alert alert-info alert-soft">{t.familyArchive(backup.profiles.length)}</p>
+				{/if}
 				<p class="font-bold">
 					{t.summary(subjects.length, chapters.length, chapters.flatMap((c) => c.sheets).length)}
 				</p>
