@@ -314,6 +314,15 @@ export const fr = {
 		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
 		saved: 'Enregistré.'
 	},
+	/** A background write refused by the server (`<WriteErrorToast>`). */
+	writes: {
+		runLost: "Ton résultat n'a pas été enregistré.",
+		changeLost: "Une modification n'a pas été enregistrée.",
+		refusedHint:
+			"Vérifie que l'heure du téléphone est automatique, recharge l'app, puis recommence.",
+		retryHint: "Vérifie ta connexion, recharge l'app, puis recommence.",
+		ok: 'OK'
+	},
 	/** Day / night in « Mon profil ». */
 	theme: {
 		title: 'Affichage',

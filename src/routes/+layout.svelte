@@ -7,6 +7,7 @@
 	import TestModeBanner from '#lib/components/TestModeBanner.svelte';
 	import SessionGate from '#lib/components/SessionGate.svelte';
 	import UpdateToast from '#lib/components/UpdateToast.svelte';
+	import WriteErrorToast from '#lib/components/WriteErrorToast.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { connectivity } from '#lib/online.svelte.ts';
 	import { appUpdate } from '#lib/update.svelte.ts';
@@ -68,3 +69,4 @@
 </SessionGate>
 
 <UpdateToast />
+<WriteErrorToast />
