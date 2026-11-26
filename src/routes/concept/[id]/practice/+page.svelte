@@ -3,6 +3,7 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import PlayerHeader from '#lib/components/PlayerHeader.svelte';
+	import RevisionHourglass from '#lib/components/RevisionHourglass.svelte';
 	import ExercisePlayer from '#lib/components/exercises/ExercisePlayer.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
@@ -44,6 +45,8 @@
 	/** « Refaire mes erreurs »: a replay, not recorded as a series. */
 	let retrying = $state(false);
 	let answered = $state(false);
+	/** Revision points earned by the series just finished (0: none). */
+	let revisionEarned = $state(0);
 	const finished = $derived(series.length > 0 && index >= series.length);
 	const score = $derived(scoreOf(results));
 
@@ -54,6 +57,7 @@
 		results = [];
 		index = 0;
 		answered = false;
+		revisionEarned = 0;
 		round++;
 	}
 
@@ -82,10 +86,10 @@
 		answered = false;
 		index++;
 		if (index < series.length || retrying || !session.familyId || !profileId) return;
-		saveSeries(session.familyId, profileId, {
+		revisionEarned = saveSeries(session.familyId, profileId, {
 			sheet,
 			results: $state.snapshot(results),
-			best: progressLive.data?.practiceBest
+			progress: progressLive.data
 		});
 	}
 
@@ -115,6 +119,17 @@
 								<p class="text-5xl font-bold text-primary">{t.score(score.correct, score.total)}</p>
 								<p class="text-lg">{t.cheer(score.correct / score.total)}</p>
 								{#if !profileId}<p class="text-sm text-base-content/60">{t.notSaved}</p>{/if}
+								{#if revisionEarned > 0}
+									<p class="badge badge-lg font-bold badge-success">
+										{fr.revision.earned(revisionEarned)}
+									</p>
+								{/if}
+								{#if profileId && !retrying}
+									<RevisionHourglass
+										progress={progressLive.data}
+										keyPointCount={concept.keyPoints.length}
+									/>
+								{/if}
 								<div class="flex w-full flex-col gap-2 pt-2">
 									{#if wrong > 0}
 										<button class="btn btn-primary" onclick={retryWrong}>

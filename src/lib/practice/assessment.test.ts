@@ -171,4 +171,12 @@ describe('pointsBySubject', () => {
 		]);
 		expect(Object.fromEntries(points)).toEqual({ maths: 50, fr: 10 });
 	});
+
+	it('adds the revision points too', () => {
+		const points = pointsBySubject([
+			{ subjectId: 'maths', assessmentPoints: 30, revisionPoints: 12 },
+			{ subjectId: 'fr', revisionPoints: 4 }
+		]);
+		expect(Object.fromEntries(points)).toEqual({ maths: 42, fr: 4 });
+	});
 });

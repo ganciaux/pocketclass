@@ -4,7 +4,10 @@
 	import Icon from '#lib/components/Icon.svelte';
 	import PointsBadge from '#lib/components/PointsBadge.svelte';
 	import SubjectCards from '#lib/components/SubjectCards.svelte';
+	import { watchBinder } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
+	import { ticking } from '#lib/clock.svelte.ts';
+	import { binderRevisions } from '#lib/practice/revision.ts';
 	import { watchNotes } from '#lib/data/notes.ts';
 	import { openCount } from '#lib/notes/notes.ts';
 	import { fr } from '#lib/i18n/fr.ts';
@@ -16,6 +19,18 @@
 	const ownerId = $derived(session.ownerId);
 	const notesLive = live(
 		() => session.familyId && ownerId && watchNotes(session.familyId, ownerId)
+	);
+	// Sheets ready to revise (count on « Mes révisions »).
+	const binderLive = live(
+		() => session.childView && session.familyId && watchBinder(session.familyId, ownerId)
+	);
+	const clock = ticking();
+	const readyRevisions = $derived(
+		binderLive.data && session.childView
+			? binderRevisions(binderLive.data, session.childView, clock.now).filter(
+					(e) => e.status.kind === 'ready'
+				).length
+			: 0
 	);
 
 	/** The other parent pages, beside « Classeurs » (each with its icon). */
@@ -73,6 +88,13 @@
 	{#if session.childView}
 		{@const open = openCount(notesLive.data ?? [])}
 		<div class="grid gap-3 sm:grid-cols-2">
+			{@render homeLink(
+				resolve('/me/revisions'),
+				UI_ICONS.hourglass,
+				fr.revision.title,
+				fr.revision.hint,
+				readyRevisions > 0 ? fr.revision.readyCount(readyRevisions) : null
+			)}
 			{@render homeLink(resolve('/me/sheets'), UI_ICONS.book, fr.home.seenTitle, fr.home.seenHint)}
 			{@render homeLink(
 				resolve('/me/notes'),

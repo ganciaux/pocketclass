@@ -537,6 +537,19 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   conflict now names the chapter that owns the sheet (`chapterTitle`, read by
   `readExistingSheets`) with a link to it. Parent space buttons on the home: icon + one word
   (Classeurs, Profils, Remarques, Statistiques).
+- 2026-11-26 — **Revision points and hourglass** (user's choices). On an **acquired** sheet, a
+  finished practice series at **70 %** or more earns **2 points per key point**, then nothing
+  on that sheet for **7 days** (`practice/revision.ts`: `revisionStatus`, `revisionOutcome`,
+  `binderRevisions`; client check with a 5-minute margin on the device clock, since a refused
+  revision would lose the whole series batch). Same batch as the series (`saveSeries`, shared
+  `earnPoints` with the assessment): `revisedAt`, `revisionCount`, `revisionPoints` on progress
+  + `pointsLedger/revision-<sheet>-<n>` + profile `increment()`. Rules (`revisionRecorded`,
+  `revisionLine`): acquired before, count + 1, `request.time` ≥ last + 7 d, `practiceLast` ≥ 70 %
+  written now, line of 2 × key points, `revisionPoints` grows by the line; never on a new
+  progress document. Points per subject add `revisionPoints`. UI: `<RevisionHourglass>` (sheet
+  page and end of a series; `ticking()` in `clock.svelte.ts` refreshes every 30 s), page
+  `/me/revisions` (ready first, then hourglasses, soonest first) linked from the child home with
+  the count ready.
 
 ## Firestore model
 
@@ -564,8 +577,9 @@ families/{familyId}                            { name, admins: [uid], createdAt 
                                                  challengeBest = right answers in 60 s; failedAt = « Raté » stamp)
   profiles/{profileId}/attempts/{attemptId}    { conceptId, subjectId, chapterId, mode: series|timed|assessment, correct,
                                                  total, answers: [{ exerciseId, correct }], createdAt }   (create only)
-  profiles/{profileId}/pointsLedger/{entryId}  { kind: assessment, conceptId, subjectId, chapterId, amount, createdAt }
-                                                 (id assessment-<sheet>: once per sheet; create only)
+  profiles/{profileId}/pointsLedger/{entryId}  { kind: assessment|revision, conceptId, subjectId, chapterId, amount, createdAt }
+                                                 (id assessment-<sheet>: once per sheet; revision-<sheet>-<n>: a
+                                                 series ≥ 70 % on an acquired sheet, once a week; create only)
   profiles/{profileId}/notes/{noteId}          { conceptId|null, chapterId|null, subjectId?|null, exerciseId, text,
                                                  status: open|seen|resolved,
                                                  createdAt, updatedAt }

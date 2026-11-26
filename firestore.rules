@@ -168,7 +168,9 @@ service cloud.firestore {
             && (!('acquiredAt' in request.resource.data)
               || childStamp(familyId, conceptId))
             && (!('assessmentPoints' in request.resource.data)
-              || pointsRecorded(familyId, profileId, conceptId));
+              || pointsRecorded(familyId, profileId, conceptId))
+            // A revision needs an acquired sheet: never on a new progress document.
+            && !request.resource.data.keys().hasAny(revisionKeys());
           allow update: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys().hasOnly(progressKeys())
             && validProgress(familyId, profileId, conceptId)
@@ -176,23 +178,29 @@ service cloud.firestore {
               || (!('acquiredAt' in resource.data) && childStamp(familyId, conceptId)))
             && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['assessmentPoints'])
               || (!('assessmentPoints' in resource.data)
-                && pointsRecorded(familyId, profileId, conceptId)));
+                && pointsRecorded(familyId, profileId, conceptId)))
+            && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(revisionKeys())
+              || revisionRecorded(familyId, profileId, conceptId));
           allow delete: if isOwnDevice(familyId, profileId) && !('acquiredAt' in resource.data);
         }
 
         // Points earned (phase 3): one line per sheet assessment, id `assessment-<sheet>`,
-        // created once by a passed assessment, of the sheet's amount.
+        // created once by a passed assessment, of the sheet's amount; one line per paid
+        // revision, id `revision-<sheet>-<n>`, recorded by the progress document in the same
+        // batch (2 points per key point).
         match /pointsLedger/{entryId} {
           allow create: if isOwnDevice(familyId, profileId)
             && request.resource.data.keys().hasOnly(['kind', 'conceptId', 'subjectId', 'chapterId',
               'amount', 'createdAt'])
-            && request.resource.data.kind == 'assessment'
-            && entryId == 'assessment-' + request.resource.data.conceptId
             && request.resource.data.subjectId is string
             && request.resource.data.chapterId is string
-            && request.resource.data.amount == assessmentPoints(familyId, request.resource.data.conceptId)
             && request.resource.data.createdAt == request.time
-            && passedAfter(familyId, profileId, request.resource.data.conceptId);
+            && ((request.resource.data.kind == 'assessment'
+                && entryId == 'assessment-' + request.resource.data.conceptId
+                && request.resource.data.amount == assessmentPoints(familyId, request.resource.data.conceptId)
+                && passedAfter(familyId, profileId, request.resource.data.conceptId))
+              || (request.resource.data.kind == 'revision'
+                && revisionLine(familyId, profileId, request.resource.data.conceptId, entryId)));
         }
 
         // One finished practice series, challenge or assessment (history): created once, never
@@ -265,7 +273,47 @@ service cloud.firestore {
         'practiceLast', 'practiceBest', 'practicedAt', 'challengeBest', 'challengedAt',
         'assessmentLast', 'assessmentBest', 'assessedAt', 'failedAt', 'retakeLocked',
         'assessmentPoints', 'mapDrawn', 'openCount', 'seriesStarted', 'challengeStarted',
-        'assessmentStarted'];
+        'assessmentStarted', 'revisedAt', 'revisionCount', 'revisionPoints'];
+    }
+
+    function revisionKeys() {
+      return ['revisedAt', 'revisionCount', 'revisionPoints'];
+    }
+
+    function progressPath(familyId, profileId, conceptId) {
+      return /databases/$(database)/documents/families/$(familyId)/profiles/$(profileId)/progress/$(conceptId);
+    }
+
+    // A paid revision (on update): the sheet is acquired, a week has gone by since the last
+    // one, this write records a series at 70 % (now), and the n-th revision's points line is
+    // created in the same batch; `revisionPoints` grows by its amount.
+    function revisionRecorded(familyId, profileId, conceptId) {
+      let after = request.resource.data;
+      let count = after.get('revisionCount', 0);
+      let entry = ledgerPath(familyId, profileId, 'revision-' + conceptId + '-' + string(count));
+      return 'acquiredAt' in resource.data
+        && count is int
+        && count == resource.data.get('revisionCount', 0) + 1
+        && after.get('revisedAt', null) == request.time
+        && (!('revisedAt' in resource.data)
+          || request.time >= resource.data.revisedAt + duration.value(7, 'd'))
+        && after.get('practicedAt', null) == request.time
+        && 'practiceLast' in after
+        && passes(after.practiceLast, 70)
+        && !exists(entry)
+        && existsAfter(entry)
+        && after.get('revisionPoints', 0) == resource.data.get('revisionPoints', 0)
+          + getAfter(entry).data.amount;
+    }
+
+    // A revision points line: named after the revision recorded by the progress document of
+    // this batch, of 2 points per key point of the sheet.
+    function revisionLine(familyId, profileId, conceptId, entryId) {
+      let progress = getAfter(progressPath(familyId, profileId, conceptId)).data;
+      return progress.get('revisedAt', null) == request.time
+        && entryId == 'revision-' + conceptId + '-' + string(progress.get('revisionCount', 0))
+        && request.resource.data.amount
+          == 2 * get(/databases/$(database)/documents/families/$(familyId)/concepts/$(conceptId)).data.keyPoints.size();
     }
 
     // Statistics counter (sheet opens, started runs): absent, unchanged or one more.

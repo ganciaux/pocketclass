@@ -1,4 +1,5 @@
 <script lang="ts">
+	import RevisionHourglass from '#lib/components/RevisionHourglass.svelte';
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportSheet } from '#lib/data/catalogExport.ts';
 	import { exportFileName } from '#lib/import/catalogExport.ts';
@@ -397,6 +398,10 @@
 					{/if}
 				</a>
 			</div>
+			{#if profileId}
+				<!-- Acquired sheet: a series at 70 % earns revision points, then the hourglass. -->
+				<RevisionHourglass progress={readLive.data} keyPointCount={concept.keyPoints.length} />
+			{/if}
 		{/snippet}
 	</LoadState>
 </main>

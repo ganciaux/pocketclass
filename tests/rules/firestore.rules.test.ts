@@ -522,6 +522,77 @@ describe('child writes', () => {
 		);
 	});
 
+	it('a series at 70 % on an acquired sheet earns revision points, then once a week', async () => {
+		const where = { subjectId: 'maths', chapterId: 'ch1' };
+		await env.withSecurityRulesDisabled(async (ctx) => {
+			const db = ctx.firestore();
+			for (const id of ['c5', 'c6']) {
+				await setDoc(doc(db, `families/${FAMILY}/concepts/${id}`), {
+					title: id,
+					keyPoints: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
+					archived: false
+				});
+			}
+			await setDoc(doc(db, `${lea}/progress/c5`), { ...where, acquiredAt: Timestamp.now() });
+			await setDoc(doc(db, `${lea}/progress/c6`), { ...where, openedAt: Timestamp.now() });
+			await updateDoc(doc(db, lea), { points: 0 });
+		});
+		const kid = as('kid-phone');
+
+		/** The series batch with its revision (as `data/practice.ts` `saveSeries`). */
+		const revise = (sheet: string, correct: number, count: number, amount = 6, total = amount) => {
+			const id = `revision-${sheet}-${count}`;
+			const batch = writeBatch(kid);
+			batch.set(
+				at(kid, `${lea}/progress/${sheet}`),
+				{
+					...where,
+					practiceLast: { correct, total: 10 },
+					practicedAt: serverTimestamp(),
+					revisedAt: serverTimestamp(),
+					revisionCount: count,
+					revisionPoints: total
+				},
+				{ merge: true }
+			);
+			batch.set(at(kid, `${lea}/pointsLedger/${id}`), {
+				kind: 'revision',
+				conceptId: sheet,
+				...where,
+				amount,
+				createdAt: serverTimestamp()
+			});
+			batch.update(at(kid, lea), { points: increment(amount), lastEarningId: id });
+			return batch.commit();
+		};
+		await assertFails(revise('c5', 6, 1)); // under 70 %
+		await assertFails(revise('c5', 7, 1, 30)); // not 2 points per key point
+		await assertFails(revise('c5', 7, 2)); // skips a revision number
+		await assertFails(revise('c6', 10, 1)); // not acquired
+		await assertSucceeds(revise('c5', 7, 1));
+		const profile = await getDoc(at(kid, lea));
+		if (profile.data()?.points !== 6) throw new Error(`points: ${profile.data()?.points}`);
+		// The hourglass: nothing more during the week, and the fields never move on their own.
+		await assertFails(revise('c5', 10, 2, 6, 12));
+		await assertFails(
+			setDoc(at(kid, `${lea}/progress/c5`), { ...where, revisionPoints: 99 }, { merge: true })
+		);
+		await env.withSecurityRulesDisabled(async (ctx) => {
+			const eightDaysAgo = Timestamp.fromMillis(Date.now() - 8 * 24 * 3600_000);
+			await updateDoc(doc(ctx.firestore(), `${lea}/progress/c5`), { revisedAt: eightDaysAgo });
+		});
+		await assertFails(revise('c5', 10, 2, 6, 99)); // the total must grow by the line's amount
+		await assertSucceeds(revise('c5', 10, 2, 6, 12));
+		// A new progress document never carries a revision.
+		await assertFails(
+			setDoc(at(kid, `${lea}/progress/c7`), {
+				...where,
+				revisionCount: 1,
+				revisedAt: serverTimestamp()
+			})
+		);
+	});
+
 	it('a first pass may create the progress; defaults when the sheet has no assessment document', async () => {
 		await env.withSecurityRulesDisabled(async (ctx) => {
 			const db = ctx.firestore();

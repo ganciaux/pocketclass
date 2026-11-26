@@ -166,13 +166,14 @@ export function assessmentOutcome(
 	};
 }
 
-/** Points earned by assessments, per subject id (summed from the progress documents). */
+/** Points earned by assessments and revisions, per subject id (summed from the progress). */
 export function pointsBySubject(
-	progress: Iterable<{ subjectId: string; assessmentPoints?: number }>
+	progress: Iterable<{ subjectId: string; assessmentPoints?: number; revisionPoints?: number }>
 ): Map<string, number> {
 	const points = new Map<string, number>();
-	for (const { subjectId, assessmentPoints } of progress) {
-		if (assessmentPoints) points.set(subjectId, (points.get(subjectId) ?? 0) + assessmentPoints);
+	for (const { subjectId, assessmentPoints = 0, revisionPoints = 0 } of progress) {
+		const earned = assessmentPoints + revisionPoints;
+		if (earned) points.set(subjectId, (points.get(subjectId) ?? 0) + earned);
 	}
 	return points;
 }

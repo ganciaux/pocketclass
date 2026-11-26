@@ -299,6 +299,28 @@ export const fr = {
 		imageTooLarge: 'Cette image est trop lourde, même réduite. Essaie une autre image.',
 		saved: 'Enregistré.'
 	},
+	/** Revision points: a series at 70 % on an acquired sheet, once a week (the hourglass). */
+	revision: {
+		title: 'Mes révisions',
+		hint: 'Revois tes fiches acquises pour gagner des points.',
+		readyCount: (n: number) => plural(n, 'prête', 'prêtes'),
+		ready: (points: number) =>
+			`Révision prête : une série à 70 % rapporte ${plural(points, 'point')}.`,
+		waiting: (left: string) => `Prochaine révision qui rapporte des points dans ${left}.`,
+		left: ({ days, hours, minutes }: { days: number; hours: number; minutes: number }) =>
+			days > 0
+				? `${days} j ${hours} h`
+				: hours > 0
+					? `${hours} h ${minutes} min`
+					: `${minutes} min`,
+		earned: (points: number) => `+${plural(points, 'point')} de révision !`,
+		readyHeading: 'À réviser maintenant',
+		waitingHeading: 'Sablier en cours',
+		practise: 'Réviser',
+		empty:
+			'Aucune fiche acquise pour le moment : réussis le contrôle d’une fiche, puis reviens la réviser chaque semaine.',
+		loadFailed: 'Impossible de charger tes révisions.'
+	},
 	seen: {
 		title: 'Mes fiches vues',
 		search: 'Rechercher une fiche',

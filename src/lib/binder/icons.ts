@@ -94,6 +94,8 @@ export const UI_ICONS = {
 		'M16 4.6a3.5 3.5 0 0 1 0 6.8',
 		'M18 14a6.5 6.5 0 0 1 3.5 6'
 	),
+	/** Hourglass: time left before the next paid revision. */
+	hourglass: paths('M6 2h12', 'M6 22h12', 'M7 2v4l5 6 5-6V2', 'M7 22v-4l5-6 5 6v4', 'M10 19h4'),
 	/** Bar chart: statistics. */
 	chart: paths('M4 20V10', 'M10 20V4', 'M16 20v-7', 'M22 20v-4', 'M2 20h20'),
 	star: paths('M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3l-5.5 2.9 1-6.2L3 9.6l6.2-.9z'),

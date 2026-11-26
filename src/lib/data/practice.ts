@@ -13,6 +13,7 @@ import {
 	type AssessmentSettings
 } from '#lib/practice/assessment.ts';
 import { newRecord } from '#lib/practice/challenge.ts';
+import { revisionEntryId, revisionOutcome, type RevisionProgress } from '#lib/practice/revision.ts';
 import { practiceSet, type PracticeSet } from '#lib/practice/generated.ts';
 import { betterScore, scoreOf, type Result } from '#lib/practice/series.ts';
 import { combine, docSource, querySource, type Subscribe } from './sources.ts';
@@ -65,10 +66,13 @@ export const watchAttempts = (familyId: string, profileId: string) =>
 	querySource(attemptsCol(familyId, profileId));
 
 export interface SeriesToSave {
-	sheet: SheetRef;
+	sheet: SheetRef & { keyPoints: unknown[] };
 	results: Result[];
-	/** Best score so far (from the progress document), to keep the better one. */
-	best: PracticeScore | null | undefined;
+	/** The progress document: best score so far (to keep the better one) and the revision. */
+	progress:
+		| (RevisionProgress & { practiceBest?: PracticeScore; revisionPoints?: number })
+		| null
+		| undefined;
 }
 
 /**
@@ -105,18 +109,64 @@ function saveAttempt(
 	inBackground(batch.commit(), `practice ${mode}`);
 }
 
+/** Adds a points line and the profile counter to a batch (the rules check them together). */
+function earnPoints(
+	batch: WriteBatch,
+	familyId: string,
+	profileId: string,
+	entry: { id: string; kind: 'assessment' | 'revision'; sheet: SheetRef; amount: number }
+): void {
+	const { id, kind, sheet, amount } = entry;
+	batch.set(pointsLedgerRef(familyId, profileId, id), {
+		kind,
+		conceptId: sheet.id,
+		subjectId: sheet.subjectId,
+		chapterId: sheet.chapterId,
+		amount,
+		createdAt: serverTimestamp()
+	});
+	batch.update(profileRef(familyId, profileId), { points: increment(amount), lastEarningId: id });
+}
+
 /**
  * A finished series: last score, best score (higher rate, then longer series). It also
- * unlocks a new assessment try after a fail.
+ * unlocks a new assessment try after a fail, and on an acquired sheet earns the revision
+ * points (at 70 %, once a week). Returns the revision points earned (0: none).
  */
-export function saveSeries(familyId: string, profileId: string, series: SeriesToSave): void {
-	const { sheet, results, best } = series;
-	saveAttempt(familyId, profileId, sheet, 'series', results, (score) => ({
-		practiceLast: score,
-		practiceBest: betterScore(best, score),
-		practicedAt: serverTimestamp(),
-		retakeLocked: deleteField()
-	}));
+export function saveSeries(familyId: string, profileId: string, series: SeriesToSave): number {
+	const { sheet, results, progress } = series;
+	const revision = revisionOutcome(scoreOf(results), progress, sheet.keyPoints.length, Date.now());
+	saveAttempt(
+		familyId,
+		profileId,
+		sheet,
+		'series',
+		results,
+		(score) => ({
+			practiceLast: score,
+			practiceBest: betterScore(progress?.practiceBest, score),
+			practicedAt: serverTimestamp(),
+			retakeLocked: deleteField(),
+			...(revision
+				? {
+						revisedAt: serverTimestamp(),
+						revisionCount: revision.count,
+						revisionPoints: (progress?.revisionPoints ?? 0) + revision.earned
+					}
+				: {})
+		}),
+		(batch) => {
+			if (!revision) return;
+			const id = revisionEntryId(sheet.id, revision.count);
+			earnPoints(batch, familyId, profileId, {
+				id,
+				kind: 'revision',
+				sheet,
+				amount: revision.earned
+			});
+		}
+	);
+	return revision?.earned ?? 0;
 }
 
 /** A finished timed challenge: the record is the highest number of right answers. */
@@ -167,17 +217,11 @@ export function saveAssessment(
 		}),
 		(batch) => {
 			if (!outcome.firstPass) return;
-			batch.set(pointsLedgerRef(familyId, profileId, entryId), {
+			earnPoints(batch, familyId, profileId, {
+				id: entryId,
 				kind: 'assessment',
-				conceptId: sheet.id,
-				subjectId: sheet.subjectId,
-				chapterId: sheet.chapterId,
-				amount: outcome.earned,
-				createdAt: serverTimestamp()
-			});
-			batch.update(profileRef(familyId, profileId), {
-				points: increment(outcome.earned),
-				lastEarningId: entryId
+				sheet,
+				amount: outcome.earned
 			});
 		}
 	);

@@ -1,6 +1,6 @@
 # PocketClass — état et idées en attente
 
-Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
+Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 [CLAUDE.md](../CLAUDE.md) (« Technical decisions log »).
 
 ## Ce qui est fait
@@ -73,27 +73,16 @@ Mis à jour le 25 novembre 2026. Le détail de chaque choix technique est dans
 
 ## À faire au prochain déploiement
 
-Tout est poussé sur `main`. Si ce n'est pas encore fait :
+Déploiement du 25 novembre fait et testé sur téléphone par l'utilisateur (2026-11-26).
+Depuis : mise à jour d'un chapitre par son JSON, boutons courts de l'Espace parent, points de
+révision. **Les règles Firestore ont changé** (révisions) :
 
-- Lancer `npm run prod` : il déploie l'app **et les règles Firestore** (nécessaires au tampon
-  « Acquise », aux remarques n'importe où, à l'entraînement, au contrôle et aux points).
-  **Ne jamais déployer l'app seule (`deploy:app`) avant les règles** : depuis les statistiques,
-  ouvrir une fiche écrit aussi `openCount`, que les anciennes règles refusent (la fiche
-  resterait « nouvelle » sur le téléphone de l'enfant).
-- Vérifier sur la vraie app :
-  - sur le téléphone d'un enfant : une série d'entraînement, un défi, un contrôle réussi
-    (tampon + points) et un contrôle raté (« Raté », nouvel essai après une série) ;
-  - exporter tous les classeurs (sauvegarde) avant de gros changements de contenu ;
-  - rattacher un mot de passe au compte Google depuis « Mon profil », puis se connecter avec
-    (l'emulator bloque ce rattachement) ;
-  - sur le téléphone d'un enfant : ouvrir et marquer lue une fiche tamponnée « Acquise » ;
-  - statistiques : ouvrir deux fois une fiche et lancer une série sur le téléphone d'un enfant,
-    puis vérifier « 2 ouvertures » et « 1 terminé sur 1 » dans `/parent/stats` ;
-  - le bouton « Une difficulté ? » sur iPhone (au-dessus de la barre du bas, zone sûre).
-- Facultatif : console Firebase → Authentication → Modèles, langue des e-mails en français
-  (e-mail « mot de passe oublié »).
-- Sur iPhone : voir si les reconnexions fréquentes cessent (stockage persistant demandé,
-  connexion par mot de passe possible).
+- Lancer `npm run prod` (app **et** règles ; jamais `deploy:app` seul avant les règles).
+- Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus
+  affiche « +n points de révision », puis le sablier (fiche, « Mes révisions ») ; une
+  deuxième série la même semaine ne rapporte rien.
+- Réimport : coller un chapitre exporté (puis retouché) dans la page de **ce** chapitre ;
+  corriger d'abord les « -> » laissés par Gemini dans le chapitre de français.
 
 ## À faire ensuite
 
@@ -103,9 +92,10 @@ Par ordre de demande ; le détail de chaque point est plus bas.
    d'écolier » (CLAUDE.md, styling).
 2. ~~Cartes mentales~~ : **fait** (2026-11-25).
 3. ~~Statistiques d'un enfant~~ : **fait** (2026-11-25), vue globale / détaillée.
-4. **Points de révision** (une fiche revue rapporte des points, pas plus d'une fois par
-   semaine) et **historique d'activité** (à partir du journal des points ; les
-   statistiques montrent déjà les essais terminés).
+4. ~~Points de révision~~ : **fait** (2026-11-26) : sur une fiche acquise, une série à
+   70 % rapporte 2 points par point-clé, puis sablier d'une semaine (sur la fiche, en fin de
+   série et sur la page « Mes révisions »). Reste l'**historique d'activité** (à partir du
+   journal des points ; les statistiques montrent déjà les essais terminés).
 5. Suite de l'entraînement (ci-dessous).
 
 ### Suite de l'entraînement
@@ -143,5 +133,5 @@ existe déjà ou signale ce qu'il faudra trancher.
 | ~~Un compteur de points sur le profil.~~ | **Fait (2026-11-25)** : affiché sur l'accueil de l'enfant et sur sa page côté parent. |
 | ~~Chaque fiche a un quota de points.~~ | **Fait** : 10 points par point-clé par défaut, réglable par fiche. |
 | ~~Un contrôle est validé à 70 % de réussite minimum, et rapporte alors ses points.~~ | **Fait** : seuil réglable par fiche, points gagnés une seule fois (première réussite), tampon « Acquise » automatique, tampon « Raté » et nouvel essai après une série d'entraînement (conception : `docs/superpowers/specs/2026-11-25-assessment-design.md`). |
-| Réviser une fiche rapporte des points ; on peut la revoir, mais elle ne rapporte plus rien pendant une semaine. | |
+| ~~Réviser une fiche rapporte des points ; on peut la revoir, mais elle ne rapporte plus rien pendant une semaine.~~ | **Fait (2026-11-26)** : série ≥ 70 % sur une fiche acquise, 2 points par point-clé, sablier de 7 jours, page « Mes révisions ». |
 | Garder l'historique des points comme un historique des activités (exercice, révision, contrôle…). | Le journal des points (`pointsLedger`) était prévu ; il deviendrait un journal d'activité. Il doit marcher hors ligne (écritures groupées, déjà prévu). |

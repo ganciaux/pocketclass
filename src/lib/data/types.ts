@@ -90,6 +90,12 @@ export interface ProgressRecord {
 	retakeLocked?: boolean;
 	/** Points earned by this sheet's assessment (set once, at the first pass). */
 	assessmentPoints?: number;
+	/** Last revision that earned points (a series ≥ 70 % on an acquired sheet, once a week). */
+	revisedAt?: Timestamp | null;
+	/** Paid revisions so far (the n-th names its points line `revision-<sheet>-<n>`). */
+	revisionCount?: number;
+	/** Points earned by this sheet's revisions, summed. */
+	revisionPoints?: number;
 	/** Mind map « Me tester »: practice questions already drawn (without replacement). */
 	mapDrawn?: string[];
 	/** Statistics (since their release): visits of the sheet page and runs started. */
@@ -245,7 +251,7 @@ export interface AssessmentSettingsRecord {
  * One line per earning; id `assessment-<conceptId>` (once per sheet). Create only.
  */
 export interface PointsLedgerRecord {
-	kind: 'assessment';
+	kind: 'assessment' | 'revision';
 	conceptId: string;
 	subjectId: string;
 	chapterId: string;
