@@ -44,6 +44,8 @@ export const fr = {
 	common: {
 		/** The handle of a row that can be dragged (`<DragHandle>`). */
 		drag: 'Glisser pour déplacer',
+		/** `<ScrollTop>`: how much of the page was read. */
+		toTop: (percent: number) => `Revenir en haut (page lue à ${percent} %)`,
 		grade: 'Niveau',
 		save: 'Enregistrer',
 		cancel: 'Annuler',
@@ -132,6 +134,7 @@ export const fr = {
 		nextSheet: 'Fiche suivante',
 		/** « Détails | Résumé » switch above the sections (when the sheet has summaries). */
 		viewLabel: 'Affichage de la fiche',
+		sectionViewLabel: (n: number) => `Affichage de la partie ${n}`,
 		viewDetails: 'Détails',
 		viewSummary: 'Résumé',
 		notFound: "Cette fiche n'existe pas (ou plus).",

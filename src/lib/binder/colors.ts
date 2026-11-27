@@ -71,16 +71,16 @@ type StatusKey = 'new' | 'updated' | 'opened' | 'read' | 'acquired' | 'failed';
 /** Filter chip of the chapter page, off (outlined) and on (filled); `all` is plain ink. */
 export const STATUS_CHIP: Record<StatusKey | 'all', { off: string; on: string }> = {
 	// Ink on paper (and chalk on the board): `neutral` disappears on the dark theme.
-	all: { off: 'btn-outline', on: 'border-base-content bg-base-content text-base-100' },
-	new: { off: 'btn-outline btn-secondary', on: 'btn-secondary' },
-	updated: { off: 'btn-outline btn-secondary', on: 'btn-secondary' },
+	all: { off: 'chip-off btn-outline', on: 'border-base-content bg-base-content text-base-100' },
+	new: { off: 'chip-off btn-outline btn-secondary', on: 'btn-secondary' },
+	updated: { off: 'chip-off btn-outline btn-secondary', on: 'btn-secondary' },
 	opened: {
-		off: 'btn-outline border-base-content/30 text-base-content/70',
+		off: 'chip-off btn-outline border-base-content/30 text-base-content/70',
 		on: 'bg-base-300 border-base-300 text-base-content'
 	},
-	read: { off: 'btn-outline btn-success', on: 'btn-soft btn-success' },
-	acquired: { off: 'btn-outline btn-success', on: 'btn-success' },
-	failed: { off: 'btn-outline btn-error', on: 'btn-error' }
+	read: { off: 'chip-off btn-outline btn-success', on: 'btn-soft btn-success' },
+	acquired: { off: 'chip-off btn-outline btn-success', on: 'btn-success' },
+	failed: { off: 'chip-off btn-outline btn-error', on: 'btn-error' }
 };
 
 /** Badge of a sheet in a list. */

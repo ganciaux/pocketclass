@@ -61,6 +61,7 @@ export const ICON_PATHS: Record<SubjectIcon, IconPath[]> = {
 export const UI_ICONS = {
 	chevronLeft: paths('m15 18-6-6 6-6'),
 	chevronRight: paths('m9 18 6-6-6-6'),
+	chevronUp: paths('m18 15-6-6-6 6'),
 	check: paths('M20 6 9 17l-5-5'),
 	x: paths('M18 6 6 18', 'm6 6 12 12'),
 	play: paths('M7 4v16l13-8z'),

@@ -28,12 +28,19 @@
 
 	const t = fr.concept;
 
-	/** « Résumé »: each section's bullets instead of its text (remembered on this device). */
+	/**
+	 * « Résumé »: each section's bullets instead of its text. The switch at the top sets every
+	 * section (remembered on this device); a section's own switch changes that section only, so
+	 * nobody scrolls back up to change it (and nothing above it moves).
+	 */
 	let summaryView = $state(readPreference('sheetView') === 'summary');
+	let sectionView = $state<Record<number, boolean>>({});
 	function setSummaryView(on: boolean) {
 		summaryView = on;
+		sectionView = {};
 		writePreference('sheetView', on ? 'summary' : 'details');
 	}
+	const showsSummary = (s: number) => sectionView[s] ?? summaryView;
 	const hasSummary = $derived(sheet.sections.some((section) => section.summary));
 
 	/** Key point number (1-based) shown as a badge next to each section. */
@@ -99,22 +106,29 @@
 	</div>
 </section>
 
-{#if hasSummary}
-	<div class="join self-center" role="group" aria-label={t.viewLabel}>
+<!-- « Détails | Résumé »: the whole sheet at the top, one section in its header. -->
+{#snippet viewSwitch(summary: boolean, set: (on: boolean) => void, label: string, size: string)}
+	<div class="join" role="group" aria-label={label}>
 		<button
-			class={['join-item btn btn-sm', summaryView ? STATUS_CHIP.all.off : STATUS_CHIP.all.on]}
-			aria-pressed={!summaryView}
-			onclick={() => setSummaryView(false)}
+			class={['join-item btn', size, summary ? STATUS_CHIP.all.off : STATUS_CHIP.all.on]}
+			aria-pressed={!summary}
+			onclick={() => set(false)}
 		>
 			{t.viewDetails}
 		</button>
 		<button
-			class={['join-item btn btn-sm', summaryView ? STATUS_CHIP.all.on : STATUS_CHIP.all.off]}
-			aria-pressed={summaryView}
-			onclick={() => setSummaryView(true)}
+			class={['join-item btn', size, summary ? STATUS_CHIP.all.on : STATUS_CHIP.all.off]}
+			aria-pressed={summary}
+			onclick={() => set(true)}
 		>
 			{t.viewSummary}
 		</button>
+	</div>
+{/snippet}
+
+{#if hasSummary}
+	<div class="self-center">
+		{@render viewSwitch(summaryView, setSummaryView, t.viewLabel, 'btn-sm')}
 	</div>
 {/if}
 
@@ -137,7 +151,7 @@
 					{s + 1}
 				</span>
 				<div class="flex min-w-0 flex-1 flex-col">
-					<span class="text-xs font-bold tracking-wide text-base-content/50 uppercase">
+					<span class="text-sm font-bold text-base-content/50">
 						{t.section(s + 1, sheet.sections.length)}
 					</span>
 					<h2 class="card-title">{@html renderInline(section.title)}</h2>
@@ -150,7 +164,17 @@
 					{/each}
 				</span>
 			</header>
-			{#if summaryView && section.summary}
+			{#if section.summary}
+				<div class="self-end">
+					{@render viewSwitch(
+						showsSummary(s),
+						(on) => (sectionView = { ...sectionView, [s]: on }),
+						t.sectionViewLabel(s + 1),
+						'btn-xs'
+					)}
+				</div>
+			{/if}
+			{#if showsSummary(s) && section.summary}
 				<ul class="prose list-disc pl-5">
 					{#each section.summary as point, p (p)}
 						<li>{@html renderInline(point)}</li>

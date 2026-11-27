@@ -556,3 +556,25 @@ header.navbar {
 		}
 	}
 }
+
+/* A chip that is off (`STATUS_CHIP`): a light tint under a mouse, never the full colour of a chip
+   that is on (daisyUI fills `btn-outline` on hover, and a phone keeps the hover after a tap, so
+   the chip just left looked selected). Outside the layers: daisyUI's button rules sit in nested
+   layers that win over ours. */
+@media (hover: hover) and (pointer: fine) {
+	.chip-off:hover {
+		background-color: color-mix(
+			in oklab,
+			var(--btn-color, var(--color-base-content)) 12%,
+			transparent
+		);
+		border-color: var(--btn-color, var(--color-base-content));
+		color: var(--btn-color, var(--color-base-content));
+	}
+}
+@media not ((hover: hover) and (pointer: fine)) {
+	.chip-off:hover {
+		background-color: transparent;
+		color: var(--btn-color, var(--color-base-content));
+	}
+}

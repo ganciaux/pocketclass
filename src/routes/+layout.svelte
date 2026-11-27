@@ -6,6 +6,7 @@
 	import Avatar from '#lib/components/Avatar.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import NoteFab from '#lib/components/NoteFab.svelte';
+	import ScrollTop from '#lib/components/ScrollTop.svelte';
 	import TestModeBanner from '#lib/components/TestModeBanner.svelte';
 	import SessionGate from '#lib/components/SessionGate.svelte';
 	import UpdateToast from '#lib/components/UpdateToast.svelte';
@@ -73,6 +74,7 @@
 <SessionGate>
 	{@render children()}
 	<NoteFab />
+	<ScrollTop />
 </SessionGate>
 
 <UpdateToast />
