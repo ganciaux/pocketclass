@@ -152,6 +152,10 @@ Conception : `docs/superpowers/specs/2026-11-25-practice-design.md` et
 
 - Suite de la première version : cercles et arcs, codage des longueurs égales et des angles,
   repère et droites ; les générateurs (Pythagore, Thalès) dessinent leur figure à chaque tirage.
+- Image conseillée par l'IA (mis de côté le 2026-11-27, à revoir après quelques leçons de
+  géométrie) : l'IA écrit un repère `[image : carte de France]` dans le texte d'une partie,
+  masqué pour l'enfant, affiché au parent en encadré à côté de « Ajouter une image ». Écarté :
+  la consigne en clair dans le texte (l'enfant la lirait) ; plus lourd : un champ `imageHint`.
 
 ### Glisser-déposer
 
