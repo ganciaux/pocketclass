@@ -5,10 +5,12 @@
 	import { exportBinder } from '#lib/data/catalogExport.ts';
 	import { exportFileName } from '#lib/import/catalogExport.ts';
 	import { session } from '#lib/auth.svelte.ts';
-	import { freeColor, moveItem, nextOrder } from '#lib/binder/binder.ts';
+	import { freeColor, moveItem, nextOrder, placeItem } from '#lib/binder/binder.ts';
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import DragHandle from '#lib/components/DragHandle.svelte';
 	import OrderActions from '#lib/components/OrderActions.svelte';
+	import { sortable } from '#lib/sortable.ts';
 	import { watchSubjects } from '#lib/data/catalog.ts';
 	import { createSubject, saveOrder, setArchived } from '#lib/data/catalogEdit.ts';
 	import { live } from '#lib/data/live.svelte.ts';
@@ -49,6 +51,12 @@
 	function move(list: WithId<Subject>[], id: string, step: -1 | 1) {
 		if (session.familyId) saveOrder(session.familyId, 'subjects', moveItem(list, id, step));
 	}
+
+	/** Drag and drop: the row at `from` goes to `to`. */
+	function place(list: WithId<Subject>[], from: number, to: number) {
+		if (session.familyId)
+			saveOrder(session.familyId, 'subjects', placeItem(list, list[from].id, to));
+	}
 </script>
 
 <svelte:head><title>{t.title} · {fr.app.name}</title></svelte:head>
@@ -65,14 +73,22 @@
 					<section class="card card-border bg-base-100">
 						<div class="card-body gap-2">
 							<h2 class="card-title">{heading}</h2>
-							<ul class="flex flex-col gap-1">
+							<ul
+								class="flex flex-col gap-1"
+								use:sortable={{
+									order: list.map((s) => s.id).join(','),
+									onsort: (from, to) => place(list, from, to)
+								}}
+							>
 								{#each list as subject, i (subject.id)}
 									<li
+										data-sort-item
 										class="link-row relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2"
 										in:row
 										out:row={{ exit: true }}
 										animate:reorder
 									>
+										<DragHandle />
 										<SubjectBadge {subject} size={2.5} />
 										<a
 											class={[

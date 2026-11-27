@@ -18,9 +18,13 @@ export function row(node: Element, { exit = false }: { exit?: boolean } = {}) {
 	return { ...collapse, css: (t: number, u: number) => `${collapse.css?.(t, u)}; opacity: ${t}` };
 }
 
-/** List rows changing places (↑ ↓): they glide to their new position. */
+/**
+ * List rows changing places (↑ ↓): they glide to their new position. Not after a drag and drop
+ * (`sortable`): the rows are already in place on screen.
+ */
 export function reorder(node: Element, fromTo: { from: DOMRect; to: DOMRect }) {
-	return flip(node, fromTo, { duration: reduced() ? 0 : 250, easing: cubicInOut });
+	const dropped = node.parentElement?.dataset.dropped !== undefined;
+	return flip(node, fromTo, { duration: reduced() || dropped ? 0 : 250, easing: cubicInOut });
 }
 
 /** A toast rising from the bottom edge, and leaving the same way. */

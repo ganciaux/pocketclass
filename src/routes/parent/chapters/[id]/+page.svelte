@@ -6,7 +6,7 @@
 	import { exportFileName } from '#lib/import/catalogExport.ts';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
-	import { activeOnly, groupNames, moveItem } from '#lib/binder/binder.ts';
+	import { activeOnly, groupNames, moveItem, placeItem } from '#lib/binder/binder.ts';
 	import ChapterSettings from '#lib/components/ChapterSettings.svelte';
 	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
 	import ConfirmDeleteDialog from '#lib/components/ConfirmDeleteDialog.svelte';
@@ -14,7 +14,9 @@
 	import ImportResult from '#lib/components/ImportResult.svelte';
 	import JsonPaste from '#lib/components/JsonPaste.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import DragHandle from '#lib/components/DragHandle.svelte';
 	import OrderActions from '#lib/components/OrderActions.svelte';
+	import { sortable } from '#lib/sortable.ts';
 	import PromptCopy from '#lib/components/PromptCopy.svelte';
 	import {
 		watchChapter,
@@ -65,6 +67,13 @@
 
 	function move(sheets: WithId<ConceptRecord>[], id: string, step: -1 | 1) {
 		if (session.familyId) saveOrder(session.familyId, 'concepts', moveItem(sheets, id, step));
+	}
+
+	/** Drag and drop: the row at `from` goes to `to`. */
+	function place(sheets: WithId<ConceptRecord>[], from: number, to: number) {
+		if (session.familyId) {
+			saveOrder(session.familyId, 'concepts', placeItem(sheets, sheets[from].id, to));
+		}
 	}
 
 	/** Sheet whose deletion is being confirmed (modal). */
@@ -150,9 +159,16 @@
 						<h2 class="card-title">{t.sheets}</h2>
 						<LoadState source={sheetsLive} failed={fr.binder.loadFailed}>
 							{#snippet children(sheets)}
-								<ul class="flex flex-col gap-1">
+								<ul
+									class="flex flex-col gap-1"
+									use:sortable={{
+										order: sheets.map((s) => s.id).join(','),
+										onsort: (from, to) => place(sheets, from, to)
+									}}
+								>
 									{#each sheets as sheet, i (sheet.id)}
 										<li
+											data-sort-item
 											class={[
 												'relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2',
 												sheet.archived ? 'rounded-box border-2 border-transparent' : 'link-row'
@@ -161,6 +177,7 @@
 											out:row={{ exit: true }}
 											animate:reorder
 										>
+											<DragHandle />
 											<span
 												class={[
 													'flex min-w-0 flex-1 basis-48 flex-col',

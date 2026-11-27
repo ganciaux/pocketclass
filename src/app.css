@@ -387,6 +387,27 @@ header.navbar {
 		}
 	}
 
+	/* Drag and drop of a list row (`sortable`): the row is lifted off the page, the others make
+	   room smoothly. */
+	.sort-active {
+		user-select: none;
+	}
+	.sort-active > [data-sort-item]:not(.sort-dragging) {
+		transition: transform 160ms var(--ease-out);
+	}
+	.sort-dragging {
+		position: relative;
+		z-index: 20;
+		background-color: var(--color-base-100);
+		box-shadow: 0 10px 24px -8px rgb(0 0 0 / 0.35);
+		border-radius: var(--radius-box);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.sort-active > [data-sort-item]:not(.sort-dragging) {
+			transition: none;
+		}
+	}
+
 	/* <BackLink>: the chevron leans back under a mouse (on touch, the button press is enough). */
 	.back-link svg {
 		transition: transform 160ms var(--ease-out);

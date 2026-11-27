@@ -5,8 +5,12 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 ## Ce qui est fait
 
-- **Plusieurs parents** (2026-11-27) : un parent invite l'autre par son adresse Google, droits
-  égaux (retirer, quitter ; le créateur de la famille reste). Une autre famille installe sa
+- **Plusieurs parents** (2026-11-27) : un parent invite l'autre par son adresse Google (un
+  bandeau « Rejoindre / Refuser » sur son accueil, même pour un nouveau compte), droits égaux
+  (retirer, quitter ; le créateur de la famille reste).
+- **Glisser-déposer** (2026-11-27) : matières, chapitres, fiches (parent) et l'exercice « remettre
+  dans l'ordre » se classent en faisant glisser une ligne par sa poignée, à la souris ou au
+  doigt ; les flèches ↑ ↓ restent. Une autre famille installe sa
   propre copie avec son projet Firebase (guide dans `docs/operations.md`).
 - **Base** : connexion parent (Google), profils enfants, téléphones enfants liés par un code
   à usage unique, pseudo et avatar, fonctionnement hors ligne, PWA installable (validée sur
@@ -88,8 +92,11 @@ révision, historique d'activité, fiches plus courtes avec vue « Résumé », 
 - Télécharger la sauvegarde complète (« Mon profil ») et la garder hors de Firebase ; sur iPhone, vérifier le téléchargement (« Partager → Enregistrer dans Fichiers » si besoin).
 - Mode jour / nuit : choisir Sombre puis relancer l'app installée (pas de flash clair).
 - Deuxième parent : « Profils » → « Parents » → inviter son adresse Google ; à sa connexion
-  (Google), vérifier l'accès aux classeurs et aux enfants, puis « Quitter la famille »
+  (Google), « Rejoindre » sur son accueil, puis vérifier l'accès aux classeurs et aux enfants, puis « Quitter la famille »
   (retour à sa propre famille).
+- Glisser-déposer au doigt (iPhone et Android) : une matière dans « Gérer les classeurs », et
+  un exercice « remettre dans l'ordre » côté enfant ; la page ne doit pas défiler pendant le
+  glissement.
 - Réimport : coller un chapitre exporté (puis retouché) dans la page de **ce** chapitre ;
   corriger d'abord les « -> » laissés par Gemini dans le chapitre de français.
 

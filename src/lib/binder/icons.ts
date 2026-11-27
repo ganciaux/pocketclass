@@ -117,6 +117,8 @@ export const UI_ICONS = {
 		'M21 12a9 9 0 0 1-15.4 6.4L3 16',
 		'M3 21v-5h5'
 	),
+	/** Two columns of dots: the handle that drags a row to another place. */
+	grip: paths('M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01'),
 	/** A door with an arrow going out: sign out. */
 	signOut: paths('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4', 'm16 17 5-5-5-5', 'M21 12H9'),
 	/** Bar chart: statistics. */

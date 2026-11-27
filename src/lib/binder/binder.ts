@@ -30,23 +30,27 @@ export const activeOnly = <T extends { archived: boolean }>(items: T[]) =>
 export const nextOrder = (items: Ordered[]) => Math.max(-1, ...items.map((i) => i.order)) + 1;
 
 /**
- * Moves `id` one step up (-1) or down (+1) in `items` (display order) and numbers the list
- * 0, 1, 2…: returns only the items whose order changed (nothing at either end).
+ * Puts `id` at position `to` in `items` (display order: an arrow step or a drag and drop) and
+ * numbers the list 0, 1, 2…: returns only the items whose order changed.
  */
-export function moveItem(
+export function placeItem(
 	items: { id: string; order: number }[],
 	id: string,
-	step: -1 | 1
+	to: number
 ): { id: string; order: number }[] {
 	const from = items.findIndex((item) => item.id === id);
-	const to = from + step;
-	if (from < 0 || to < 0 || to >= items.length) return [];
+	if (from < 0 || to < 0 || to >= items.length || to === from) return [];
 	const moved = [...items];
-	[moved[from], moved[to]] = [moved[to], moved[from]];
+	moved.splice(to, 0, ...moved.splice(from, 1));
 	return moved
 		.map((item, order) => ({ id: item.id, order, changed: item.order !== order }))
 		.filter((item) => item.changed)
 		.map(({ id, order }) => ({ id, order }));
+}
+
+/** Moves `id` one step up (-1) or down (+1): `placeItem` (nothing at either end). */
+export function moveItem(items: { id: string; order: number }[], id: string, step: -1 | 1) {
+	return placeItem(items, id, items.findIndex((item) => item.id === id) + step);
 }
 
 export type SubjectLike = { id: string } & Pick<Subject, 'name' | 'grade' | 'order' | 'archived'>;

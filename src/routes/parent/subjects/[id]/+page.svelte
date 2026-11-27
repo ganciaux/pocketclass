@@ -7,7 +7,7 @@
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
-	import { groupNames, moveItem, nextOrder } from '#lib/binder/binder.ts';
+	import { groupNames, moveItem, nextOrder, placeItem } from '#lib/binder/binder.ts';
 	import ChapterForm from '#lib/components/ChapterForm.svelte';
 	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
 	import ConfirmDeleteDialog from '#lib/components/ConfirmDeleteDialog.svelte';
@@ -15,7 +15,9 @@
 	import ImportResult from '#lib/components/ImportResult.svelte';
 	import JsonPaste from '#lib/components/JsonPaste.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import DragHandle from '#lib/components/DragHandle.svelte';
 	import OrderActions from '#lib/components/OrderActions.svelte';
+	import { sortable } from '#lib/sortable.ts';
 	import PromptCopy from '#lib/components/PromptCopy.svelte';
 	import SubjectForm from '#lib/components/SubjectForm.svelte';
 	import { watchChaptersOf, watchSheetsOfSubject, watchSubject } from '#lib/data/catalog.ts';
@@ -67,6 +69,13 @@
 
 	function move(chapters: WithId<Chapter>[], id: string, step: -1 | 1) {
 		if (session.familyId) saveOrder(session.familyId, 'chapters', moveItem(chapters, id, step));
+	}
+
+	/** Drag and drop: the row at `from` goes to `to`. */
+	function place(chapters: WithId<Chapter>[], from: number, to: number) {
+		if (session.familyId) {
+			saveOrder(session.familyId, 'chapters', placeItem(chapters, chapters[from].id, to));
+		}
 	}
 
 	// Deletions.
@@ -166,14 +175,22 @@
 						<h2 class="card-title">{t.chapters}</h2>
 						<LoadState source={chaptersLive} failed={fr.binder.loadFailed}>
 							{#snippet children(chapters)}
-								<ul class="flex flex-col gap-1">
+								<ul
+									class="flex flex-col gap-1"
+									use:sortable={{
+										order: chapters.map((c) => c.id).join(','),
+										onsort: (from, to) => place(chapters, from, to)
+									}}
+								>
 									{#each chapters as chapter, i (chapter.id)}
 										<li
+											data-sort-item
 											class="link-row relative -mx-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2"
 											in:row
 											out:row={{ exit: true }}
 											animate:reorder
 										>
+											<DragHandle />
 											<a
 												class={[
 													'flex min-w-0 flex-1 basis-48 flex-col after:absolute after:inset-0',

@@ -10,6 +10,7 @@ import {
 	isRead,
 	groupNames,
 	moveItem,
+	placeItem,
 	nextOrder,
 	nextUnread,
 	reachableSheets,
@@ -83,6 +84,21 @@ describe('ordering', () => {
 			{ id: 'b', order: 0 },
 			{ id: 'a', order: 1 }
 		]);
+	});
+
+	it('places an item several rows away (drag and drop)', () => {
+		expect(placeItem(items, 'a', 2)).toEqual([
+			{ id: 'b', order: 0 },
+			{ id: 'c', order: 1 },
+			{ id: 'a', order: 2 }
+		]);
+		expect(placeItem(items, 'c', 0)).toEqual([
+			{ id: 'c', order: 0 },
+			{ id: 'a', order: 1 },
+			{ id: 'b', order: 2 }
+		]);
+		expect(placeItem(items, 'b', 1)).toEqual([]);
+		expect(placeItem(items, 'b', 3)).toEqual([]);
 	});
 
 	it('does nothing at either end or for an unknown id', () => {
