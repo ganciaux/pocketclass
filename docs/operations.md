@@ -137,7 +137,8 @@ jour se font avec `git pull` puis `npm run prod`.
    liaison sur son téléphone.
 
 6. **Les classeurs** : partir des fichiers JSON d'un autre classeur (« Gérer les classeurs » →
-   export, puis « Restaurer » chez l'autre famille), ou les créer avec les prompts de l'app.
+   export, puis « Restaurer » chez l'autre famille), ou les créer avec les prompts de l'app (« Importer un cours » sur la page d'une matière : joindre
+   les photos du cahier, l'IA découpe en chapitres).
 
 Pour tester sur sa machine avant de déployer : `PUBLIC_USE_EMULATORS=true` dans `.env.local`,
 `npm run emulators` puis `npm run dev` (voir le README).

@@ -1,10 +1,10 @@
 import { generatorsForGrade } from '#lib/generators/catalog.ts';
-import { CHAPTER_FORMAT } from '#lib/schemas/chapter.ts';
+import { CHAPTERS_FORMAT, MAX_CHAPTERS, MIN_SHEETS_PER_CHAPTER } from '#lib/schemas/chapter.ts';
 import { SHEET_FORMAT } from '#lib/schemas/sheet.ts';
 
 /**
- * Prompts the parent copies into an external AI to get a sheet (`sheet@1`) or a whole chapter
- * (`chapter@1`) back as JSON. The instructions are French content (like the sample sheets);
+ * Prompts the parent copies into an external AI to get a sheet (`sheet@1`) or a whole course
+ * split into chapters (`chapters@1`) back as JSON. The instructions are French content (like the sample sheets);
  * the JSON keys stay English. Pure module (unit-tested).
  */
 
@@ -117,7 +117,7 @@ function context(ctx: PromptContext): string {
 	return lines.join('\n');
 }
 
-const request = (ctx: PromptContext, fallback: string) => ctx.request.trim() || fallback;
+const request = (ctx: { request: string }, fallback: string) => ctx.request.trim() || fallback;
 
 /** Prompt for ONE sheet (`sheet@1`), added to the chapter. */
 export function sheetPrompt(ctx: PromptContext): string {
@@ -136,19 +136,59 @@ ${rules(ctx.grade)}
 - L'identifiant de la fiche commence par "${prefix}" (ex. "${prefix}fractions").`;
 }
 
-/** Prompt for a whole chapter (`chapter@1`) with several sheets. */
-export function chapterPrompt(ctx: PromptContext): string {
-	const prefix = idPrefix(ctx.subject, ctx.grade);
-	return `Tu prépares un chapitre de fiches de révision pour un élève de ${ctx.grade}, au format JSON "${CHAPTER_FORMAT}".
+/** What the course prompt knows of the subject. */
+export interface CourseContext {
+	subject: string;
+	grade: string;
+	/** What the parent wants (themes, notions; often « see the attached photos »); may be empty. */
+	request: string;
+	/** The subject's chapters already there (no duplicate), with their group if any. */
+	existingChapters: { title: string; group: string | null }[];
+	/** Sheet ids already used in the family (ids are family-wide). */
+	usedIds: string[];
+}
 
-${context(ctx)}
-Contenu du chapitre : ${request(ctx, '<précise ici les notions à couvrir>')}.
+function courseContext(ctx: CourseContext): string {
+	const lines = [`Matière : ${ctx.subject} (${ctx.grade}).`];
+	if (ctx.existingChapters.length > 0) {
+		const titles = ctx.existingChapters.map((c) => (c.group ? `${c.title} (${c.group})` : c.title));
+		lines.push(
+			`Chapitres déjà présents dans cette matière (à ne pas refaire) : ${titles.join(' ; ')}.`
+		);
+		const groups = [...new Set(ctx.existingChapters.flatMap((c) => (c.group ? [c.group] : [])))];
+		if (groups.length > 0)
+			lines.push(`Parties déjà utilisées pour "group" : ${groups.join(' ; ')}.`);
+	}
+	if (ctx.usedIds.length > 0) {
+		lines.push(
+			`Identifiants de fiches déjà utilisés (à ne pas reprendre) : ${ctx.usedIds.join(', ')}.`
+		);
+	}
+	return lines.join('\n');
+}
+
+/**
+ * Prompt for a course (`chapters@1`): the AI splits it into chapters, one per big theme, each
+ * with its own sheets, and avoids thin chapters.
+ */
+export function coursePrompt(ctx: CourseContext): string {
+	const prefix = idPrefix(ctx.subject, ctx.grade);
+	return `Tu prépares des fiches de révision pour un élève de ${ctx.grade}, à partir d'un cours (par exemple les photos du cahier jointes), au format JSON "${CHAPTERS_FORMAT}".
+
+${courseContext(ctx)}
+Contenu du cours : ${request(ctx, '<précise ici les thèmes et notions, ou joins les photos du cours>')}.
 
 Format attendu (un seul objet JSON) :
-{ "format": "${CHAPTER_FORMAT}", "title": "${ctx.chapter}",${ctx.group ? ` "group": "${ctx.group}",` : ''} "sheets": [ ...des fiches ] }
+{ "format": "${CHAPTERS_FORMAT}", "chapters": [ { "title": "<titre du chapitre>", "group": "<partie, facultatif>", "sheets": [ ...des fiches ] } ] }
 où chaque fiche a cette forme :
 ${SHEET_SHAPE}
 
+Découpage en chapitres :
+- Un chapitre = un grand thème du cours (souvent un titre du cahier : un thème, une « unit », une leçon), avec ses propres fiches. Ne mets jamais plusieurs thèmes dans un même chapitre « fourre-tout », et n'écris jamais un titre comme « Thème 1 + Thème 2 ».
+- Évite les chapitres trop maigres : au moins ${MIN_SHEETS_PER_CHAPTER} fiches par chapitre. Un petit thème qui ne donnerait qu'une fiche rejoint le chapitre du thème le plus proche. Si tout le cours ne forme qu'un thème, fais un seul chapitre.
+- ${MAX_CHAPTERS} chapitres au plus, dans l'ordre du cours ; dans chaque chapitre, une fiche par notion, dans l'ordre où l'élève doit les réviser.
+- "title" : court et parlant, il dit de quoi parle le chapitre (ex. « Le prétérit », pas « Thème 2 »). "group" (facultatif) : la partie qui regroupe des chapitres voisins (ex. « Grammaire », « Vocabulaire ») ; reprends une partie existante quand elle convient.
+
 ${rules(ctx.grade)}
-- Une fiche par notion, dans l'ordre où l'élève doit les réviser. Les identifiants des fiches sont uniques et commencent par "${prefix}".`;
+- Les identifiants des fiches sont uniques dans tout le JSON et commencent par "${prefix}".`;
 }

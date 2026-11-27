@@ -49,3 +49,40 @@ export type SheetOrChapterImport = z.infer<typeof sheetOrChapterSchema>;
 /** The sheets of a sheet or chapter file. */
 export const sheetsOf = (file: SheetOrChapterImport): SheetDoc[] =>
 	file.format === CHAPTER_FORMAT ? file.sheets : [file];
+
+export const CHAPTERS_FORMAT = 'pocketclass/chapters@1';
+
+/** A course split by the AI into chapters: at most this many (one per big theme). */
+export const MAX_CHAPTERS = 12;
+/** Fewer sheets than this makes a « thin » chapter: allowed, but the preview points it out. */
+export const MIN_SHEETS_PER_CHAPTER = 2;
+
+/**
+ * `pocketclass/chapters@1`: a course (e.g. photos of the exercise book) split into chapters, one
+ * per big theme, each with its sheets; created at the end of a subject, in this order.
+ */
+export const chaptersSchema = z
+	.object({
+		format: z.literal(CHAPTERS_FORMAT),
+		chapters: z
+			.array(chapterBodySchema.extend({ sheets: z.array(sheetBodySchema).min(1) }))
+			.min(1)
+			.max(MAX_CHAPTERS),
+		warnings: z.array(z.string()).optional()
+	})
+	.superRefine((file, ctx) => checkSheetsOf(file.chapters, (c) => ['chapters', c], ctx));
+
+/** What the subject page accepts: one new chapter, or a course split into chapters. */
+export const courseSchema = z.discriminatedUnion('format', [chapterSchema, chaptersSchema]);
+
+export type CourseImport = z.infer<typeof courseSchema>;
+
+/** The chapters of a chapter or course file. */
+export const chaptersOf = (file: CourseImport): ChapterDoc[] =>
+	file.format === CHAPTERS_FORMAT ? file.chapters : [file];
+
+/** Titles of the chapters with fewer than `MIN_SHEETS_PER_CHAPTER` sheets (several only). */
+export function thinChapters(chapters: { title: string; sheets: unknown[] }[]): string[] {
+	if (chapters.length < 2) return [];
+	return chapters.filter((c) => c.sheets.length < MIN_SHEETS_PER_CHAPTER).map((c) => c.title);
+}

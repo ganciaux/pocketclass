@@ -721,6 +721,20 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   and tested; `placeItem` (binder.ts) numbers the list for any move, `moveItem` = one step.
   Used by the parent lists (subjects, chapters, sheets) and the child's ordering exercise.
 
+- 2026-11-27 — **A course split into chapters** (user's report: 6 photos of an English course
+  came back as one catch-all chapter « Thème 1 + Thème 2 + Thème 3 »). New format
+  `pocketclass/chapters@1` (`chaptersSchema`: 1–`MAX_CHAPTERS` (12) chapters, each with ≥ 1
+  sheet, sheet ids unique across the file). The subject page's card is now « Importer un cours »:
+  `courseSchema` accepts `chapter@1` or `chapters@1` (`chaptersOf`); `coursePrompt` replaces
+  `chapterPrompt` (no title / group fields any more: the AI names the chapters) and asks one
+  chapter per big theme of the course (a unit, a lesson of the exercise book), never a catch-all
+  title, at least `MIN_SHEETS_PER_CHAPTER` (2) sheets per chapter (a small theme joins the
+  nearest one; one chapter if the course is one theme), short meaningful titles, an optional
+  `group` reusing the subject's parts; it lists the subject's chapters already there. The preview
+  lists the chapters with their sheet count and warns about thin ones (`thinChapters`, not
+  blocking); `importChapters` (was `importChapter`) creates them at the end of the subject, in
+  order, in one plan; the result links to each chapter.
+
 ## Firestore model
 
 ```
@@ -772,7 +786,7 @@ families/{familyId}                            { name, admins: [uid], createdAt 
 
 ## JSON formats (`src/lib/schemas/`)
 
-`pocketclass/sheet@1`, `pocketclass/chapter@1`, `pocketclass/subject@1`, `pocketclass/binder@1` and `pocketclass/family@1` (backups, exported by the app; `family@1` adds every profile's data as an archive), `pocketclass/lesson@1`, `pocketclass/summary@1`. JSON Schemas are exported
+`pocketclass/sheet@1`, `pocketclass/chapter@1`, `pocketclass/chapters@1` (a course split by the AI into chapters, subject page), `pocketclass/subject@1`, `pocketclass/binder@1` and `pocketclass/family@1` (backups, exported by the app; `family@1` adds every profile's data as an archive), `pocketclass/lesson@1`, `pocketclass/summary@1`. JSON Schemas are exported
 to `static/schemas/` by `npm run schemas`. Loose parsing (code fences, text around the JSON) in
 `src/lib/import/parseJsonLoose.ts`.
 

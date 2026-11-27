@@ -20,7 +20,7 @@ import {
 	familyDoc,
 	subjectsCol
 } from './refs.ts';
-import type { ChapterImport } from '#lib/schemas/chapter.ts';
+import type { ChapterDoc } from '#lib/schemas/chapter.ts';
 import type { SheetDoc } from '#lib/schemas/sheet.ts';
 import { subjectsOf, type BackupImport } from '#lib/schemas/subject.ts';
 import type { SubjectColor } from './types.ts';
@@ -141,19 +141,38 @@ export async function importSheets(
 	return plan;
 }
 
-/** Creates a chapter at the end of the subject, with its sheets. Returns the new chapter id. */
-export async function importChapter(
+/**
+ * Creates new chapters at the end of a subject, in this order, with their sheets (`chapter@1`
+ * or a course split by the AI, `chapters@1`). Throws `ImportConflictError` if a sheet id is
+ * already used by an active sheet elsewhere.
+ */
+export async function importChapters(
 	familyId: string,
 	subjectId: string,
-	chapter: ChapterImport
-): Promise<{ chapterId: string; plan: ImportPlan }> {
-	const chapterId = doc(chaptersCol(familyId)).id;
-	const existing = await checkConflicts(familyId, chapter.sheets, chapterId);
-	const chapters = await getDocs(query(chaptersCol(familyId), where('subjectId', '==', subjectId)));
-	const order = nextOrder(chapters.docs.map((d) => d.data()));
-	const plan = planChapter(chapter, { subjectId, chapterId, order }, existing);
-	await run(familyId, plan.ops);
-	return { chapterId, plan };
+	chapters: ChapterDoc[]
+): Promise<{ chapterIds: string[]; plan: ImportPlan }> {
+	// No target chapter exists yet: any active sheet with one of these ids is a conflict.
+	const existing = await checkConflicts(
+		familyId,
+		chapters.flatMap((c) => c.sheets),
+		''
+	);
+	const known = await getDocs(query(chaptersCol(familyId), where('subjectId', '==', subjectId)));
+	const first = nextOrder(known.docs.map((d) => d.data()));
+	const chapterIds = chapters.map(() => doc(chaptersCol(familyId)).id);
+	const ops: WriteOp[] = [];
+	const stats = { created: 0, updated: 0, exercises: 0, archivedExercises: 0 };
+	chapters.forEach((chapter, i) => {
+		const plan = planChapter(
+			chapter,
+			{ subjectId, chapterId: chapterIds[i], order: first + i },
+			existing
+		);
+		ops.push(...plan.ops);
+		addStats(stats, plan.stats);
+	});
+	await run(familyId, ops);
+	return { chapterIds, plan: { ops, stats } };
 }
 
 /**

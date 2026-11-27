@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { chapterSchema, sheetOrChapterSchema, sheetsOf } from './chapter.ts';
+import {
+	chapterSchema,
+	chaptersOf,
+	courseSchema,
+	sheetOrChapterSchema,
+	sheetsOf,
+	thinChapters
+} from './chapter.ts';
 import { validate } from './errors.ts';
 import { minimalSheet } from './sheet.fixture.ts';
 
@@ -63,5 +70,66 @@ describe('sheetOrChapterSchema (parent chapter page)', () => {
 	it('still reports the errors of the sheet', () => {
 		const result = validate(sheetOrChapterSchema, { ...minimalSheet(), keyPoints: [] });
 		expect(result.success).toBe(false);
+	});
+});
+
+describe('courseSchema (a course split into chapters, subject page)', () => {
+	const course = (chapters: { title: string; sheets: ReturnType<typeof sheetBody>[] }[]) => ({
+		format: 'pocketclass/chapters@1',
+		chapters
+	});
+
+	it('accepts several chapters, each with its sheets, and gives them in order', () => {
+		const result = validate(
+			courseSchema,
+			course([
+				{ title: 'Le prétérit', sheets: [sheetBody('preterit'), sheetBody('irregular')] },
+				{ title: 'Les métiers', sheets: [sheetBody('jobs'), sheetBody('jobs-verbs')] }
+			])
+		);
+		if (!result.success) throw new Error(result.errors.join('\n'));
+		expect(chaptersOf(result.data).map((c) => c.title)).toEqual(['Le prétérit', 'Les métiers']);
+	});
+
+	it('still accepts one chapter (chapter@1)', () => {
+		const result = validate(courseSchema, {
+			format: 'pocketclass/chapter@1',
+			title: 'Calcul',
+			sheets: [sheetBody('fractions')]
+		});
+		if (!result.success) throw new Error('should be valid');
+		expect(chaptersOf(result.data)).toHaveLength(1);
+	});
+
+	it('keeps sheet ids unique across chapters, and refuses an empty chapter', () => {
+		const duplicate = validate(
+			courseSchema,
+			course([
+				{ title: 'A', sheets: [sheetBody('same')] },
+				{ title: 'B', sheets: [sheetBody('same')] }
+			])
+		);
+		expect(!duplicate.success && duplicate.errors[0]).toMatch(
+			/« same » est utilisé plusieurs fois/
+		);
+		const empty = validate(courseSchema, course([{ title: 'Vide', sheets: [] }]));
+		expect(empty.success).toBe(false);
+	});
+});
+
+describe('thinChapters', () => {
+	const chapter = (title: string, count: number) => ({
+		title,
+		sheets: Array.from({ length: count }, (_, i) => sheetBody(`${title}-${i}`))
+	});
+
+	it('names the chapters of a course with a single sheet', () => {
+		expect(thinChapters([chapter('Grammaire', 3), chapter('Phonétique', 1)])).toEqual([
+			'Phonétique'
+		]);
+	});
+
+	it('says nothing about a course of one chapter', () => {
+		expect(thinChapters([chapter('Tout', 1)])).toEqual([]);
 	});
 });

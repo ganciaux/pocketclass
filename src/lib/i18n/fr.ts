@@ -752,20 +752,24 @@ export const fr = {
 		addSheet: 'Ajouter une fiche',
 		addSheetHelp:
 			"Décris la fiche voulue, copie le prompt dans l'IA de ton choix, puis colle sa réponse ici. Pour modifier une fiche, colle une nouvelle version avec le même identifiant. Un chapitre exporté (puis retouché) peut aussi être collé ici : ses fiches sont mises à jour dans ce chapitre.",
-		importChapter: 'Importer un chapitre complet',
+		importChapter: 'Importer un cours',
 		importChapterHelp:
-			"Pour démarrer une matière : l'IA produit un chapitre et toutes ses fiches d'un coup. Pour mettre à jour un chapitre existant, colle son JSON dans la page de ce chapitre.",
+			"Décris le cours, ou joins ses photos à l'IA avec le prompt : elle le découpe en chapitres (un par grand thème) avec leurs fiches. Pour mettre à jour un chapitre existant, colle son JSON dans la page de ce chapitre.",
 		request: 'Sujet de la fiche',
 		requestPlaceholder: 'Ex. : les puissances de 10',
-		chapterRequest: 'Notions du chapitre',
-		chapterRequestPlaceholder: 'Ex. : fractions, puissances, racines carrées',
+		chapterRequest: 'Contenu du cours',
+		chapterRequestPlaceholder: 'Ex. : thèmes 1 à 3 du cahier (photos jointes à l’IA)',
 		prompt: "Prompt pour l'IA",
 		copy: 'Copier le prompt',
 		copied: 'Copié ✓',
 		copyFailed: 'Copie impossible : sélectionne le texte à la main.',
 		paste: "Réponse de l'IA (JSON)",
 		sheetPlaceholder: '{ "format": "pocketclass/sheet@1", … }',
-		chapterPlaceholder: '{ "format": "pocketclass/chapter@1", … }',
+		chapterPlaceholder: '{ "format": "pocketclass/chapters@1", … }',
+		/** A course split into chapters, before saving. */
+		courseChapter: (sheets: number) => plural(sheets, 'fiche'),
+		thinChapters: (titles: string[]) =>
+			`${titles.length > 1 ? 'Ces chapitres n’ont' : 'Ce chapitre n’a'} qu’une fiche : ${titles.map((t) => `« ${t} »`).join(', ')}. Tu peux importer quand même, ou demander à l’IA de ${titles.length > 1 ? 'les' : 'le'} regrouper avec un thème voisin.`,
 		loadSample: "Charger l'exemple",
 		sampleFailed: "Impossible de charger l'exemple.",
 		errorsTitle: 'Le JSON contient des erreurs',
@@ -790,7 +794,8 @@ export const fr = {
 		submitSheet: 'Enregistrer',
 		/** Chapter page: a `chapter@1` file updates (or adds) its sheets in this chapter. */
 		submitSheets: 'Enregistrer les fiches',
-		submitChapter: 'Créer le chapitre',
+		submitChapter: (chapters: number) =>
+			chapters > 1 ? `Créer les ${chapters} chapitres` : 'Créer le chapitre',
 		importing: 'Import en cours…',
 		failed: "L'import a échoué. Vérifie ta connexion et réessaie.",
 		done: (created: number, updated: number) =>

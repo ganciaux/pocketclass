@@ -7,7 +7,7 @@
 	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
-	import { groupNames, moveItem, nextOrder, placeItem } from '#lib/binder/binder.ts';
+	import { activeOnly, groupNames, moveItem, nextOrder, placeItem } from '#lib/binder/binder.ts';
 	import ChapterForm from '#lib/components/ChapterForm.svelte';
 	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
 	import ConfirmDeleteDialog from '#lib/components/ConfirmDeleteDialog.svelte';
@@ -23,14 +23,19 @@
 	import { watchChaptersOf, watchSheetsOfSubject, watchSubject } from '#lib/data/catalog.ts';
 	import { deleteChapter, deleteSubject } from '#lib/data/catalogDelete.ts';
 	import { createChapter, saveOrder, setArchived } from '#lib/data/catalogEdit.ts';
-	import { importChapter } from '#lib/data/importSheets.ts';
+	import { importChapters } from '#lib/data/importSheets.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { GRADES, type Chapter, type Subject, type WithId } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { reorder, row } from '#lib/motion.ts';
 	import type { ImportPlan } from '#lib/import/sheetPlan.ts';
-	import { chapterPrompt } from '#lib/prompts/sheetPrompt.ts';
-	import { chapterSchema, type ChapterImport } from '#lib/schemas/chapter.ts';
+	import { coursePrompt } from '#lib/prompts/sheetPrompt.ts';
+	import {
+		chaptersOf,
+		courseSchema,
+		thinChapters,
+		type CourseImport
+	} from '#lib/schemas/chapter.ts';
 	import { goto } from '$app/navigation';
 	import { asset, resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -88,22 +93,21 @@
 		await goto(resolve('/parent/subjects'), { replace: true });
 	}
 
-	// Whole chapter import (prompt + JSON).
-	let importTitle = $state('');
-	let importGroup = $state('');
+	// Course import (prompt + JSON): the AI splits it into chapters, one per big theme.
 	let request = $state('');
 	let json = $state('');
 	let sampleFailed = $state(false);
-	let result = $state<{ plan: ImportPlan; chapterId: string } | null>(null);
+	let result = $state<{ plan: ImportPlan; chapters: { id: string; title: string }[] } | null>(null);
 
 	function promptFor(subject: WithId<Subject>) {
-		return chapterPrompt({
+		return coursePrompt({
 			subject: subject.name,
 			grade: subject.grade,
-			chapter: importTitle.trim() || '<titre du chapitre>',
-			group: importGroup.trim() || null,
 			request,
-			existingTitles: [],
+			existingChapters: activeOnly(chaptersLive.data ?? []).map((c) => ({
+				title: c.title,
+				group: c.group
+			})),
 			usedIds: (sheetsLive.data ?? []).map((s) => s.id)
 		});
 	}
@@ -120,9 +124,11 @@
 		}
 	}
 
-	async function runImport(chapter: ChapterImport) {
+	async function runImport(course: CourseImport) {
 		if (!session.familyId) return;
-		result = await importChapter(session.familyId, subjectId, chapter);
+		const chapters = chaptersOf(course);
+		const { chapterIds, plan } = await importChapters(session.familyId, subjectId, chapters);
+		result = { plan, chapters: chapters.map((c, i) => ({ id: chapterIds[i], title: c.title })) };
 		json = '';
 	}
 </script>
@@ -250,12 +256,6 @@
 						<div class="card-body gap-3">
 							<h2 class="card-title">{ti.importChapter}</h2>
 							<p class="text-sm text-base-content/70">{ti.importChapterHelp}</p>
-							<ChapterForm
-								id="import-chapter"
-								bind:title={importTitle}
-								bind:group={importGroup}
-								{groups}
-							/>
 							<label class="fieldset">
 								<span class="fieldset-legend">{ti.chapterRequest}</span>
 								<textarea
@@ -266,20 +266,34 @@
 							</label>
 							<PromptCopy prompt={promptFor(subject)} />
 							<JsonPaste
-								schema={chapterSchema}
+								schema={courseSchema}
 								bind:value={json}
 								placeholder={ti.chapterPlaceholder}
 							>
-								{#snippet children(chapter)}
-									<h3 class="font-bold">
-										{chapter.group ? `${chapter.group} · ` : ''}{chapter.title}
-									</h3>
+								{#snippet children(course)}
+									{@const chapters = chaptersOf(course)}
+									{@const thin = thinChapters(chapters)}
+									<ol class="flex list-inside list-decimal flex-col gap-1">
+										{#each chapters as chapter, c (c)}
+											<li>
+												<strong>
+													{chapter.group ? `${chapter.group} · ` : ''}{chapter.title}
+												</strong>
+												<span class="text-sm text-base-content/60">
+													· {ti.courseChapter(chapter.sheets.length)}
+												</span>
+											</li>
+										{/each}
+									</ol>
+									{#if thin.length > 0}
+										<p class="alert alert-warning alert-soft">{ti.thinChapters(thin)}</p>
+									{/if}
 									<ImportPreview
 										{familyId}
-										sheets={chapter.sheets}
+										sheets={chapters.flatMap((chapter) => chapter.sheets)}
 										chapterId={null}
-										submitLabel={ti.submitChapter}
-										onimport={() => runImport(chapter)}
+										submitLabel={ti.submitChapter(chapters.length)}
+										onimport={() => runImport(course)}
 									/>
 								{/snippet}
 							</JsonPaste>
@@ -291,12 +305,16 @@
 								</p>{/if}
 							{#if result}
 								<ImportResult plan={result.plan}>
-									<a
-										class="btn btn-soft btn-primary btn-sm"
-										href={resolve('/parent/chapters/[id]', { id: result.chapterId })}
-									>
-										{ti.openChapter}
-									</a>
+									<div class="flex flex-wrap gap-2">
+										{#each result.chapters as chapter (chapter.id)}
+											<a
+												class="btn btn-soft btn-primary btn-sm"
+												href={resolve('/parent/chapters/[id]', { id: chapter.id })}
+											>
+												{result.chapters.length > 1 ? chapter.title : ti.openChapter}
+											</a>
+										{/each}
+									</div>
 								</ImportResult>
 							{/if}
 						</div>
