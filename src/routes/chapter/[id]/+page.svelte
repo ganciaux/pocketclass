@@ -21,10 +21,10 @@
 	} from '#lib/binder/colors.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import BackLink from '#lib/components/BackLink.svelte';
+	import ChapterHeader from '#lib/components/ChapterHeader.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import SheetStateBadge from '#lib/components/SheetStateBadge.svelte';
-	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import TallyLine from '#lib/components/TallyLine.svelte';
 	import { watchChapter, watchChapterContent, watchSubject } from '#lib/data/catalog.ts';
 	import { live } from '#lib/data/live.svelte.ts';
@@ -92,34 +92,23 @@
 				href={resolve('/subject/[id]', { id: chapter.subjectId })}
 				label={subjectLive.data?.name ?? t.subject}
 			/>
-			<header class="flex items-center gap-3">
-				{#if subjectLive.data}
-					<a
-						class="link-icon"
-						href={resolve('/subject/[id]', { id: chapter.subjectId })}
-						title={subjectLive.data.name}
-						aria-label={subjectLive.data.name}
-					>
-						<SubjectBadge subject={subjectLive.data} size={2.5} />
-					</a>
-				{/if}
-				<div class="flex min-w-0 flex-1 flex-col">
-					{#if chapter.group}
-						<span class="text-sm font-bold tracking-wide text-base-content/60 uppercase">
-							{chapter.group}
-						</span>
+			<ChapterHeader
+				title={chapter.title}
+				group={chapter.group}
+				subject={subjectLive.data ?? null}
+				subjectHref={resolve('/subject/[id]', { id: chapter.subjectId })}
+			>
+				{#snippet action()}
+					{#if !asChild && session.isAdmin}
+						<a
+							class="btn btn-soft btn-primary btn-sm"
+							href={resolve('/parent/chapters/[id]', { id: chapter.id })}
+						>
+							<Icon paths={UI_ICONS.pencil} class="size-4" />{t.manage}
+						</a>
 					{/if}
-					<h1>{chapter.title}</h1>
-				</div>
-				{#if session.isAdmin}
-					<a
-						class="btn btn-ghost btn-sm"
-						href={resolve('/parent/chapters/[id]', { id: chapter.id })}
-					>
-						{t.manage}
-					</a>
-				{/if}
-			</header>
+				{/snippet}
+			</ChapterHeader>
 
 			<LoadState source={contentLive} failed={t.loadFailed}>
 				{#snippet children(content)}

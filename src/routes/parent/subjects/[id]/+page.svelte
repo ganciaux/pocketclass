@@ -4,10 +4,16 @@
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportSubject } from '#lib/data/catalogExport.ts';
 	import { exportFileName } from '#lib/import/catalogExport.ts';
-	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import { session } from '#lib/auth.svelte.ts';
-	import { activeOnly, groupNames, moveItem, nextOrder, placeItem } from '#lib/binder/binder.ts';
+	import {
+		activeOnly,
+		groupNames,
+		moveItem,
+		nextOrder,
+		placeItem,
+		reachableSheets
+	} from '#lib/binder/binder.ts';
 	import ChapterForm from '#lib/components/ChapterForm.svelte';
 	import ConfirmDelete from '#lib/components/ConfirmDelete.svelte';
 	import ConfirmDeleteDialog from '#lib/components/ConfirmDeleteDialog.svelte';
@@ -16,6 +22,7 @@
 	import JsonPaste from '#lib/components/JsonPaste.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
 	import DragHandle from '#lib/components/DragHandle.svelte';
+	import SubjectBanner from '#lib/components/SubjectBanner.svelte';
 	import OrderActions from '#lib/components/OrderActions.svelte';
 	import { sortable } from '#lib/sortable.ts';
 	import PromptCopy from '#lib/components/PromptCopy.svelte';
@@ -147,26 +154,25 @@
 			failed={fr.binder.loadFailed}
 		>
 			{#snippet children(subject)}
-				<header class="flex flex-wrap items-center gap-3">
-					<a
-						class="link-icon"
-						href={resolve('/subject/[id]', { id: subject.id })}
-						title={t.view}
-						aria-label={t.view}
-					>
-						<SubjectBadge {subject} />
-					</a>
-					<h1 class="flex-1">{subject.name}</h1>
-					<span class="badge badge-ghost">{subject.grade}</span>
+				{@const chapters = activeOnly(chaptersLive.data ?? [])}
+				<SubjectBanner
+					{subject}
+					meta="{fr.binder.chapterCount(chapters.length)} · {fr.binder.sheets(
+						reachableSheets(sheetsLive.data ?? [], chapters).length
+					)}"
+				>
+					{#snippet action()}
+						<a
+							class="btn btn-soft btn-primary btn-sm"
+							href={resolve('/subject/[id]', { id: subject.id })}
+						>
+							<Icon paths={UI_ICONS.eye} class="size-4" />{t.view}
+						</a>
+					{/snippet}
+				</SubjectBanner>
+				<!-- Parent tools, under the banner (as on the chapter page). -->
+				<div class="flex flex-wrap items-center gap-2">
 					{#if subject.archived}<span class="badge badge-ghost">{t.hidden}</span>{/if}
-				</header>
-				<div class="flex flex-wrap gap-2">
-					<a
-						class="btn btn-soft btn-primary btn-sm"
-						href={resolve('/subject/[id]', { id: subject.id })}
-					>
-						{t.view}
-					</a>
 					<button
 						class="btn btn-ghost btn-sm"
 						onclick={() => setArchived(familyId, 'subjects', subject.id, !subject.archived)}

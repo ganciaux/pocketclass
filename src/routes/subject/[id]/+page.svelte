@@ -9,13 +9,12 @@
 		tally,
 		tallyBy
 	} from '#lib/binder/binder.ts';
-	import { SUBJECT_TEXT, SUBJECT_TILE, SUBJECT_TINT } from '#lib/binder/colors.ts';
+	import { SUBJECT_TEXT, SUBJECT_TILE } from '#lib/binder/colors.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import BackLink from '#lib/components/BackLink.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
-	import PointsStar from '#lib/components/PointsStar.svelte';
-	import SubjectBadge from '#lib/components/SubjectBadge.svelte';
+	import SubjectBanner from '#lib/components/SubjectBanner.svelte';
 	import { pointsBySubject } from '#lib/practice/assessment.ts';
 	import TallyLine from '#lib/components/TallyLine.svelte';
 	import { watchSubject, watchSubjectContent } from '#lib/data/catalog.ts';
@@ -64,42 +63,25 @@
 					{@const numbers = numbering(chapters)}
 					{@const next = asChild ? nextUnread(chapters, sheets, progress) : null}
 
-					<!-- Banner in the subject's colour: its picture, name and overall progress. -->
-					<header class={['card relative', SUBJECT_TINT[subject.color]]}>
+					<SubjectBanner
+						{subject}
+						meta="{t.chapterCount(chapters.length)} · {t.sheets(sheets.length)}"
+						points={asChild ? (pointsBySubject(content.progress).get(subject.id) ?? 0) : 0}
+					>
+						{#snippet action()}
+							{#if !asChild && session.isAdmin}
+								<a
+									class="btn btn-soft btn-primary btn-sm"
+									href={resolve('/parent/subjects/[id]', { id: subject.id })}
+								>
+									<Icon paths={UI_ICONS.pencil} class="size-4" />{t.manage}
+								</a>
+							{/if}
+						{/snippet}
 						{#if asChild}
-							{@const points = pointsBySubject(content.progress).get(subject.id) ?? 0}
-							<!-- Gold star sticker on the corner, as on the binder card. -->
-							{#if points > 0}
-								<PointsStar {points} class="absolute -top-4 -right-2 z-10 rotate-12" />
-							{/if}
+							<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[subject.color]} />
 						{/if}
-						<div class="card-body gap-3">
-							<div class="flex items-center gap-4">
-								<SubjectBadge {subject} size={4} />
-								<h1 class="min-w-0 flex-1 break-words">{subject.name}</h1>
-							</div>
-							{#if asChild}
-								<span class="text-sm text-base-content/70">
-									{t.chapterCount(chapters.length)} · {t.sheets(sheets.length)}
-								</span>
-								<TallyLine tally={tally(sheets, progress)} barClass={SUBJECT_TEXT[subject.color]} />
-							{:else}
-								<div class="flex items-center justify-between gap-2">
-									<span class="text-sm text-base-content/70">
-										{t.chapterCount(chapters.length)} · {t.sheets(sheets.length)}
-									</span>
-									{#if session.isAdmin}
-										<a
-											class="btn btn-ghost btn-sm"
-											href={resolve('/parent/subjects/[id]', { id: subject.id })}
-										>
-											{t.manage}
-										</a>
-									{/if}
-								</div>
-							{/if}
-						</div>
-					</header>
+					</SubjectBanner>
 					{#if sheets.length > 0}
 						<a
 							class="btn btn-soft btn-primary self-start"

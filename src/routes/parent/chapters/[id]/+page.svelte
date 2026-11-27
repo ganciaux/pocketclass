@@ -14,6 +14,7 @@
 	import ImportResult from '#lib/components/ImportResult.svelte';
 	import JsonPaste from '#lib/components/JsonPaste.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import ChapterHeader from '#lib/components/ChapterHeader.svelte';
 	import DragHandle from '#lib/components/DragHandle.svelte';
 	import OrderActions from '#lib/components/OrderActions.svelte';
 	import { sortable } from '#lib/sortable.ts';
@@ -129,22 +130,24 @@
 					href={resolve('/parent/subjects/[id]', { id: chapter.subjectId })}
 					label={subjectLive.data?.name ?? fr.binder.subject}
 				/>
-				<header class="flex flex-wrap items-center gap-3">
-					<div class="flex flex-1 flex-col">
-						{#if chapter.group}
-							<span class="text-sm text-base-content/70">{chapter.group}</span>
-						{/if}
-						<h1>{chapter.title}</h1>
-					</div>
+				<ChapterHeader
+					title={chapter.title}
+					group={chapter.group}
+					subject={subjectLive.data ?? null}
+					subjectHref={resolve('/parent/subjects/[id]', { id: chapter.subjectId })}
+				>
+					{#snippet action()}
+						<a
+							class="btn btn-soft btn-primary btn-sm"
+							href={resolve('/chapter/[id]', { id: chapter.id })}
+						>
+							<Icon paths={UI_ICONS.eye} class="size-4" />{t.view}
+						</a>
+					{/snippet}
+				</ChapterHeader>
+				<!-- Parent tools, under the header (as on the subject page). -->
+				<div class="flex flex-wrap items-center gap-2">
 					{#if chapter.archived}<span class="badge badge-ghost">{t.hidden}</span>{/if}
-				</header>
-				<div class="flex flex-wrap gap-2">
-					<a
-						class="btn btn-soft btn-primary btn-sm"
-						href={resolve('/chapter/[id]', { id: chapter.id })}
-					>
-						{t.view}
-					</a>
 					<button
 						class="btn btn-ghost btn-sm"
 						onclick={() => setArchived(familyId, 'chapters', chapter.id, !chapter.archived)}
