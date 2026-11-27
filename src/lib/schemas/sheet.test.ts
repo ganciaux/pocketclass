@@ -77,7 +77,9 @@ describe('sheetSchema', () => {
 		});
 		expect(errorsOf(leaves([]))).not.toEqual([]);
 		expect(errorsOf(leaves(['a', 'b', 'c', 'd', 'e']))).not.toEqual([]);
-		expect(errorsOf(leaves(['x'.repeat(61)]))).not.toEqual([]);
+		// Asked ≤ 60 in the prompt, accepted up to 90 (AIs count badly).
+		expect(errorsOf(leaves(['x'.repeat(90)]))).toEqual([]);
+		expect(errorsOf(leaves(['x'.repeat(91)]))).not.toEqual([]);
 	});
 
 	it('accepts revision cards (flashcards) with a tag, a front, a back and an optional example', () => {

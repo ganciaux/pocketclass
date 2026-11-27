@@ -59,12 +59,18 @@ const tagsSchema = z
 		tags.filter((tag, i) => tags.findIndex((t) => tagKey(t) === tagKey(tag)) === i)
 	);
 
+/** Length of a mind map leaf asked of the AI (prompt)… */
+export const MAP_LEAF_LENGTH = 60;
+/** …and accepted at import: AIs count badly (formulas `$…$` above all), a leaf a bit too long
+ * still reads well on the map (it wraps). */
+export const MAP_LEAF_MAX_LENGTH = 90;
+
 /**
  * Mind map of the sheet (written by the AI): for some key points, 1 to 4 very short leaves
  * (a word, a formula, a pitfall). Optional: without it the app builds one from the sections.
  */
 const mindMapSchema = z
-	.array(z.object({ keyPoint: slug, leaves: z.array(text.max(60)).min(1).max(4) }))
+	.array(z.object({ keyPoint: slug, leaves: z.array(text.max(MAP_LEAF_MAX_LENGTH)).min(1).max(4) }))
 	.max(8);
 
 /** Theme of a revision card (its label on the card). */

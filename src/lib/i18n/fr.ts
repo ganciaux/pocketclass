@@ -779,6 +779,10 @@ export const fr = {
 		loadSample: "Charger l'exemple",
 		sampleFailed: "Impossible de charger l'exemple.",
 		errorsTitle: 'Le JSON contient des erreurs',
+		/** Under the errors: a message asking the AI to fix them (`fixPrompt`). */
+		copyFix: "Copier les erreurs pour l'IA",
+		copyFixHelp:
+			"Colle ce message dans la même conversation avec l'IA : elle renverra le JSON corrigé, à coller ici.",
 		warningsTitle: "Remarques de l'IA",
 		sheetLine: (keyPoints: number, practice: number, assessment: number) =>
 			[

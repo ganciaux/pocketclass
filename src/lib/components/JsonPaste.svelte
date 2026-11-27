@@ -2,9 +2,11 @@
 	import type { Snippet } from 'svelte';
 	import type { z } from 'zod';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import CopyButton from '#lib/components/CopyButton.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { parseJsonLoose } from '#lib/import/parseJsonLoose.ts';
+	import { fixPrompt } from '#lib/prompts/sheetPrompt.ts';
 	import { validate } from '#lib/schemas/errors.ts';
 
 	/**
@@ -17,6 +19,7 @@
 		value = $bindable(''),
 		placeholder,
 		label = fr.import.paste,
+		fromAi = true,
 		children
 	}: {
 		schema: z.ZodType<T>;
@@ -24,6 +27,8 @@
 		placeholder: string;
 		/** Field label (default: the AI's answer). */
 		label?: string;
+		/** The JSON comes from the AI (offers to copy its errors back to it); false for a backup. */
+		fromAi?: boolean;
 		children: Snippet<[T]>;
 	} = $props();
 
@@ -82,6 +87,13 @@
 			{#each parsed.errors as error, i (i)}<li>{error}</li>{/each}
 		</ul>
 	</section>
+	{#if fromAi}
+		<!-- The AI fixes its own JSON: paste this back into the same conversation. -->
+		<div class="flex flex-col gap-1">
+			<CopyButton text={fixPrompt(parsed.errors)} label={t.copyFix} />
+			<p class="text-sm text-base-content/60">{t.copyFixHelp}</p>
+		</div>
+	{/if}
 {:else if parsed?.success}
 	{#if parsed.data.warnings?.length}
 		<div class="alert alert-warning alert-soft flex-col items-start">

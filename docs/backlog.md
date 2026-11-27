@@ -5,6 +5,9 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 ## Ce qui est fait
 
+- **JSON refusé** (2026-11-27) : bouton « Copier les erreurs pour l'IA » sous les erreurs
+  (message prêt à coller dans la même conversation) ; une feuille de carte mentale un peu longue
+  passe (60 caractères demandés, 90 acceptés).
 - **Plusieurs parents** (2026-11-27) : un parent invite l'autre par son adresse Google (un
   bandeau « Rejoindre / Refuser » sur son accueil, même pour un nouveau compte), droits égaux
   (retirer, quitter ; le créateur de la famille reste).

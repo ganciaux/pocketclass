@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	coursePrompt,
+	fixPrompt,
 	idPrefix,
 	sheetPrompt,
 	type CourseContext,
@@ -125,5 +126,20 @@ describe('prompts', () => {
 		const empty = coursePrompt({ ...course, request: '', existingChapters: [], usedIds: [] });
 		expect(empty).toContain('<précise ici les thèmes et notions, ou joins les photos du cours>');
 		expect(empty).not.toContain('déjà');
+	});
+
+	it('asks the AI to fix only the errors found and send the whole JSON again', () => {
+		const prompt = fixPrompt([
+			'chapters[0].sheets[2].mindMap[0].leaves[1] : Trop grand',
+			'format : Valeur invalide'
+		]);
+		expect(prompt).toContain('- chapters[0].sheets[2].mindMap[0].leaves[1] : Trop grand\n- format');
+		expect(prompt).toContain('commencent à 0');
+		expect(prompt).toContain('Corrige uniquement ces points');
+		expect(prompt).toContain('renvoie le JSON complet');
+	});
+
+	it('asks for mind map leaves shorter than the import accepts', () => {
+		expect(sheetPrompt(ctx)).toContain('(60 caractères au plus');
 	});
 });

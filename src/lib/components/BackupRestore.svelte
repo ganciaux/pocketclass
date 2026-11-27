@@ -38,6 +38,7 @@
 		</h2>
 		<p class="text-sm text-base-content/70">{t.restoreHelp}</p>
 		<JsonPaste
+			fromAi={false}
 			schema={backupSchema}
 			bind:value={json}
 			placeholder={t.placeholder}
