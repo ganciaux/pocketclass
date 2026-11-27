@@ -63,7 +63,7 @@ class Session {
 	hasPassword = $state(false);
 	/** True while a device is being linked: keeps the link form on screen meanwhile. */
 	linking = $state(false);
-	/** Parent already in a family, invited by another one (shown on the home page). */
+	/** Parent invited by another family (shown on the home page, also after a first login). */
 	pendingInvite = $state<WithId<Invite> | null>(null);
 
 	/** Primitive for `live()` sources (the profile object changes with every edit). */

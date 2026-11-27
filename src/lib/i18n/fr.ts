@@ -42,6 +42,8 @@ export const fr = {
 		later: 'Plus tard'
 	},
 	common: {
+		/** The handle of a row that can be dragged (`<DragHandle>`). */
+		drag: 'Glisser pour déplacer',
 		grade: 'Niveau',
 		save: 'Enregistrer',
 		cancel: 'Annuler',
@@ -164,7 +166,8 @@ export const fr = {
 		blank: (n: number) => `Trou ${n}`,
 		moveUp: 'Monter',
 		moveDown: 'Descendre',
-		orderHelp: 'Remets dans le bon ordre avec les flèches.',
+		orderHelp:
+			'Remets dans le bon ordre : fais glisser une ligne par sa poignée, ou utilise les flèches.',
 		matchHelp: 'Touche un élément à gauche, puis celui qui va avec à droite.',
 		matchLinked: (n: number) => `relié au ${n}`,
 		categorizeHelp: 'Choisis la bonne catégorie pour chaque élément.',
@@ -323,7 +326,7 @@ export const fr = {
 			"Ton profil parent et tes données de test ici sont supprimés, et tu retrouves ta propre famille. L'autre parent peut t'inviter à nouveau.",
 		invite: 'Inviter un parent',
 		inviteHelp:
-			"Son adresse Google : à sa première connexion avec ce compte, ce parent arrive dans cette famille. Préviens cette personne toi-même, l'app n'envoie pas d'e-mail.",
+			"Son adresse Google : quand ce parent se connecte avec ce compte, son accueil lui propose de rejoindre cette famille. Préviens cette personne toi-même, l'app n'envoie pas d'e-mail.",
 		email: 'E-mail',
 		send: 'Inviter',
 		sending: 'Invitation…',

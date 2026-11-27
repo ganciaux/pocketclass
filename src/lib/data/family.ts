@@ -42,9 +42,9 @@ import {
 import type { Grade, Invite, ProfileLook, UserIndex, WithId, Profile } from './types.ts';
 
 /**
- * Finds the family of a signed-in user. On a parent's first login, joins the family that
- * invited their e-mail, else creates their own. Returns null when the user has no family and
- * cannot create one (child device not linked yet).
+ * Finds the family of a signed-in user, creating their own on a parent's first login (an
+ * invitation is then offered by `<InviteBanner>`: never joined without a question). Returns null
+ * when the user has no family and cannot create one (child device not linked yet).
  *
  * Cache-first (works offline), but "no index" is only trusted when the server confirms it:
  * a cache miss must never trigger the creation of a family.
@@ -53,8 +53,6 @@ export async function ensureFamilyForUser(user: User): Promise<UserIndex | null>
 	const index = await getDocCacheFirst(userRef(user.uid));
 	if (index) return index;
 	if (user.isAnonymous) return null;
-	const invite = await findInvite(user);
-	if (invite) return joinFamily(user, invite);
 	return createFamilyForAdmin(user.uid, firstNameOf(user));
 }
 

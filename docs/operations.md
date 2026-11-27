@@ -132,9 +132,8 @@ jour se font avec `git pull` puis `npm run prod`.
    règles et les index). L'app est à `https://<id du projet>.web.app`.
 
 5. **Premier parent** : ouvrir l'adresse, « Se connecter avec Google » ; la famille est créée.
-   **Deuxième parent** : « Profils » → carte « Parents » → inviter son adresse Google ; à sa
-   première connexion, ce parent arrive dans la même famille (s'il s'était déjà connecté, un
-   bandeau « Rejoindre » s'affiche sur son accueil). Les enfants : « Profils » → créer l'enfant → code de
+   **Deuxième parent** : « Profils » → carte « Parents » → inviter son adresse Google ; quand ce
+   parent se connecte, un bandeau « Rejoindre » s'affiche sur son accueil. Les enfants : « Profils » → créer l'enfant → code de
    liaison sur son téléphone.
 
 6. **Les classeurs** : partir des fichiers JSON d'un autre classeur (« Gérer les classeurs » →
