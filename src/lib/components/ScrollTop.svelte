@@ -9,7 +9,7 @@
 
 	/**
 	 * « Back to the top » on a long page, once scrolled down: a round button whose ring fills up
-	 * as the page is read, with the percentage inside. Stacked above « Une difficulté ? » when
+	 * as the page is read, an arrow inside. Stacked above « Une difficulté ? » when
 	 * that one is shown (same condition as `<NoteFab>`).
 	 */
 	let scrollY = $state(0);
@@ -65,9 +65,6 @@
 				stroke-dashoffset={CIRCUMFERENCE * (1 - progress / 100)}
 			/>
 		</svg>
-		<span class="relative flex flex-col items-center leading-none" aria-hidden="true">
-			<Icon paths={UI_ICONS.chevronUp} class="size-4" />
-			<span class="text-[0.65rem] font-bold">{progress} %</span>
-		</span>
+		<Icon paths={UI_ICONS.chevronUp} class="relative size-7" />
 	</button>
 {/if}

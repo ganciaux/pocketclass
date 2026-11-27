@@ -172,7 +172,7 @@
 						{@const beaten = score.correct > 0 && score.correct > (previousRecord ?? 0)}
 						<section class="card card-border bg-base-100">
 							<div class="card-body items-center gap-3 text-center">
-								<p class="text-sm font-bold tracking-wide text-base-content/60 uppercase">
+								<p class="text-sm font-bold text-base-content/60">
 									{t.done}
 								</p>
 								<p class="text-5xl font-bold text-primary">{score.correct}</p>

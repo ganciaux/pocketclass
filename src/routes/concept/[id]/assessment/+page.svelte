@@ -155,7 +155,7 @@
 						<section class="card card-border bg-base-100">
 							<!-- Announced after the last answer (the page does not change). -->
 							<div class="card-body items-center gap-3 text-center" role="status">
-								<p class="text-sm font-bold tracking-wide text-base-content/60 uppercase">
+								<p class="text-sm font-bold text-base-content/60">
 									{outcome.pass ? t.passed : t.failed}
 								</p>
 								<p class="text-5xl font-bold text-primary">

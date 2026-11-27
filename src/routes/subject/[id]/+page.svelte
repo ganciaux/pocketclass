@@ -119,9 +119,7 @@
 					{#each groupChapters(chapters) as { group, chapters: list } (group)}
 						<section class="flex flex-col gap-2">
 							{#if group}
-								<h2
-									class="divider divider-start text-sm tracking-wide text-base-content/60 uppercase"
-								>
+								<h2 class="divider divider-start text-sm font-bold text-base-content/60">
 									{group}
 								</h2>
 							{/if}

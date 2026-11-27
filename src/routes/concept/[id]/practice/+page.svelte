@@ -155,7 +155,7 @@
 						<section class="card card-border bg-base-100">
 							<div class="card-body gap-4">
 								<div class="flex flex-col gap-1.5">
-									<span class="text-xs font-bold tracking-wide text-base-content/50 uppercase">
+									<span class="text-sm font-bold text-base-content/60">
 										{t.progress(index + 1, series.length)}
 									</span>
 									<progress
