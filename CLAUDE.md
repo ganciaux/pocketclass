@@ -748,7 +748,7 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
 
 - 2026-11-27 — **Reading a long sheet** (user's requests). « Détails | Résumé » also in each
   section that has a summary (`<SheetView>`): the top switch sets every section (remembered),
-  a section's switch only that one (not remembered; nothing above moves). `<ScrollTop>` (root
+  a section's switch only that one (not remembered; nothing above moves). Same day, at the user's request: the switch is one icon button (`viewToggle`): text lines in « Détails », bullets in « Résumé » (the icon shows the current view, like the eye; the label names the action, « Voir le résumé de la partie n »), the sheet's in the « L'essentiel » title row, a section's right of its key point badges. `<ScrollTop>` (root
   layout): once scrolled 400 px on a page at least 400 px longer than the screen, a round button
   with a progress ring around a big arrow (no number: the user found « n % » cluttered) goes back to the top (`scrollProgress` in `src/lib/scroll.ts`,
   pure); stacked above « Une difficulté ? » when that one shows. Chips that are off

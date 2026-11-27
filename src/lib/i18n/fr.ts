@@ -132,14 +132,14 @@ export const fr = {
 	concept: {
 		position: (n: number, total: number) => `Fiche ${n} sur ${total} du chapitre`,
 		nextSheet: 'Fiche suivante',
-		/** « Détails | Résumé » switch above the sections (when the sheet has summaries). */
-		viewLabel: 'Affichage de la fiche',
-		sectionViewLabel: (n: number) => `Affichage de la partie ${n}`,
+		/** Icon toggle between a section's text and its summary: the whole sheet (no `n`) or part n. */
+		showSummary: (n?: number) =>
+			n ? `Voir le résumé de la partie ${n}` : 'Voir le résumé de toute la fiche',
+		showDetails: (n?: number) =>
+			n ? `Voir les détails de la partie ${n}` : 'Voir les détails de toute la fiche',
 		/** Pictures of a section (`PictureStrip`), added by the parent. */
 		addSectionImage: 'Ajouter une image',
 		sectionImageAlt: (section: number, n: number) => `Image ${n} de la partie ${section}`,
-		viewDetails: 'Détails',
-		viewSummary: 'Résumé',
 		notFound: "Cette fiche n'existe pas (ou plus).",
 		loadFailed: 'Impossible de charger la fiche.',
 		keyPoints: "L'essentiel",

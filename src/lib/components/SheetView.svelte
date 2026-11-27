@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { STATUS_CHIP, SUBJECT_TILE } from '#lib/binder/colors.ts';
+	import { SUBJECT_TILE } from '#lib/binder/colors.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import FigureView from '#lib/components/FigureView.svelte';
 	import Icon from '#lib/components/Icon.svelte';
@@ -79,10 +79,13 @@
 <!-- Key points are numbered: the sections below refer to them by number. -->
 <section class="card border border-primary/40 bg-primary/10">
 	<div class="card-body gap-2">
-		<h2 class="card-title">
-			<Icon paths={UI_ICONS.bookmark} class="size-5 text-primary" />
-			{t.keyPoints}
-		</h2>
+		<div class="flex items-center gap-2">
+			<h2 class="card-title flex-1">
+				<Icon paths={UI_ICONS.bookmark} class="size-5 text-primary" />
+				{t.keyPoints}
+			</h2>
+			{#if hasSummary}{@render viewToggle(summaryView, setSummaryView)}{/if}
+		</div>
 		<ol class="flex flex-col gap-2">
 			{#each keyPoints as kp, i (kp.id)}
 				{@const section = keyPointSection.get(kp.id)}
@@ -116,31 +119,20 @@
 	</div>
 </section>
 
-<!-- « Détails | Résumé »: the whole sheet at the top, one section in its header. -->
-{#snippet viewSwitch(summary: boolean, set: (on: boolean) => void, label: string, size: string)}
-	<div class="join" role="group" aria-label={label}>
-		<button
-			class={['join-item btn', size, summary ? STATUS_CHIP.all.off : STATUS_CHIP.all.on]}
-			aria-pressed={!summary}
-			onclick={() => set(false)}
-		>
-			{t.viewDetails}
-		</button>
-		<button
-			class={['join-item btn', size, summary ? STATUS_CHIP.all.on : STATUS_CHIP.all.off]}
-			aria-pressed={summary}
-			onclick={() => set(true)}
-		>
-			{t.viewSummary}
-		</button>
-	</div>
+<!-- « Détails » / « Résumé » as one icon button: the icon shows the current view (text lines or
+     bullets, like the eye of « Masquer »), its label names what a tap does. The whole sheet in
+     « L'essentiel », one section next to its key point badges. -->
+{#snippet viewToggle(summary: boolean, set: (on: boolean) => void, section?: number)}
+	{@const label = summary ? t.showDetails(section) : t.showSummary(section)}
+	<button
+		class="btn btn-square btn-ghost btn-sm relative shrink-0 after:absolute after:-inset-1.5"
+		aria-label={label}
+		title={label}
+		onclick={() => set(!summary)}
+	>
+		<Icon paths={summary ? UI_ICONS.summary : UI_ICONS.details} class="size-5" />
+	</button>
 {/snippet}
-
-{#if hasSummary}
-	<div class="self-center">
-		{@render viewSwitch(summaryView, setSummaryView, t.viewLabel, 'btn-sm')}
-	</div>
-{/if}
 
 {#each sheet.sections as section, s (s)}
 	<!-- Target of the key point links: kept clear of the sticky header. -->
@@ -166,24 +158,21 @@
 					</span>
 					<h2 class="card-title">{@html renderInline(section.title)}</h2>
 				</div>
-				<span class="flex gap-1 pt-1">
+				<span class="flex items-center gap-1">
 					{#each section.keyPoints as kp (kp)}
 						<span class="badge badge-primary badge-sm rounded-full font-bold">
 							{keyPointNumber.get(kp)}
 						</span>
 					{/each}
+					{#if section.summary}
+						{@render viewToggle(
+							showsSummary(s),
+							(on) => (sectionView = { ...sectionView, [s]: on }),
+							s + 1
+						)}
+					{/if}
 				</span>
 			</header>
-			{#if section.summary}
-				<div class="self-end">
-					{@render viewSwitch(
-						showsSummary(s),
-						(on) => (sectionView = { ...sectionView, [s]: on }),
-						t.sectionViewLabel(s + 1),
-						'btn-xs'
-					)}
-				</div>
-			{/if}
 			{#if showsSummary(s) && section.summary}
 				<ul class="prose list-disc pl-5">
 					{#each section.summary as point, p (p)}
