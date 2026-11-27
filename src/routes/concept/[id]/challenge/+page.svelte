@@ -159,7 +159,12 @@
 									max={CHALLENGE_SECONDS}
 								></progress>
 								{#key shown}
-									<ExercisePlayer exercise={current} onanswer={answer} explain={false} />
+									<ExercisePlayer
+										exercise={current}
+										figures={concept.figures}
+										onanswer={answer}
+										explain={false}
+									/>
 								{/key}
 							</div>
 						</section>

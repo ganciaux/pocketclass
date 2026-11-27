@@ -8,6 +8,7 @@ import {
 	slug,
 	text
 } from './common.ts';
+import { figuresSchema } from './figure.ts';
 
 export const SHEET_FORMAT = 'pocketclass/sheet@1';
 
@@ -16,8 +17,12 @@ const keyPointSchema = z.object({ id: slug, label: text });
 const sectionSchema = z.object({
 	title: text,
 	text: text,
-	examples: z.array(z.object({ statement: text, solution: text })).default([]),
+	examples: z
+		.array(z.object({ statement: text, solution: text, figure: slug.optional() }))
+		.default([]),
 	keyPoints: z.array(slug),
+	/** A figure of the sheet (`figures`), drawn after the text. */
+	figure: slug.optional(),
 	/** Short version of `text` (a few bullets), shown by the sheet's « Résumé » view. */
 	summary: z.array(text.max(200)).min(1).max(5).optional()
 });
@@ -106,6 +111,8 @@ export const sheetBodySchema = z.object({
 	mindMap: mindMapSchema.optional(),
 	mapImages: mapImagesSchema.optional(),
 	flashcards: flashcardsSchema.optional(),
+	/** Geometry figures, described by the AI and drawn by the app; used by id. */
+	figures: figuresSchema.optional(),
 	sheet: z.object({
 		sections: z.array(sectionSchema).min(1),
 		pitfalls: z.array(text).default([])
@@ -137,6 +144,20 @@ export function checkSheet(sheet: SheetDoc, at: (string | number)[], ctx: z.Refi
 	sheet.exercises.forEach((exercise, e) =>
 		keyPoint(exercise.keyPoint, ['exercises', e, 'keyPoint'])
 	);
+	// Figures: unique ids, and every reference to one exists.
+	checkUniqueIds(sheet.figures ?? [], [...at, 'figures'], ctx);
+	const figureIds = new Set((sheet.figures ?? []).map((f) => f.id));
+	const figure = (id: string | undefined, path: (string | number)[]) => {
+		if (id !== undefined) checkRef(id, figureIds, 'figures', [...at, ...path], ctx);
+	};
+	sheet.sheet.sections.forEach((section, s) => {
+		figure(section.figure, ['sheet', 'sections', s, 'figure']);
+		section.examples.forEach((example, e) =>
+			figure(example.figure, ['sheet', 'sections', s, 'examples', e, 'figure'])
+		);
+	});
+	sheet.exercises.forEach((exercise, e) => figure(exercise.figure, ['exercises', e, 'figure']));
+
 	const branches = new Set<string>();
 	sheet.mindMap?.forEach((branch, b) => {
 		const path = [...at, 'mindMap', b, 'keyPoint'];

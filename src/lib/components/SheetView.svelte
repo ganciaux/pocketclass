@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { STATUS_CHIP, SUBJECT_TILE } from '#lib/binder/colors.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
+	import FigureView from '#lib/components/FigureView.svelte';
 	import Icon from '#lib/components/Icon.svelte';
 	import type { SubjectColor } from '#lib/data/types.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { readPreference, writePreference } from '#lib/preferences.ts';
 	import { renderInline, renderMarkdown } from '#lib/render/markdown.ts';
+	import type { Figure } from '#lib/schemas/figure.ts';
 	import type { KeyPoint, SheetDoc } from '#lib/schemas/sheet.ts';
 
 	/**
@@ -17,16 +19,20 @@
 	let {
 		keyPoints,
 		sheet,
+		figures = [],
 		color,
 		idPrefix = ''
 	}: {
 		keyPoints: KeyPoint[];
 		sheet: SheetDoc['sheet'];
+		/** The sheet's geometry figures, drawn where a section or an example names one. */
+		figures?: Figure[];
 		color: SubjectColor;
 		idPrefix?: string;
 	} = $props();
 
 	const t = fr.concept;
+	const figureOf = (id: string | undefined) => figures.find((f) => f.id === id);
 
 	/**
 	 * « Résumé »: each section's bullets instead of its text. The switch at the top sets every
@@ -183,6 +189,10 @@
 			{:else}
 				<div class="prose">{@html renderMarkdown(section.text)}</div>
 			{/if}
+			{#if figureOf(section.figure)}
+				{@const sectionFigure = figureOf(section.figure)!}
+				<FigureView figure={sectionFigure} />
+			{/if}
 
 			{#each section.examples as example, e (e)}
 				<details class="collapse-arrow collapse border border-secondary/30 bg-secondary/5">
@@ -196,8 +206,15 @@
 							{t.showSolution}
 						</span>
 					</summary>
-					<div class="collapse-content prose border-t border-dashed border-secondary/30 pt-3">
-						{@html renderMarkdown(example.solution)}
+					<div
+						class="collapse-content flex flex-col gap-3 border-t border-dashed border-secondary/30 pt-3"
+					>
+						<!-- The figure of the statement, then the solution. -->
+						{#if figureOf(example.figure)}
+							{@const exampleFigure = figureOf(example.figure)!}
+							<FigureView figure={exampleFigure} />
+						{/if}
+						<div class="prose">{@html renderMarkdown(example.solution)}</div>
 					</div>
 				</details>
 			{/each}

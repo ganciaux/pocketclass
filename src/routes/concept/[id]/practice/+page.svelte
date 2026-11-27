@@ -165,7 +165,11 @@
 									></progress>
 								</div>
 								{#key `${round}-${index}`}
-									<ExercisePlayer exercise={series[index]} onanswer={answer} />
+									<ExercisePlayer
+										exercise={series[index]}
+										figures={concept.figures}
+										onanswer={answer}
+									/>
 								{/key}
 								{#if answered}
 									<button class="btn btn-primary self-end" onclick={() => next(concept)}>

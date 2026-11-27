@@ -158,6 +158,7 @@ export function planSheets(
 			keyPoints: sheet.keyPoints,
 			mindMap: sheet.mindMap,
 			flashcards: sheet.flashcards,
+			figures: sheet.figures,
 			sheet: sheet.sheet,
 			summaryInstruction: sheet.summaryInstruction,
 			version: (old?.version ?? 0) + 1,

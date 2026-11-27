@@ -193,6 +193,91 @@
 										]
 									}
 								},
+								"figures": {
+									"maxItems": 10,
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "string",
+												"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+											},
+											"points": {
+												"type": "object",
+												"propertyNames": {
+													"type": "string",
+													"pattern": "^[A-Z][0-9']?$"
+												},
+												"additionalProperties": {
+													"type": "array",
+													"prefixItems": [
+														{
+															"type": "number",
+															"minimum": -20,
+															"maximum": 20
+														},
+														{
+															"type": "number",
+															"minimum": -20,
+															"maximum": 20
+														}
+													],
+													"items": false,
+													"minItems": 2,
+													"maxItems": 2
+												}
+											},
+											"segments": {
+												"default": [],
+												"maxItems": 20,
+												"type": "array",
+												"items": {
+													"type": "string"
+												}
+											},
+											"rightAngles": {
+												"default": [],
+												"maxItems": 6,
+												"type": "array",
+												"items": {
+													"type": "string"
+												}
+											},
+											"labels": {
+												"default": [],
+												"maxItems": 12,
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"on": {
+															"type": "string"
+														},
+														"text": {
+															"type": "string",
+															"minLength": 1,
+															"maxLength": 20
+														}
+													},
+													"required": [
+														"on",
+														"text"
+													]
+												}
+											},
+											"caption": {
+												"type": "string",
+												"minLength": 1,
+												"maxLength": 120
+											}
+										},
+										"required": [
+											"id",
+											"points"
+										]
+									}
+								},
 								"sheet": {
 									"type": "object",
 									"properties": {
@@ -223,6 +308,10 @@
 																"solution": {
 																	"type": "string",
 																	"minLength": 1
+																},
+																"figure": {
+																	"type": "string",
+																	"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 																}
 															},
 															"required": [
@@ -237,6 +326,10 @@
 															"type": "string",
 															"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 														}
+													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 													},
 													"summary": {
 														"minItems": 1,
@@ -308,6 +401,10 @@
 														"type": "string",
 														"minLength": 1
 													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+													},
 													"type": {
 														"type": "string",
 														"const": "pair"
@@ -368,6 +465,10 @@
 													"explanation": {
 														"type": "string",
 														"minLength": 1
+													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 													},
 													"type": {
 														"type": "string",
@@ -432,6 +533,10 @@
 														"type": "string",
 														"minLength": 1
 													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+													},
 													"type": {
 														"type": "string",
 														"const": "calculation"
@@ -495,6 +600,10 @@
 														"type": "string",
 														"minLength": 1
 													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+													},
 													"type": {
 														"type": "string",
 														"const": "cloze"
@@ -542,6 +651,10 @@
 													"explanation": {
 														"type": "string",
 														"minLength": 1
+													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 													},
 													"type": {
 														"type": "string",
@@ -600,6 +713,10 @@
 														"type": "string",
 														"minLength": 1
 													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+													},
 													"type": {
 														"type": "string",
 														"const": "open"
@@ -656,6 +773,10 @@
 													"explanation": {
 														"type": "string",
 														"minLength": 1
+													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 													},
 													"type": {
 														"type": "string",
@@ -717,6 +838,10 @@
 														"type": "string",
 														"minLength": 1
 													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+													},
 													"type": {
 														"type": "string",
 														"const": "generator"
@@ -772,6 +897,10 @@
 													"explanation": {
 														"type": "string",
 														"minLength": 1
+													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 													},
 													"type": {
 														"type": "string",
@@ -843,6 +972,10 @@
 														"type": "string",
 														"minLength": 1
 													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+													},
 													"type": {
 														"type": "string",
 														"const": "true_false"
@@ -894,6 +1027,10 @@
 													"explanation": {
 														"type": "string",
 														"minLength": 1
+													},
+													"figure": {
+														"type": "string",
+														"pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
 													},
 													"type": {
 														"type": "string",

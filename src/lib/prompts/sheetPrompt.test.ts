@@ -70,6 +70,14 @@ describe('prompts', () => {
 		for (const type of ['"match"', '"true_false"', '"categorize"']) expect(prompt).toContain(type);
 	});
 
+	it('asks for geometry figures described, never drawn', () => {
+		const prompt = sheetPrompt(ctx);
+		expect(prompt).toContain('"figures" (facultatif, pour la géométrie)');
+		expect(prompt).toContain("n'écris jamais de SVG ni d'image");
+		expect(prompt).toContain('"rightAngles": ["BAC"]');
+		expect(prompt).toContain('"figure": "fig-…"');
+	});
+
 	it('lists the generators of the grade, with their params', () => {
 		const prompt = sheetPrompt(ctx);
 		expect(prompt).toContain('"type": "generator"');

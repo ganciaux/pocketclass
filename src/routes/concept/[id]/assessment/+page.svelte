@@ -144,6 +144,7 @@
 								{#key index}
 									<ExercisePlayer
 										exercise={questions[index]}
+										figures={concept.figures}
 										onanswer={(correct) => answer(correct, concept)}
 										feedback={false}
 									/>

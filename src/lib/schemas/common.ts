@@ -194,7 +194,9 @@ export const exerciseSchema = exerciseUnion({
 	usage: z.enum(USAGES),
 	keyPoint: slug,
 	difficulty,
-	explanation
+	explanation,
+	/** A figure of the sheet (`figures`), drawn above the question. */
+	figure: slug.optional()
 });
 
 export const lessonExerciseSchema = exerciseUnion({

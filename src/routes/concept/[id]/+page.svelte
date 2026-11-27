@@ -185,7 +185,12 @@
 				{/if}
 			</header>
 
-			<SheetView keyPoints={concept.keyPoints} sheet={concept.sheet} {color} />
+			<SheetView
+				keyPoints={concept.keyPoints}
+				sheet={concept.sheet}
+				figures={concept.figures}
+				{color}
+			/>
 
 			<!-- The end of the sheet: « J'ai lu cette fiche », and on to the next one of the chapter. -->
 			{#if profileId || place?.next}

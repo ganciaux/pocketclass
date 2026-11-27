@@ -11,6 +11,11 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 - **Import d'un cours en plusieurs chapitres** (2026-11-27) : sur la page d'une matière,
   « Importer un cours » ; le prompt demande un chapitre par grand thème (jamais un chapitre
   fourre-tout), au moins 2 fiches par chapitre, et l'aperçu signale un chapitre d'une seule fiche.
+- **Figures de géométrie** (2026-11-27, première version) : l'IA décrit la figure (points,
+  segments, angles droits, longueurs), l'app la dessine dans la fiche, les exemples et les
+  exercices.
+- **Lecture d'une fiche** (2026-11-27) : « Détails | Résumé » sur chaque partie, bouton pour
+  remonter en haut avec le pourcentage lu.
 - **Glisser-déposer** (2026-11-27) : matières, chapitres, fiches (parent) et l'exercice « remettre
   dans l'ordre » se classent en faisant glisser une ligne par sa poignée, à la souris ou au
   doigt ; les flèches ↑ ↓ restent. Une autre famille installe sa
@@ -139,6 +144,11 @@ Conception : `docs/superpowers/specs/2026-11-25-practice-design.md` et
 - générateurs : un exemple de question générée dans l'aperçu d'import ; une saisie
   d'expression (développer, factoriser) au lieu du QCM ; d'autres familles (statistiques,
   probabilités, proportionnalité, physique-chimie).
+
+### Figures de géométrie
+
+- Suite de la première version : cercles et arcs, codage des longueurs égales et des angles,
+  repère et droites ; les générateurs (Pythagore, Thalès) dessinent leur figure à chaque tirage.
 
 ### Glisser-déposer
 

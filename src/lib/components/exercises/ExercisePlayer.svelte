@@ -1,4 +1,5 @@
 <script lang="ts">
+	import FigureView from '#lib/components/FigureView.svelte';
 	import { fr } from '#lib/i18n/fr.ts';
 	import {
 		checkAnswer,
@@ -8,6 +9,7 @@
 	} from '#lib/practice/answers.ts';
 	import { shuffle } from '#lib/practice/series.ts';
 	import { renderMarkdown } from '#lib/render/markdown.ts';
+	import type { Figure } from '#lib/schemas/figure.ts';
 	import AnswerFeedback from './AnswerFeedback.svelte';
 	import CategorizeExercise from './CategorizeExercise.svelte';
 	import ChoiceExercise from './ChoiceExercise.svelte';
@@ -25,9 +27,12 @@
 		exercise,
 		onanswer,
 		explain = true,
-		feedback = true
+		feedback = true,
+		figures = []
 	}: {
 		exercise: PlayableExercise;
+		/** The sheet's figures: the one the exercise names is drawn above the question. */
+		figures?: Figure[];
 		onanswer: (correct: boolean) => void;
 		/** False (timed challenge): right / wrong and the right answer only. */
 		explain?: boolean;
@@ -56,9 +61,15 @@
 	const flipped = ex.type === 'pair' && ex.direction === 'both' && Math.random() < 0.5;
 
 	const prompt = $derived(exercisePrompt(exercise, flipped));
+	const figure = $derived(
+		'figure' in exercise && exercise.figure
+			? figures.find((f) => f.id === exercise.figure)
+			: undefined
+	);
 </script>
 
 <div class="flex flex-col gap-4">
+	{#if figure}<FigureView {figure} />{/if}
 	{#if prompt}
 		<div class="prose text-lg">{@html renderMarkdown(prompt)}</div>
 	{/if}

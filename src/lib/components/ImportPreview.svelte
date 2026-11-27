@@ -156,6 +156,7 @@
 			<SheetView
 				keyPoints={previewed.keyPoints}
 				sheet={previewed.sheet}
+				figures={previewed.figures}
 				color="amber"
 				idPrefix="preview-"
 			/>

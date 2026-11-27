@@ -812,6 +812,11 @@ export const fr = {
 		numberOrFraction:
 			'réponse invalide : un nombre (ex. 3 ou 2,5) ou une fraction « a/b » est attendu',
 		clozeNoBlank: 'le texte doit contenir au moins un trou [[…]]',
+		figurePoints: 'une figure a de 2 à 12 points',
+		figureNames: (value: string, count: number) =>
+			`« ${value} » doit nommer ${count} points différents de la figure (ex. ${count === 2 ? '« AB »' : '« BAC »'})`,
+		notRightAngle: (angle: string) =>
+			`l'angle « ${angle} » n'est pas droit avec ces coordonnées : corrige les points`,
 		clozeEmptyBlank: 'un trou [[ ]] est vide',
 		imageDataUrl:
 			'image invalide : une image WebP, JPEG ou PNG en base64 (data:image/…) est attendue',
