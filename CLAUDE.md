@@ -751,7 +751,7 @@ btn-error`) with a trash icon; the child home links are big rows (icon, title, h
   a section's switch only that one (not remembered; nothing above moves). Same day, at the user's request: the switch is one icon button (`viewToggle`): chevrons apart in « Détails », together in « Résumé » (first drawn as text lines / bullets: too alike) (the icon shows the current view, like the eye; the label names the action, « Voir le résumé de la partie n »), the sheet's in the « L'essentiel » title row, a section's right of its key point badges. `<ScrollTop>` (root
   layout): once scrolled 400 px on a page at least 400 px longer than the screen, a round button
   with a progress ring around a big arrow (no number: the user found « n % » cluttered) goes back to the top (`scrollProgress` in `src/lib/scroll.ts`,
-  pure); stacked above « Une difficulté ? » when that one shows. Chips that are off
+  pure); stacked above « Une difficulté ? » when that one shows. Then (user's report: on a phone it sometimes stayed stuck mid-page, then jumped to the bottom): it is always in the DOM and only fades (iOS draws a fixed element created during a momentum scroll at a stale place), shows while the page scrolls and fades out after 2.5 s still (kept while pointed at or focused from the keyboard; `inert` when hidden). Chips that are off
   (`STATUS_CHIP`, `.chip-off` outside the CSS layers): a 12 % tint under a mouse instead of
   daisyUI's full colour, and none on touch (a phone kept the hover after a tap: the chip just
   left looked selected). « Partie n / N » in normal case, and so are « Question n / N », the result labels of the player pages and the chapter parts of the subject page: no tracked capitals in the app except the stamps (« Acquise », « Raté »).

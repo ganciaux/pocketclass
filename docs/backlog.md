@@ -20,7 +20,7 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
   segments, angles droits, longueurs), l'app la dessine dans la fiche, les exemples et les
   exercices.
 - **Lecture d'une fiche** (2026-11-27) : « Détails | Résumé » sur chaque partie (une icône : chevrons écartés = déplié, resserrés = replié, à côté des numéros de points-clés ; celle de toute la fiche dans « L'essentiel »), bouton pour
-  remonter en haut (grande flèche, anneau de la partie lue). Plus de majuscules espacées (« Question 1 / 10 »…).
+  remonter en haut (grande flèche, anneau de la partie lue ; visible pendant le défilement, s'efface après 2,5 s sans bouger). Plus de majuscules espacées (« Question 1 / 10 »…).
 - **Glisser-déposer** (2026-11-27) : matières, chapitres, fiches (parent) et l'exercice « remettre
   dans l'ordre » se classent en faisant glisser une ligne par sa poignée, à la souris ou au
   doigt ; les flèches ↑ ↓ restent. Une autre famille installe sa
