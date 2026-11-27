@@ -58,7 +58,7 @@
 				>
 					<span>{dayLabel(day.daysAgo, day.day)}</span>
 					{#if day.points > 0}
-						<span class="badge badge-success">{t.dayPoints(day.points)}</span>
+						<span class="badge badge-success font-bold">{t.dayPoints(day.points)}</span>
 					{/if}
 				</svelte:element>
 				<ul class="flex flex-col gap-2">
@@ -104,11 +104,11 @@
 												: fr.practice.score(entry.score.correct, entry.score.total)}
 										</span>
 									{/if}
-									<span class="flex gap-1">
+									<span class="flex flex-wrap justify-end gap-1">
 										{#if entry.passed !== null}
 											<span
 												class={[
-													'badge badge-sm',
+													'badge font-bold',
 													entry.passed ? 'badge-success badge-soft' : 'badge-error badge-soft'
 												]}
 											>
@@ -116,7 +116,7 @@
 											</span>
 										{/if}
 										{#if entry.points > 0}
-											<span class="badge badge-sm badge-success">{t.points(entry.points)}</span>
+											<span class="badge badge-warning font-bold">{t.points(entry.points)}</span>
 										{/if}
 									</span>
 								</div>

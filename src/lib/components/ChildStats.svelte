@@ -222,9 +222,9 @@
 												{@html renderInline(sheet.title)}
 											</a>
 											{#if one.acquired}
-												<span class="badge badge-success badge-sm">{t.acquiredBadge}</span>
+												<span class="badge badge-success font-bold">{t.acquiredBadge}</span>
 											{:else if one.failed}
-												<span class="badge badge-error badge-sm">{t.failedBadge}</span>
+												<span class="badge badge-error font-bold">{t.failedBadge}</span>
 											{/if}
 										</span>
 										<span class="text-sm text-base-content/70">

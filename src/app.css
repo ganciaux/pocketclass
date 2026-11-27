@@ -124,6 +124,11 @@ header.navbar {
 }
 
 @layer base {
+	/* A badge has a fixed height: its text never wraps (it would spill out of it). */
+	.badge {
+		white-space: nowrap;
+	}
+
 	/* daisyUI paints :root with --root-bg (base-100 by default): the page background is
 	   base-200 so that cards (base-100) stand out, also below short pages. */
 	:root {
