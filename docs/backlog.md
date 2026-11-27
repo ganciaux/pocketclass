@@ -8,6 +8,9 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 - **Plusieurs parents** (2026-11-27) : un parent invite l'autre par son adresse Google (un
   bandeau « Rejoindre / Refuser » sur son accueil, même pour un nouveau compte), droits égaux
   (retirer, quitter ; le créateur de la famille reste).
+- **Import d'un cours en plusieurs chapitres** (2026-11-27) : sur la page d'une matière,
+  « Importer un cours » ; le prompt demande un chapitre par grand thème (jamais un chapitre
+  fourre-tout), au moins 2 fiches par chapitre, et l'aperçu signale un chapitre d'une seule fiche.
 - **Glisser-déposer** (2026-11-27) : matières, chapitres, fiches (parent) et l'exercice « remettre
   dans l'ordre » se classent en faisant glisser une ligne par sa poignée, à la souris ou au
   doigt ; les flèches ↑ ↓ restent. Une autre famille installe sa
@@ -94,6 +97,8 @@ révision, historique d'activité, fiches plus courtes avec vue « Résumé », 
 - Deuxième parent : « Profils » → « Parents » → inviter son adresse Google ; à sa connexion
   (Google), « Rejoindre » sur son accueil, puis vérifier l'accès aux classeurs et aux enfants, puis « Quitter la famille »
   (retour à sa propre famille).
+- Import d'un cours : envoyer à l'IA les photos d'un cours de plusieurs thèmes avec le prompt
+  « Importer un cours » d'une matière, vérifier le découpage proposé dans l'aperçu.
 - Glisser-déposer au doigt (iPhone et Android) : une matière dans « Gérer les classeurs », et
   un exercice « remettre dans l'ordre » côté enfant ; la page ne doit pas défiler pendant le
   glissement.
@@ -134,6 +139,14 @@ Conception : `docs/superpowers/specs/2026-11-25-practice-design.md` et
 - générateurs : un exemple de question générée dans l'aperçu d'import ; une saisie
   d'expression (développer, factoriser) au lieu du QCM ; d'autres familles (statistiques,
   probabilités, proportionnalité, physique-chimie).
+
+### Glisser-déposer
+
+- Défilement automatique près du bord : en tenant une ligne près du haut ou du bas de
+  l'écran, la page défile toute seule (vitesse fixe à moins de 60 px du bord, boucle
+  `requestAnimationFrame` dans `src/lib/sortable.ts`, la place d'arrivée recalculée à chaque
+  pas). Pas utile tant qu'un chapitre tient sur un ou deux écrans ; à faire si un chapitre
+  dépasse une quinzaine de fiches.
 
 ## Idées mises de côté
 
