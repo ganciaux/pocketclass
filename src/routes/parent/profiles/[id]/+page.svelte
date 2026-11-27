@@ -10,7 +10,7 @@
 	import PracticeScores from '#lib/components/PracticeScores.svelte';
 	import ProfileNotes from '#lib/components/ProfileNotes.svelte';
 	import SubjectCards from '#lib/components/SubjectCards.svelte';
-	import { deleteChildProfile, watchProfile } from '#lib/data/family.ts';
+	import { deleteProfile, watchProfile } from '#lib/data/family.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { fr } from '#lib/i18n/fr.ts';
 	import { displayName } from '#lib/profile/display.ts';
@@ -30,7 +30,7 @@
 	}
 
 	async function deleteChild(familyId: string, childId: string) {
-		await deleteChildProfile(familyId, childId);
+		await deleteProfile(familyId, childId);
 		await goto(resolve('/parent/profiles'), { replace: true });
 	}
 </script>

@@ -97,3 +97,48 @@ console (lien plus haut).
 - **Passage au classeur (2026-11-24)** : les anciens parcours (`paths`, `assignments`) ne sont
   plus lus. Après ce déploiement, recréer les matières et réimporter le contenu (l'exemple :
   « Importer un chapitre complet » → « Charger l'exemple »). La progression de test est perdue.
+
+## Installer PocketClass pour une autre famille
+
+Chaque famille amie a **sa propre copie** : son projet Firebase, son adresse, ses données. Rien
+n'est partagé avec ton projet (pas de données d'enfants chez toi, quotas gratuits séparés). Il
+faut une personne à l'aise avec un terminal pour la première installation ; ensuite, les mises à
+jour se font avec `git pull` puis `npm run prod`.
+
+1. **Le code** : cloner le dépôt (ou un fork) et installer, avec Node 24 :
+
+   ```sh
+   git clone <adresse du dépôt> pocketclass && cd pocketclass
+   nvm use 24 && npm install
+   ```
+
+2. **Le projet Firebase** (plan gratuit Spark) sur https://console.firebase.google.com :
+   - « Ajouter un projet » (Google Analytics inutile) ;
+   - **Authentication** → « Commencer » → activer **Google**, puis **Adresse e-mail/Mot de
+     passe** (le mot de passe lié au compte Google, utile sur iPhone) et **Anonyme** (les
+     téléphones des enfants) ;
+   - **Firestore Database** → « Créer une base de données », emplacement `eur3` (Europe), mode
+     production (les règles du dépôt sont envoyées à l'étape 4) ;
+   - Paramètres du projet → « Vos applications » → ajouter une application **Web** (sans
+     Hosting à cette étape) et noter sa configuration.
+
+3. **Brancher la copie sur ce projet** :
+   - `.firebaserc` : remplacer `pocketclass-bd866` par l'id du nouveau projet (ou
+     `firebase use --add`) ;
+   - copier `.env.example` en `.env.local`, y coller la configuration Web, et mettre
+     `PUBLIC_USE_EMULATORS=false` pour la production.
+
+4. **Déployer** : `firebase login`, puis `npm run prod` (vérifie tout, puis envoie l'app, les
+   règles et les index). L'app est à `https://<id du projet>.web.app`.
+
+5. **Premier parent** : ouvrir l'adresse, « Se connecter avec Google » ; la famille est créée.
+   **Deuxième parent** : « Profils » → carte « Parents » → inviter son adresse Google ; à sa
+   première connexion, ce parent arrive dans la même famille (s'il s'était déjà connecté, un
+   bandeau « Rejoindre » s'affiche sur son accueil). Les enfants : « Profils » → créer l'enfant → code de
+   liaison sur son téléphone.
+
+6. **Les classeurs** : partir des fichiers JSON d'un autre classeur (« Gérer les classeurs » →
+   export, puis « Restaurer » chez l'autre famille), ou les créer avec les prompts de l'app.
+
+Pour tester sur sa machine avant de déployer : `PUBLIC_USE_EMULATORS=true` dans `.env.local`,
+`npm run emulators` puis `npm run dev` (voir le README).

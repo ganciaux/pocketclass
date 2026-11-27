@@ -2,6 +2,7 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import { UI_ICONS, type IconPath } from '#lib/binder/icons.ts';
 	import Icon from '#lib/components/Icon.svelte';
+	import InviteBanner from '#lib/components/InviteBanner.svelte';
 	import PointsStar from '#lib/components/PointsStar.svelte';
 	import SubjectCards from '#lib/components/SubjectCards.svelte';
 	import { watchBinder } from '#lib/data/catalog.ts';
@@ -149,6 +150,7 @@
 	{/if}
 
 	{#if session.isAdmin && !session.childView}
+		<InviteBanner />
 		<section class="card bg-neutral text-neutral-content">
 			<div class="card-body gap-3">
 				<h2 class="card-title font-display font-normal">{fr.home.parentSection}</h2>

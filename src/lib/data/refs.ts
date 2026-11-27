@@ -16,6 +16,7 @@ import type {
 	ExerciseRecord,
 	MapImageRecord,
 	Family,
+	Invite,
 	LinkCode,
 	Note,
 	PointsLedgerRecord,
@@ -27,7 +28,7 @@ import type {
 
 // Typed references to Firestore locations. The only place that builds Firestore paths.
 
-const { families: FAMILIES, users: USERS, linkCodes: LINK_CODES } = ROOT;
+const { families: FAMILIES, users: USERS, linkCodes: LINK_CODES, invites: INVITES } = ROOT;
 
 // The SDK types documents as DocumentData; these helpers state the stored type once.
 const typedDoc = <T = DocumentData>(familyId: string, ...segments: string[]) =>
@@ -43,6 +44,8 @@ export const userRef = (uid: string) => doc(db, USERS, uid) as DocumentReference
 export const familyRef = (familyId: string) => typedDoc<Family>(familyId);
 export const linkCodeRef = (code: string) =>
 	doc(db, LINK_CODES, code) as DocumentReference<LinkCode>;
+export const invitesCol = () => collection(db, INVITES) as CollectionReference<Invite>;
+export const inviteRef = (email: string) => doc(db, INVITES, email) as DocumentReference<Invite>;
 
 export const devicesCol = (familyId: string) => familyCol<Device>(familyId, COLLECTIONS.devices);
 export const deviceRef = (familyId: string, uid: string) =>

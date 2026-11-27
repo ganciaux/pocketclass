@@ -4,7 +4,9 @@
 export const ROOT = {
 	users: 'users',
 	families: 'families',
-	linkCodes: 'linkCodes'
+	linkCodes: 'linkCodes',
+	/** Co-parent invitations, by e-mail (top level: the invited parent has no family here yet). */
+	invites: 'invites'
 } as const;
 
 /** Collections under families/{familyId}. */

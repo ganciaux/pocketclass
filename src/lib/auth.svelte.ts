@@ -16,9 +16,18 @@ import {
 import { FirebaseError } from 'firebase/app';
 import { auth } from '#lib/firebase.ts';
 import { linkDevice, unlinkDevice, watchDevice } from '#lib/data/devices.ts';
-import { ensureFamilyForUser, getProfile, watchProfile } from '#lib/data/family.ts';
+import {
+	declineInvite,
+	ensureFamilyForUser,
+	findInvite,
+	getProfile,
+	joinFamily,
+	removeParent,
+	returnToOwnFamily,
+	watchProfile
+} from '#lib/data/family.ts';
 import { isPermissionDenied } from '#lib/data/sources.ts';
-import type { Profile, WithId } from '#lib/data/types.ts';
+import type { Invite, Profile, WithId } from '#lib/data/types.ts';
 import { childViewOf } from '#lib/profile/childView.ts';
 import { clearPreference, readPreference, writePreference } from '#lib/preferences.ts';
 
@@ -27,6 +36,13 @@ import { clearPreference, readPreference, writePreference } from '#lib/preferenc
  * unavailable (private browsing): test mode then lasts the session.
  */
 const testChildKey = (familyId: string) => `testChild.${familyId}`;
+
+/** The index points to a profile that is gone (e.g. a parent half-removed from a family). */
+class MissingProfileError extends Error {
+	constructor(familyId: string) {
+		super(`No profile of this user in family ${familyId}`);
+	}
+}
 
 type SessionStatus = 'loading' | 'signedOut' | 'ready' | 'notLinked' | 'error';
 
@@ -47,6 +63,8 @@ class Session {
 	hasPassword = $state(false);
 	/** True while a device is being linked: keeps the link form on screen meanwhile. */
 	linking = $state(false);
+	/** Parent already in a family, invited by another one (shown on the home page). */
+	pendingInvite = $state<WithId<Invite> | null>(null);
 
 	/** Primitive for `live()` sources (the profile object changes with every edit). */
 	profileId = $derived(this.profile?.id ?? null);
@@ -190,6 +208,32 @@ class Session {
 		this.#testChild = null;
 	}
 
+	/** Parent: joins the family of the pending invitation (their current one stays as it is). */
+	async joinInvite(): Promise<void> {
+		const user = auth.currentUser;
+		const invite = this.pendingInvite;
+		if (!user || !invite) return;
+		await joinFamily(user, invite);
+		await this.#load(user);
+	}
+
+	/** Parent: declines the pending invitation. */
+	async declineInvite(): Promise<void> {
+		const invite = this.pendingInvite;
+		if (!invite) return;
+		await declineInvite(invite.id);
+		this.pendingInvite = null;
+	}
+
+	/** Parent: leaves this family (another parent stays) and goes back to their own. */
+	async leaveFamily(): Promise<void> {
+		const user = auth.currentUser;
+		if (!user || user.isAnonymous || !this.familyId) return;
+		await removeParent(this.familyId, user.uid, true);
+		await returnToOwnFamily(user);
+		await this.#load(user);
+	}
+
 	/** After an error (e.g. offline on first load). */
 	retry(): void {
 		void this.#load(auth.currentUser);
@@ -201,8 +245,36 @@ class Session {
 		this.#endTest();
 		this.familyId = null;
 		this.profile = null;
+		this.pendingInvite = null;
 		this.status = status;
 	}
+
+	/**
+	 * Access refused. A child device was unlinked by the parent. A parent was removed from another
+	 * family (or their profile there is gone): they go back to their own family, once per load,
+	 * and never when the refused family already is their own (no reload loop).
+	 */
+	async #denied(user: User, run: number, error: unknown, familyId?: string): Promise<void> {
+		const removed =
+			!user.isAnonymous && (isPermissionDenied(error) || error instanceof MissingProfileError);
+		if (removed && familyId !== user.uid && !this.#returning) {
+			this.#returning = true;
+			try {
+				await returnToOwnFamily(user);
+				if (run === this.#run) await this.#load(user);
+				return;
+			} catch (failure) {
+				console.error('[session] could not go back to the own family', failure);
+			} finally {
+				this.#returning = false;
+			}
+		}
+		if (run === this.#run) {
+			this.#reset(isPermissionDenied(error) && user.isAnonymous ? 'notLinked' : 'error');
+		}
+	}
+
+	#returning = false;
 
 	async #load(user: User | null): Promise<void> {
 		const run = ++this.#run;
@@ -211,14 +283,16 @@ class Session {
 
 		this.#reset('loading');
 		this.hasPassword = user.providerData.some((p) => p.providerId === 'password');
+		let loadedFamilyId: string | undefined;
 		try {
 			const index = await ensureFamilyForUser(user);
 			if (run !== this.#run) return;
 			if (!index) return this.#reset('notLinked');
+			loadedFamilyId = index.familyId;
 
 			const profile = await getProfile(index.familyId, index.profileId);
 			if (run !== this.#run) return;
-			if (!profile) throw new Error(`Profile ${index.profileId} not found`);
+			if (!profile) throw new MissingProfileError(index.familyId);
 
 			this.familyId = index.familyId;
 			this.profile = { id: index.profileId, ...profile };
@@ -226,7 +300,7 @@ class Session {
 			const onError = (error: Error) => {
 				if (run !== this.#run) return;
 				console.error('[session] live', error);
-				this.#reset(isPermissionDenied(error) ? 'notLinked' : 'error');
+				void this.#denied(user, run, error, index.familyId);
 			};
 			this.#stops.push(
 				watchProfile(index.familyId, index.profileId)((live) => {
@@ -235,6 +309,14 @@ class Session {
 			);
 			// A parent resumes the child test mode remembered on this device.
 			if (profile.role === 'admin') {
+				// Invited by another family (shown on the home page; nothing if offline).
+				findInvite(user)
+					.then((invite) => {
+						if (run === this.#run && invite?.familyId !== index.familyId) {
+							this.pendingInvite = invite;
+						}
+					})
+					.catch(() => {});
 				// iOS may clear an installed web app's data (and the session with it): ask to keep it.
 				navigator.storage?.persist?.().catch(() => {});
 				const testChildId = readPreference(testChildKey(index.familyId));
@@ -252,8 +334,7 @@ class Session {
 		} catch (error) {
 			if (run !== this.#run) return;
 			console.error('[session] failed to load the family', error);
-			// A device unlinked by the parent can no longer read its profile.
-			this.#reset(isPermissionDenied(error) ? 'notLinked' : 'error');
+			await this.#denied(user, run, error, loadedFamilyId);
 		}
 	}
 }

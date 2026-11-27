@@ -59,20 +59,62 @@ service cloud.firestore {
       return getAfter(devicePath(index.familyId, request.auth.uid)).data.profileId == index.profileId;
     }
 
-    // Index document: a user reads their own entry. A parent creates { familyId: uid,
-    // profileId: uid }. A child device writes it in the link batch, once its device entry
-    // exists after the batch, and may rewrite it when linked again.
+    // A parent's index entry: their own profile, in their own family (id = their uid) or in a
+    // family where they are an admin (joined with an invitation).
+    function parentEntry(index) {
+      return index.profileId == request.auth.uid
+        && (index.familyId == request.auth.uid
+          || request.auth.uid in get(familyPath(index.familyId)).data.admins);
+    }
+
+    // Index document: a user reads their own entry. A parent writes { familyId, profileId: uid }
+    // (their own family, or one they joined; rewritten when joining or leaving one). A child
+    // device writes it in the link batch, once its device entry exists after the batch, and may
+    // rewrite it when linked again.
     match /users/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;
-      allow create: if signedIn()
+      allow create, update: if signedIn()
         && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['familyId', 'profileId'])
-        && ((request.resource.data.familyId == uid && request.resource.data.profileId == uid)
-          || linkedAfter(request.resource.data));
-      allow update: if signedIn()
-        && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['familyId', 'profileId'])
-        && linkedAfter(request.resource.data);
+        && (parentEntry(request.resource.data) || linkedAfter(request.resource.data));
+    }
+
+    // The signed-in parent's Google-verified e-mail is `email` (an invitation's id).
+    function hasEmail(email) {
+      return signedIn()
+        && !isAnonymous()
+        && request.auth.token.get('email_verified', false) == true
+        && request.auth.token.get('email', '').lower() == email;
+    }
+
+    function invitePath() {
+      return /databases/$(database)/documents/invites/$(request.auth.token.get('email', '').lower());
+    }
+
+    // The signed-in parent holds an invitation to this family, from a parent who still is one
+    // of its admins.
+    function invitedTo(familyId) {
+      return hasEmail(request.auth.token.get('email', '').lower())
+        && exists(invitePath())
+        && get(invitePath()).data.familyId == familyId
+        && get(invitePath()).data.invitedBy in resource.data.admins;
+    }
+
+    // Invitations of a co-parent, by e-mail (lower case). Written by an admin of the family;
+    // the invited parent reads their own and deletes it once they joined (or to decline).
+    match /invites/{email} {
+      allow get: if hasEmail(email) || isAdmin(resource.data.familyId);
+      allow list: if isAdmin(resource.data.familyId);
+      allow create, update: if isAdmin(request.resource.data.familyId)
+        && (resource == null || isAdmin(resource.data.familyId))
+        && email == email.lower()
+        && email.matches('[^@ ]+@[^@ ]+')
+        && request.resource.data.keys().hasOnly(['familyId', 'invitedBy', 'invitedByName', 'createdAt'])
+        && request.resource.data.invitedBy == request.auth.uid
+        && request.resource.data.invitedByName is string
+        && request.resource.data.invitedByName.size() <= 60
+        && request.resource.data.createdAt == request.time;
+      allow delete: if hasEmail(email) || isAdmin(resource.data.familyId);
     }
 
     // Device link codes (parent → child). Read one by one only (no listing), while valid.
@@ -95,10 +137,22 @@ service cloud.firestore {
         && familyId == request.auth.uid
         && request.resource.data.admins == [request.auth.uid];
       allow read: if isMember(familyId);
-      allow update, delete: if isAdmin(familyId);
+      // Admins: the family keeps at least one admin, and the parent who created it (id = their
+      // uid) is never removed. An invited parent only adds themselves to the admins.
+      allow update: if (isAdmin(familyId)
+          && request.resource.data.admins is list
+          && request.resource.data.admins.size() > 0
+          && (familyId in request.resource.data.admins || !(familyId in resource.data.admins)))
+        || (invitedTo(familyId)
+          && onlyChanges(['admins'])
+          && request.resource.data.admins.toSet()
+            == resource.data.admins.toSet().union([request.auth.uid].toSet()));
+      // Only the parent who created it (the app never deletes a family).
+      allow delete: if isAdmin(familyId) && familyId == request.auth.uid;
 
-      // Admins: read and write everything under their family.
-      match /{document=**} {
+      // Admins: read and write everything under their family (not the family document itself:
+      // at least one path segment, so the rule above stays the only way to change the admins).
+      match /{collection}/{document=**} {
         allow read, write: if isAdmin(familyId);
       }
 

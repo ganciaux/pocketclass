@@ -306,6 +306,43 @@ export const fr = {
 		noOtherSubjects: "Aucune matière d'un autre niveau pour l'instant.",
 		delete: 'Supprimer définitivement'
 	},
+	/** Co-parents: several parents administer the family (`<ParentsCard>`, `<InviteBanner>`). */
+	parents: {
+		title: 'Parents',
+		help: 'Les parents ont les mêmes droits : classeurs, enfants, remarques, statistiques.',
+		you: 'toi',
+		creator: 'a créé la famille',
+		missingProfile: 'Parent sans profil',
+		remove: 'Retirer',
+		leave: 'Quitter la famille',
+		removeTitle: (name: string) => `Retirer ${name} des parents ?`,
+		removeMessage:
+			'Son profil parent et ses données de test sont supprimés. À sa prochaine connexion, ce parent retrouve sa propre famille. Les classeurs et les enfants ne sont pas touchés.',
+		leaveTitle: 'Quitter cette famille ?',
+		leaveMessage:
+			"Ton profil parent et tes données de test ici sont supprimés, et tu retrouves ta propre famille. L'autre parent peut t'inviter à nouveau.",
+		invite: 'Inviter un parent',
+		inviteHelp:
+			"Son adresse Google : à sa première connexion avec ce compte, ce parent arrive dans cette famille. Préviens cette personne toi-même, l'app n'envoie pas d'e-mail.",
+		email: 'E-mail',
+		send: 'Inviter',
+		sending: 'Invitation…',
+		invalidEmail: 'Cette adresse e-mail ne semble pas valide.',
+		alreadyParent: 'Cette personne est déjà parent de la famille.',
+		inviteFailed:
+			"L'invitation n'a pas pu être enregistrée (connexion, ou adresse déjà invitée par une autre famille).",
+		pending: 'Invitations en attente',
+		cancel: "Annuler l'invitation",
+		actionFailed: "L'action n'a pas abouti. Vérifie ta connexion et réessaie.",
+		offline: 'Hors connexion : les parents se gèrent en ligne.',
+		loadFailed: 'Impossible de charger les parents.',
+		banner: (name: string) => `${name} t'invite à rejoindre sa famille comme parent.`,
+		join: 'Rejoindre',
+		decline: 'Refuser',
+		joinTitle: (name: string) => `Rejoindre la famille de ${name} ?`,
+		joinMessage:
+			"Tu verras ses classeurs et ses enfants. Ta famille actuelle reste enregistrée mais ne s'affiche plus : exporte-la d'abord (« Mon profil » → « Sauvegarde complète ») si tu veux en garder une copie."
+	},
 	dashboard: {
 		title: "Où j'en suis"
 	},

@@ -52,7 +52,10 @@ redémarrage.
 
 Premier login parent : l'app crée la famille, le profil parent et l'index `users/{uid}`.
 Rien à configurer dans la console Firebase : le parent (admin) est celui qui a créé la famille
-(`families.admins`, `profile.role = admin`).
+(`families.admins`, `profile.role = admin`). Un deuxième parent est invité par son adresse
+Google (« Profils » → « Parents ») : à sa première connexion, ce parent rejoint la famille au lieu d'en
+créer une ; les parents ont les mêmes droits. Une autre famille installe sa propre copie (son
+projet Firebase) : voir [docs/operations.md](docs/operations.md).
 
 Mot de passe parent : une fois connecté avec Google, le parent peut définir un mot de passe
 dans « Mon profil ». Il est rattaché au **même compte** (même famille, toujours admin) ; on se

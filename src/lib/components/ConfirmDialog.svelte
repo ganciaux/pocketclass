@@ -23,9 +23,9 @@
 		onclose: () => void;
 	} = $props();
 
-	let dialog: HTMLDialogElement;
+	let dialog: HTMLDialogElement | undefined;
 	let busy = $state(false);
-	$effect(() => dialog.showModal());
+	$effect(() => dialog?.showModal());
 
 	async function confirm() {
 		busy = true;
@@ -33,7 +33,8 @@
 			await onconfirm();
 		} finally {
 			busy = false;
-			dialog.close();
+			// `onconfirm` may unmount this dialog (e.g. a session reload): it is gone then.
+			dialog?.close();
 		}
 	}
 </script>

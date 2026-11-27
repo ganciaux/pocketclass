@@ -5,6 +5,9 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 ## Ce qui est fait
 
+- **Plusieurs parents** (2026-11-27) : un parent invite l'autre par son adresse Google, droits
+  égaux (retirer, quitter ; le créateur de la famille reste). Une autre famille installe sa
+  propre copie avec son projet Firebase (guide dans `docs/operations.md`).
 - **Base** : connexion parent (Google), profils enfants, téléphones enfants liés par un code
   à usage unique, pseudo et avatar, fonctionnement hors ligne, PWA installable (validée sur
   iOS et Android), proposition de mise à jour de l'app.
@@ -75,7 +78,7 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 
 Déploiement du 25 novembre fait et testé sur téléphone par l'utilisateur (2026-11-26).
 Depuis : mise à jour d'un chapitre par son JSON, boutons courts de l'Espace parent, points de
-révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales, import depuis un fichier avec aperçu, sauvegarde complète, mode jour / nuit, erreurs à revoir, carte « Aujourd'hui », message quand un enregistrement échoue, points en gommette étoile (classeur, bandeau, accueil) et boutons Retour en écriture manuscrite. **Les règles Firestore ont changé** (révisions, images) :
+révision, historique d'activité, fiches plus courtes avec vue « Résumé », images des cartes mentales, import depuis un fichier avec aperçu, sauvegarde complète, mode jour / nuit, erreurs à revoir, carte « Aujourd'hui », message quand un enregistrement échoue, points en gommette étoile (classeur, bandeau, accueil) et boutons Retour en écriture manuscrite, deuxième parent invité par e-mail. **Les règles Firestore ont changé** (révisions, images, invitations et parents) :
 
 - Lancer `npm run prod` (app **et** règles ; jamais `deploy:app` seul avant les règles).
 - Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus
@@ -84,6 +87,9 @@ révision, historique d'activité, fiches plus courtes avec vue « Résumé », 
 - Images de carte mentale : en ajouter une depuis un téléphone (photo), la voir côté enfant.
 - Télécharger la sauvegarde complète (« Mon profil ») et la garder hors de Firebase ; sur iPhone, vérifier le téléchargement (« Partager → Enregistrer dans Fichiers » si besoin).
 - Mode jour / nuit : choisir Sombre puis relancer l'app installée (pas de flash clair).
+- Deuxième parent : « Profils » → « Parents » → inviter son adresse Google ; à sa connexion
+  (Google), vérifier l'accès aux classeurs et aux enfants, puis « Quitter la famille »
+  (retour à sa propre famille).
 - Réimport : coller un chapitre exporté (puis retouché) dans la page de **ce** chapitre ;
   corriger d'abord les « -> » laissés par Gemini dans le chapitre de français.
 

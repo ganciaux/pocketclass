@@ -34,6 +34,15 @@ export interface LinkCode {
 	expiresAt: Timestamp;
 }
 
+/** invites/{email}: a parent invited as admin of a family (id = their e-mail, lower case). */
+export interface Invite {
+	familyId: string;
+	/** Uid and name of the parent who invited (shown to the invited parent). */
+	invitedBy: string;
+	invitedByName: string;
+	createdAt: Timestamp;
+}
+
 /** families/{familyId}/devices/{uid}: a child device (anonymous account) acting as a profile. */
 export interface Device {
 	profileId: string;

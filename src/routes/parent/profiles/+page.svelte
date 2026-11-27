@@ -3,6 +3,7 @@
 	import { session } from '#lib/auth.svelte.ts';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import LoadState from '#lib/components/LoadState.svelte';
+	import ParentsCard from '#lib/components/ParentsCard.svelte';
 	import { createChildProfile, watchChildProfiles } from '#lib/data/family.ts';
 	import { live } from '#lib/data/live.svelte.ts';
 	import { GRADES, type Grade } from '#lib/data/types.ts';
@@ -95,4 +96,6 @@
 			</button>
 		</div>
 	</form>
+
+	{#if session.familyId}<ParentsCard familyId={session.familyId} />{/if}
 </main>

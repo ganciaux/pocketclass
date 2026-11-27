@@ -16,10 +16,12 @@ import {
 	getDoc,
 	getDocs,
 	increment,
+	query,
 	serverTimestamp,
 	setDoc,
 	Timestamp,
 	updateDoc,
+	where,
 	writeBatch
 } from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
@@ -117,6 +119,116 @@ describe('families', () => {
 		await assertFails(getDoc(at(as('bob'), `families/${FAMILY}/concepts/c1`)));
 		await assertFails(setDoc(at(as('bob'), `families/${FAMILY}/profiles/x`), { t: 1 }));
 		await assertFails(getDoc(at(anonymous(), `families/${FAMILY}/concepts/c1`)));
+	});
+});
+
+describe('co-parents', () => {
+	/** A parent signed in with Google (verified e-mail). */
+	const asParent = (uid: string, email: string, verified = true) =>
+		env.authenticatedContext(uid, { email, email_verified: verified }).firestore();
+	const invite = (by = 'alice') => ({
+		familyId: FAMILY,
+		invitedBy: by,
+		invitedByName: 'Alice',
+		createdAt: serverTimestamp()
+	});
+	const seedInvite = () =>
+		env.withSecurityRulesDisabled((ctx) =>
+			setDoc(doc(ctx.firestore(), 'invites/bob@x.fr'), { ...invite(), createdAt: 1 })
+		);
+
+	it('an admin invites by lower-case e-mail, as themselves; nobody else', async () => {
+		await assertFails(setDoc(at(as('alice'), 'invites/Bob@x.fr'), invite()));
+		await assertFails(setDoc(at(as('alice'), 'invites/bob@x.fr'), invite('carol')));
+		await assertFails(setDoc(at(as('bob'), 'invites/bob@x.fr'), invite('bob')));
+		await assertSucceeds(setDoc(at(as('alice'), 'invites/bob@x.fr'), invite()));
+		await assertSucceeds(
+			getDocs(query(collection(as('alice'), 'invites'), where('familyId', '==', FAMILY)))
+		);
+		await assertFails(
+			getDocs(query(collection(as('bob'), 'invites'), where('familyId', '==', FAMILY)))
+		);
+	});
+
+	it('the invited parent reads and deletes only their own invitation', async () => {
+		await seedInvite();
+		await assertSucceeds(getDoc(at(asParent('bob', 'bob@x.fr'), 'invites/bob@x.fr')));
+		await assertFails(getDoc(at(asParent('eve', 'eve@x.fr'), 'invites/bob@x.fr')));
+		await assertFails(getDoc(at(asParent('bob', 'bob@x.fr', false), 'invites/bob@x.fr')));
+		await assertFails(deleteDoc(at(asParent('eve', 'eve@x.fr'), 'invites/bob@x.fr')));
+		await assertSucceeds(deleteDoc(at(asParent('bob', 'bob@x.fr'), 'invites/bob@x.fr')));
+	});
+
+	it('the real join sequence works (admins → profile → index → invitation)', async () => {
+		await seedInvite();
+		const bob = asParent('bob', 'bob@x.fr');
+		await assertSucceeds(updateDoc(at(bob, `families/${FAMILY}`), { admins: arrayUnion('bob') }));
+		await assertSucceeds(
+			setDoc(at(bob, `families/${FAMILY}/profiles/bob`), { firstName: 'Bob', role: 'admin' })
+		);
+		await assertSucceeds(setDoc(at(bob, 'users/bob'), { familyId: FAMILY, profileId: 'bob' }));
+		await assertSucceeds(deleteDoc(at(bob, 'invites/bob@x.fr')));
+		await assertSucceeds(getDoc(at(bob, `families/${FAMILY}/concepts/c1`)));
+	});
+
+	it('without an invitation, a parent cannot join; with one, only themselves', async () => {
+		const bob = asParent('bob', 'bob@x.fr');
+		await assertFails(updateDoc(at(bob, `families/${FAMILY}`), { admins: arrayUnion('bob') }));
+		await assertFails(setDoc(at(bob, 'users/bob'), { familyId: FAMILY, profileId: 'bob' }));
+		await seedInvite();
+		await assertFails(
+			updateDoc(at(bob, `families/${FAMILY}`), { admins: arrayUnion('bob', 'eve') })
+		);
+		await assertFails(
+			updateDoc(at(bob, `families/${FAMILY}`), { admins: arrayUnion('bob'), name: 'Mine' })
+		);
+		await assertFails(
+			updateDoc(at(asParent('eve', 'eve@x.fr'), `families/${FAMILY}`), {
+				admins: arrayUnion('eve')
+			})
+		);
+	});
+
+	it('the family keeps its creator and an admin; a co-parent can be removed', async () => {
+		await env.withSecurityRulesDisabled((ctx) =>
+			updateDoc(doc(ctx.firestore(), `families/${FAMILY}`), { admins: ['alice', 'bob'] })
+		);
+		await assertFails(updateDoc(at(as('bob'), `families/${FAMILY}`), { admins: ['bob'] }));
+		await assertFails(setDoc(at(as('bob'), `families/${FAMILY}`), { name: 'F', admins: ['bob'] }));
+		await assertFails(updateDoc(at(as('alice'), `families/${FAMILY}`), { admins: [] }));
+		await assertSucceeds(
+			updateDoc(at(as('alice'), `families/${FAMILY}`), { admins: arrayRemove('bob') })
+		);
+		// Removed: no access any more.
+		await assertFails(getDoc(at(as('bob'), `families/${FAMILY}/concepts/c1`)));
+	});
+
+	it('an invitation from a parent removed since is no longer valid', async () => {
+		await env.withSecurityRulesDisabled((ctx) =>
+			setDoc(doc(ctx.firestore(), 'invites/bob@x.fr'), { ...invite('eve'), createdAt: 1 })
+		);
+		await assertFails(
+			updateDoc(at(asParent('bob', 'bob@x.fr'), `families/${FAMILY}`), {
+				admins: arrayUnion('bob')
+			})
+		);
+	});
+
+	it('only the creator deletes the family document', async () => {
+		await env.withSecurityRulesDisabled((ctx) =>
+			updateDoc(doc(ctx.firestore(), `families/${FAMILY}`), { admins: ['alice', 'bob'] })
+		);
+		await assertFails(deleteDoc(at(as('bob'), `families/${FAMILY}`)));
+		await assertSucceeds(deleteDoc(at(as('alice'), `families/${FAMILY}`)));
+	});
+
+	it('a parent repoints their index to their own family or to one they administer', async () => {
+		await env.withSecurityRulesDisabled((ctx) =>
+			setDoc(doc(ctx.firestore(), 'users/bob'), { familyId: FAMILY, profileId: 'bob' })
+		);
+		await assertSucceeds(updateDoc(at(as('bob'), 'users/bob'), { familyId: 'bob' }));
+		await assertFails(updateDoc(at(as('bob'), 'users/bob'), { familyId: FAMILY }));
+		await assertFails(updateDoc(at(as('bob'), 'users/bob'), { familyId: 'bob', profileId: 'x' }));
 	});
 });
 
