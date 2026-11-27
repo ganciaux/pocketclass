@@ -219,6 +219,18 @@ export interface Chapter {
  * families/{familyId}/concepts/{conceptId}/mapImages/{imageId}: a picture of the sheet's mind
  * map (e.g. a photo of one drawn by hand), added by the parent. Ids `image-1` to `image-3`.
  */
+/**
+ * families/{familyId}/concepts/{conceptId}/sectionImages/{imageId}: a picture under a section
+ * of the sheet (e.g. a figure of the exercise book), added by the parent. Ids `section-<s>-<n>`.
+ */
+export interface SectionImageRecord {
+	/** WebP (or JPEG) data URL, as a mind map picture. */
+	dataUrl: string;
+	/** The section it illustrates (1-based). */
+	section: number;
+	order: number;
+}
+
 export interface MapImageRecord {
 	/** WebP (or JPEG) data URL, at most 1200 px and 700 000 characters. */
 	dataUrl: string;

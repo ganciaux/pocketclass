@@ -55,6 +55,26 @@ describe('planSheets', () => {
 		});
 	});
 
+	it('writes every section picture slot from a backup, and none from an AI JSON', () => {
+		const image = 'data:image/webp;base64,AAAA';
+		const without = planSheets([fractions], target, {});
+		expect(without.ops.some((op) => op.path.includes('sectionImages'))).toBe(false);
+		const plan = planSheets(
+			[{ ...fractions, sectionImages: [{ section: 2, dataUrl: image }] }],
+			target,
+			{}
+		);
+		const slots = plan.ops.filter((op) => op.path.includes('sectionImages'));
+		// 12 sections × 2 pictures: one set, the others cleared.
+		expect(slots).toHaveLength(24);
+		expect(slots.filter((op) => op.kind === 'set').map(key)).toEqual([
+			'set concepts/maths-3e-fractions/sectionImages/section-2-1'
+		]);
+		expect(dataOf(find(plan.ops, 'concepts/maths-3e-fractions/sectionImages/section-2-1'))).toEqual(
+			{ dataUrl: image, section: 2, order: 1 }
+		);
+	});
+
 	it('creates a new sheet at the end of the chapter, with exercises and assessment', () => {
 		const plan = planSheets([fractions, powers], target, {});
 		const keys = plan.ops.map(key);

@@ -173,6 +173,10 @@ service cloud.firestore {
         match /mapImages/{imageId} {
           allow read: if isMember(familyId);
         }
+        // Pictures of the sections, added by the parent (written through the admin rule).
+        match /sectionImages/{imageId} {
+          allow read: if isMember(familyId);
+        }
       }
       match /assessments/{assessmentId} {
         allow read: if isMember(familyId);

@@ -91,6 +91,11 @@ export const MAP_IMAGE_MAX_LENGTH = 700_000;
 /** Mind map pictures per sheet (`data/mapImages.ts`, `MAP_IMAGE_SLOTS`). */
 export const MAX_MAP_IMAGES = 3;
 
+/** Pictures per section of the sheet, added by the parent (`data/sectionImages.ts`). */
+export const MAX_SECTION_IMAGES = 2;
+/** Only the first sections can hold pictures (fixed slots: a backup import replaces them all). */
+export const MAX_SECTIONS_WITH_IMAGES = 12;
+
 /** Pictures of the mind map added by the parent (in an exported backup, never from the AI). */
 const mapImagesSchema = z
 	.array(
@@ -101,6 +106,19 @@ const mapImagesSchema = z
 	)
 	.max(MAX_MAP_IMAGES);
 
+/** Pictures of the sections (1-based number), in an exported backup only. */
+const sectionImagesSchema = z
+	.array(
+		z.object({
+			section: z.int().min(1).max(MAX_SECTIONS_WITH_IMAGES),
+			dataUrl: z
+				.string()
+				.max(MAP_IMAGE_MAX_LENGTH)
+				.regex(/^data:image\/(webp|jpeg|png);base64,/, { error: fr.validation.imageDataUrl })
+		})
+	)
+	.max(MAX_SECTIONS_WITH_IMAGES * MAX_SECTION_IMAGES);
+
 /** One revision sheet (a "concept"): key points, study sheet, exercises, assessment. */
 export const sheetBodySchema = z.object({
 	id: slug,
@@ -110,6 +128,7 @@ export const sheetBodySchema = z.object({
 	keyPoints: z.array(keyPointSchema).min(1).max(8),
 	mindMap: mindMapSchema.optional(),
 	mapImages: mapImagesSchema.optional(),
+	sectionImages: sectionImagesSchema.optional(),
 	flashcards: flashcardsSchema.optional(),
 	/** Geometry figures, described by the AI and drawn by the app; used by id. */
 	figures: figuresSchema.optional(),

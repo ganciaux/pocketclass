@@ -18,6 +18,7 @@ import {
 	conceptsCol,
 	exercisesCol,
 	mapImagesCol,
+	sectionImagesCol,
 	notesCol,
 	pointsLedgerCol,
 	profilesCol,
@@ -57,11 +58,12 @@ async function sheetRefs(
 		(!!scope.subjectId && note.subjectId === scope.subjectId);
 	const profiles = await refsOf(profilesCol(familyId));
 	const [exercises, owned] = await Promise.all([
-		// Under each sheet: its exercises and its mind map pictures.
+		// Under each sheet: its exercises, its mind map and section pictures.
 		Promise.all(
 			sheetIds.flatMap((id) => [
 				refsOf(exercisesCol(familyId, id)),
-				refsOf(mapImagesCol(familyId, id))
+				refsOf(mapImagesCol(familyId, id)),
+				refsOf(sectionImagesCol(familyId, id))
 			])
 		),
 		Promise.all(

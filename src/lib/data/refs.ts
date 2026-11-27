@@ -15,6 +15,7 @@ import type {
 	Device,
 	ExerciseRecord,
 	MapImageRecord,
+	SectionImageRecord,
 	Family,
 	Invite,
 	LinkCode,
@@ -109,6 +110,21 @@ export const exercisesCol = (familyId: string, conceptId: string) =>
 
 export const mapImagesCol = (familyId: string, conceptId: string) =>
 	familyCol<MapImageRecord>(familyId, COLLECTIONS.concepts, conceptId, COLLECTIONS.mapImages);
+export const sectionImagesCol = (familyId: string, conceptId: string) =>
+	familyCol<SectionImageRecord>(
+		familyId,
+		COLLECTIONS.concepts,
+		conceptId,
+		COLLECTIONS.sectionImages
+	);
+export const sectionImageRef = (familyId: string, conceptId: string, imageId: string) =>
+	typedDoc<SectionImageRecord>(
+		familyId,
+		COLLECTIONS.concepts,
+		conceptId,
+		COLLECTIONS.sectionImages,
+		imageId
+	);
 export const mapImageRef = (familyId: string, conceptId: string, imageId: string) =>
 	typedDoc<MapImageRecord>(
 		familyId,

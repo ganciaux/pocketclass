@@ -9,7 +9,12 @@ import type {
 } from '#lib/data/types.ts';
 import type { ChapterDoc } from '#lib/schemas/chapter.ts';
 import type { Exercise } from '#lib/schemas/common.ts';
-import { MAX_MAP_IMAGES, type SheetDoc } from '#lib/schemas/sheet.ts';
+import {
+	MAX_MAP_IMAGES,
+	MAX_SECTION_IMAGES,
+	MAX_SECTIONS_WITH_IMAGES,
+	type SheetDoc
+} from '#lib/schemas/sheet.ts';
 import type { SubjectDoc } from '#lib/schemas/subject.ts';
 
 /** What already exists in Firestore for one sheet id (read before planning). */
@@ -86,6 +91,10 @@ export function batchesOf(ops: WriteOp[], maxOps: number, maxChars = 4_000_000):
 
 /** Mind map picture ids (`data/mapImages.ts` uses the same slots). */
 export const MAP_IMAGE_SLOTS = Array.from({ length: MAX_MAP_IMAGES }, (_, i) => `image-${i + 1}`);
+
+/** Picture ids of a section (1-based; `data/sectionImages.ts` uses the same slots). */
+export const sectionImageSlots = (section: number) =>
+	Array.from({ length: MAX_SECTION_IMAGES }, (_, n) => `section-${section}-${n + 1}`);
 
 /** The assessment of a sheet whose JSON has none. */
 export const DEFAULT_ASSESSMENT = { type: 'test', draw: { perKeyPoint: 2 } } as const;
@@ -192,6 +201,23 @@ export function planSheets(
 						: { kind: 'delete', path }
 				);
 			});
+		}
+
+		// Section pictures too: a backup sets every slot (the pictures it has, deletes the rest).
+		if (sheet.sectionImages) {
+			const images = sheet.sectionImages;
+			for (let section = 1; section <= MAX_SECTIONS_WITH_IMAGES; section++) {
+				const own = images.filter((image) => image.section === section);
+				sectionImageSlots(section).forEach((id, n) => {
+					const path: DocPath = [...sheetPath, COLLECTIONS.sectionImages, id];
+					const dataUrl = own[n]?.dataUrl;
+					ops.push(
+						dataUrl
+							? { kind: 'set', path, data: { dataUrl, section, order: n + 1 } }
+							: { kind: 'delete', path }
+					);
+				});
+			}
 		}
 
 		// Every sheet has an assessment (its questions may all be generated).

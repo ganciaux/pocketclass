@@ -30,6 +30,8 @@ export interface StoredSheet {
 	assessment: AssessmentRecord | null;
 	/** Mind map pictures (data URLs, in order); absent or empty: none. */
 	mapImages?: string[];
+	/** Pictures of the sections, in section then slot order. */
+	sectionImages?: { section: number; dataUrl: string }[];
 }
 
 /** Only the fields that have a value (Firestore documents may hold none for optional ones). */
@@ -49,7 +51,13 @@ function assessmentDoc(assessment: AssessmentRecord): AssessmentDoc {
 	});
 }
 
-export function sheetDoc({ concept, exercises, assessment, mapImages }: StoredSheet): SheetDoc {
+export function sheetDoc({
+	concept,
+	exercises,
+	assessment,
+	mapImages,
+	sectionImages
+}: StoredSheet): SheetDoc {
 	return compact({
 		id: concept.id,
 		title: concept.title,
@@ -60,6 +68,7 @@ export function sheetDoc({ concept, exercises, assessment, mapImages }: StoredSh
 		flashcards: concept.flashcards,
 		figures: concept.figures,
 		mapImages: mapImages?.length ? mapImages : undefined,
+		sectionImages: sectionImages?.length ? sectionImages : undefined,
 		sheet: concept.sheet,
 		summaryInstruction: concept.summaryInstruction,
 		// Stored flat: `{ id, ...record }` is the JSON exercise again, `archived` aside.

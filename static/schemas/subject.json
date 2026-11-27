@@ -154,6 +154,29 @@
 										"pattern": "^data:image\\/(webp|jpeg|png);base64,"
 									}
 								},
+								"sectionImages": {
+									"maxItems": 24,
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"section": {
+												"type": "integer",
+												"minimum": 1,
+												"maximum": 12
+											},
+											"dataUrl": {
+												"type": "string",
+												"maxLength": 700000,
+												"pattern": "^data:image\\/(webp|jpeg|png);base64,"
+											}
+										},
+										"required": [
+											"section",
+											"dataUrl"
+										]
+									}
+								},
 								"flashcards": {
 									"maxItems": 20,
 									"type": "array",

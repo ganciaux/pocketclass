@@ -11,6 +11,8 @@ Mis à jour le 26 novembre 2026. Le détail de chaque choix technique est dans
 - **Import d'un cours en plusieurs chapitres** (2026-11-27) : sur la page d'une matière,
   « Importer un cours » ; le prompt demande un chapitre par grand thème (jamais un chapitre
   fourre-tout), au moins 2 fiches par chapitre, et l'aperçu signale un chapitre d'une seule fiche.
+- **Images dans les parties d'une fiche** (2026-11-27) : le parent ajoute jusqu'à 2 images sous
+  chaque partie (photo d'une figure du cahier, d'un schéma), comprises dans la sauvegarde.
 - **Figures de géométrie** (2026-11-27, première version) : l'IA décrit la figure (points,
   segments, angles droits, longueurs), l'app la dessine dans la fiche, les exemples et les
   exercices.
@@ -96,7 +98,8 @@ révision, historique d'activité, fiches plus courtes avec vue « Résumé », 
 - Vérifier sur le téléphone d'un enfant : sur une fiche acquise, une série à 70 % ou plus
   affiche « +n points de révision », puis le sablier (fiche, « Mes révisions ») ; une
   deuxième série la même semaine ne rapporte rien.
-- Images de carte mentale : en ajouter une depuis un téléphone (photo), la voir côté enfant.
+- Images de carte mentale et images des parties d'une fiche : en ajouter une depuis un
+  téléphone (photo), la voir côté enfant.
 - Télécharger la sauvegarde complète (« Mon profil ») et la garder hors de Firebase ; sur iPhone, vérifier le téléchargement (« Partager → Enregistrer dans Fichiers » si besoin).
 - Mode jour / nuit : choisir Sombre puis relancer l'app installée (pas de flash clair).
 - Deuxième parent : « Profils » → « Parents » → inviter son adresse Google ; à sa connexion

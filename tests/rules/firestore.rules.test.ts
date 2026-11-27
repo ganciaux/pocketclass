@@ -260,6 +260,7 @@ describe('linked devices', () => {
 			'/concepts/c1',
 			'/concepts/c1/exercises/e1',
 			'/concepts/c1/mapImages/image-1',
+			'/concepts/c1/sectionImages/section-1-1',
 			'/assessments/c1'
 		]) {
 			await assertSucceeds(getDoc(at(kid, `families/${FAMILY}${path}`)));
@@ -272,6 +273,9 @@ describe('linked devices', () => {
 		await assertSucceeds(
 			setDoc(at(as('alice'), `families/${FAMILY}/concepts/c1/mapImages/image-1`), image)
 		);
+		const sectionImage = `families/${FAMILY}/concepts/c1/sectionImages/section-1-1`;
+		await assertFails(setDoc(at(kid, sectionImage), { ...image, section: 1 }));
+		await assertSucceeds(setDoc(at(as('alice'), sectionImage), { ...image, section: 1 }));
 	});
 
 	it('cannot write points, their extra subjects or their device link without a code', async () => {

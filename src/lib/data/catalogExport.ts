@@ -22,6 +22,7 @@ import {
 	conceptsCol,
 	exercisesCol,
 	mapImagesCol,
+	sectionImagesCol,
 	subjectRef,
 	subjectsCol
 } from './refs.ts';
@@ -37,10 +38,11 @@ const withId = <T>(snap: { id: string; data: () => T | undefined }): WithId<T> |
 
 /** A sheet with its exercises and assessment. */
 async function storedSheet(familyId: string, concept: WithId<ConceptRecord>): Promise<StoredSheet> {
-	const [exercises, assessment, images] = await Promise.all([
+	const [exercises, assessment, images, sectionImages] = await Promise.all([
 		getDocs(exercisesCol(familyId, concept.id)),
 		getDoc(assessmentRef(familyId, concept.id)),
-		getDocs(mapImagesCol(familyId, concept.id))
+		getDocs(mapImagesCol(familyId, concept.id)),
+		getDocs(sectionImagesCol(familyId, concept.id))
 	]);
 	return {
 		concept,
@@ -49,7 +51,11 @@ async function storedSheet(familyId: string, concept: WithId<ConceptRecord>): Pr
 		mapImages: images.docs
 			.map((d) => d.data())
 			.sort((a, b) => a.order - b.order)
-			.map((i) => i.dataUrl)
+			.map((i) => i.dataUrl),
+		sectionImages: sectionImages.docs
+			.map((d) => d.data())
+			.sort((a, b) => a.section - b.section || a.order - b.order)
+			.map(({ section, dataUrl }) => ({ section, dataUrl }))
 	};
 }
 

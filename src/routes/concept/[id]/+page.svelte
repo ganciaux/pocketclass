@@ -1,5 +1,13 @@
 <script lang="ts">
+	import PictureStrip from '#lib/components/PictureStrip.svelte';
 	import SheetView from '#lib/components/SheetView.svelte';
+	import {
+		addSectionImage,
+		deleteSectionImage,
+		MAX_SECTION_IMAGES,
+		MAX_SECTIONS_WITH_IMAGES,
+		watchSectionImages
+	} from '#lib/data/sectionImages.ts';
 	import RevisionHourglass from '#lib/components/RevisionHourglass.svelte';
 	import ExportButton from '#lib/components/ExportButton.svelte';
 	import { exportSheet } from '#lib/data/catalogExport.ts';
@@ -42,6 +50,12 @@
 
 	// Whose progress and notes: a signed-in child, or the parent testing as a child.
 	const profileId = $derived(session.ownerId);
+	// Pictures of the sections (parent's): one listener for the whole sheet.
+	const sectionImagesLive = live(
+		() => session.familyId && conceptId && watchSectionImages(session.familyId, conceptId)
+	);
+	/** The parent edits pictures in the parent view (not while testing as a child). */
+	const editsPictures = $derived(session.isAdmin && !session.childView);
 	const readLive = live(
 		() =>
 			session.familyId &&
@@ -190,7 +204,34 @@
 				sheet={concept.sheet}
 				figures={concept.figures}
 				{color}
-			/>
+			>
+				{#snippet sectionEnd(section)}
+					{@const images = (sectionImagesLive.data ?? [])
+						.filter((image) => image.section === section)
+						.sort((a, b) => a.order - b.order)}
+					{@const canEdit = editsPictures && section <= MAX_SECTIONS_WITH_IMAGES}
+					{#if session.familyId && (images.length > 0 || canEdit)}
+						{@const familyId = session.familyId}
+						<PictureStrip
+							{images}
+							max={MAX_SECTION_IMAGES}
+							{canEdit}
+							addLabel={t.addSectionImage}
+							alt={(n) => t.sectionImageAlt(section, n)}
+							deleteTitle={fr.mindMap.deleteImage}
+							onadd={(dataUrl) =>
+								addSectionImage(
+									familyId,
+									concept.id,
+									section,
+									images.map((i) => i.id),
+									dataUrl
+								)}
+							ondelete={(id) => deleteSectionImage(familyId, concept.id, id)}
+						/>
+					{/if}
+				{/snippet}
+			</SheetView>
 
 			<!-- The end of the sheet: « J'ai lu cette fiche », and on to the next one of the chapter. -->
 			{#if profileId || place?.next}

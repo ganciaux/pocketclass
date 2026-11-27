@@ -83,6 +83,20 @@ describe('export', () => {
 		expect('mapImages' in exported.sheets[1]).toBe(false);
 	});
 
+	it('carries the section pictures with their section number', () => {
+		const docs = written(
+			planChapter(sample, { subjectId: 's', chapterId: 'ch', order: 0 }, {}).ops
+		);
+		const [first] = storedSheets(docs, [ids[0]]);
+		const pictures = [{ section: 1, dataUrl: 'data:image/webp;base64,AAAA' }];
+		const exported = chapterExport({ title: 'T', group: null } as Chapter, [
+			{ ...first, sectionImages: pictures },
+			{ ...first, sectionImages: [] }
+		]);
+		expect(exported.sheets[0].sectionImages).toEqual(pictures);
+		expect('sectionImages' in exported.sheets[1]).toBe(false);
+	});
+
 	it('leaves hidden exercises out and keeps the parent assessment settings', () => {
 		const docs = written(
 			planChapter(sample, { subjectId: 's', chapterId: 'ch', order: 0 }, {}).ops

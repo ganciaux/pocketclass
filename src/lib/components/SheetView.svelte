@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { STATUS_CHIP, SUBJECT_TILE } from '#lib/binder/colors.ts';
 	import { UI_ICONS } from '#lib/binder/icons.ts';
 	import FigureView from '#lib/components/FigureView.svelte';
@@ -21,7 +22,8 @@
 		sheet,
 		figures = [],
 		color,
-		idPrefix = ''
+		idPrefix = '',
+		sectionEnd
 	}: {
 		keyPoints: KeyPoint[];
 		sheet: SheetDoc['sheet'];
@@ -29,6 +31,8 @@
 		figures?: Figure[];
 		color: SubjectColor;
 		idPrefix?: string;
+		/** At the end of each section (its number, 1-based): the sheet page puts its pictures. */
+		sectionEnd?: Snippet<[number]>;
 	} = $props();
 
 	const t = fr.concept;
@@ -218,6 +222,7 @@
 					</div>
 				</details>
 			{/each}
+			{@render sectionEnd?.(s + 1)}
 		</div>
 	</section>
 {/each}

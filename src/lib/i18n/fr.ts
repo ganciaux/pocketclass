@@ -135,6 +135,9 @@ export const fr = {
 		/** « Détails | Résumé » switch above the sections (when the sheet has summaries). */
 		viewLabel: 'Affichage de la fiche',
 		sectionViewLabel: (n: number) => `Affichage de la partie ${n}`,
+		/** Pictures of a section (`PictureStrip`), added by the parent. */
+		addSectionImage: 'Ajouter une image',
+		sectionImageAlt: (section: number, n: number) => `Image ${n} de la partie ${section}`,
 		viewDetails: 'Détails',
 		viewSummary: 'Résumé',
 		notFound: "Cette fiche n'existe pas (ou plus).",
