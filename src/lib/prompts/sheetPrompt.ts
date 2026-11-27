@@ -1,6 +1,6 @@
 import { generatorsForGrade } from '#lib/generators/catalog.ts';
 import { CHAPTERS_FORMAT, MAX_CHAPTERS, MIN_SHEETS_PER_CHAPTER } from '#lib/schemas/chapter.ts';
-import { MAP_LEAF_LENGTH, SHEET_FORMAT } from '#lib/schemas/sheet.ts';
+import { FLASHCARD_LIMITS, MAP_LEAF_LENGTH, SHEET_FORMAT } from '#lib/schemas/sheet.ts';
 
 /**
  * Prompts the parent copies into an external AI to get a sheet (`sheet@1`) or a whole course
@@ -67,21 +67,22 @@ const RULES = `Règles :
 - "tags" : 3 à 8 mots-clés en français, en minuscules, ceux qu'un élève taperait pour retrouver la fiche (notions, vocabulaire, méthodes), sans répéter le nom de la matière.
 - Les parties ("sections") sont des rappels avant les exercices, pas un cours : dans "text", 3 à 6 lignes avec les règles, la méthode et les points importants (une courte liste à puces si ça aide), sans introduction ni répétition ; assez complet pour réviser seul. "summary" : 2 à 4 puces très courtes (une ligne chacune) qui condensent la partie.
 - "mindMap" : la carte mentale de la fiche, une branche par point-clé avec 1 à 4 feuilles très courtes (${MAP_LEAF_LENGTH} caractères au plus : un mot, une formule $…$, un exemple ou un piège), à relire d'un coup d'œil ; pas de phrase complète.
-- "flashcards" : 8 à 15 cartes de révision. Recto ("front") : une question courte (une règle, une définition, un vrai ou faux). Verso ("back") : la réponse en une ou deux phrases ; "example" (facultatif) : un exemple tiré du cours. "tag" : "definition", "rule", "method", "true_false" ou "pitfall". Inclus 2 ou 3 cartes "pitfall" sur les erreurs fréquentes. Une carte = une seule idée. Vérifie l'exactitude de chaque réponse avant de l'écrire.
+- "flashcards" : 8 à 15 cartes de révision. Recto ("front") : une question courte (une règle, une définition, un vrai ou faux). Verso ("back") : la réponse en une ou deux phrases ; "example" (facultatif) : un exemple tiré du cours. "tag" : "definition", "rule", "method", "true_false" ou "pitfall". Limites strictes (en caractères, formules $…$ comprises) : "front" ${FLASHCARD_LIMITS.front} au plus, "back" ${FLASHCARD_LIMITS.back}, "example" ${FLASHCARD_LIMITS.example} ; 20 cartes au maximum. Inclus 2 ou 3 cartes "pitfall" sur les erreurs fréquentes. Une carte = une seule idée. Vérifie l'exactitude de chaque réponse avant de l'écrire.
 - "figures" (facultatif, pour la géométrie) : l'application dessine elle-même les figures que tu décris ; n'écris jamais de SVG ni d'image. Une figure : { "id": "fig-…", "points": { "A": [0, 0], "B": [4, 0], "C": [0, 3] }, "segments": ["AB", "BC", "CA"], "rightAngles": ["BAC"], "labels": [{ "on": "AB", "text": "4 cm" }], "caption": "<légende courte, facultative>" }. Noms des points : une majuscule, éventuellement suivie d'un chiffre ou de « ' ». Coordonnées entre -20 et 20, proportionnées aux longueurs de l'énoncé (1 unité = 1 cm). "segments" : deux noms collés (« AB ») ; "rightAngles" : trois noms, le sommet au milieu (« BAC » = angle droit en A), et les coordonnées doivent vraiment former cet angle droit ; "labels" : une longueur ou une mesure écrite près d'un segment. Pour l'instant : points, segments, angles droits et longueurs seulement (pas de cercle ni d'arc). Une partie, un exemple ou un exercice affiche une figure avec "figure": "fig-…". Ajoute une figure dès qu'un énoncé de géométrie parle d'une figure (triangle, rectangle, configuration de Thalès…), et seulement dans ce cas.
 - 3 à 6 points-clés ("keyPoints", 8 au maximum). Chaque section, chaque exercice et chaque critère de "rubric" renvoie à un point-clé existant.
 - Exercices ("exercises") : environ 4 exercices d'entraînement ("usage": "practice") par point-clé, de types variés, et au moins 2 de contrôle ("usage": "assessment") par point-clé, "difficulty" de 1 à 3. Ajoute aussi 8 à 10 "true_false" en "practice" (affirmations courtes, vraies ou fausses, pour un défi de rapidité). Chaque exercice a une "explanation" : une phrase qui explique la bonne réponse, affichée après la réponse de l'élève. Types possibles :
-  - "mcq" : "question", "answer", "distractors" (exactement 3 mauvaises réponses) ;
-  - "calculation" : "statement", "answer" (nombre ou fraction "a/b"), "requireIrreducible" (facultatif). Le calcul à faire est la dernière formule $…$ de l'énoncé ;
+  - "mcq" : "question", "answer", "distractors" (exactement 3 mauvaises réponses, toutes différentes entre elles et différentes de "answer") ;
+  - "calculation" : "statement", "answer" (un nombre ou une fraction "a/b" seulement, sans unité ni texte), "requireIrreducible" (facultatif). Le calcul à faire est la dernière formule $…$ de l'énoncé ;
   - "cloze" : "text" avec les réponses entre [[ ]], ex. "Nous [[mangeons]]." ;
   - "true_false" : "statement", "answer" (true ou false) ;
-  - "match" : "instruction" (facultatif), "pairs" (2 à 6 paires { "left", "right" } à relier, chaque texte une seule fois) ;
-  - "categorize" : "instruction" (facultatif), "categories" (2 à 4), "items" ([{ "text", "category" }], "category" étant l'une des "categories") ;
+  - "match" : "instruction" (facultatif), "pairs" (2 à 6 paires { "left", "right" } à relier ; chaque texte une seule fois dans sa colonne : deux "left" différents, et deux "right" différents, même si les valeurs se ressemblent — « $1$ » ne peut pas être la réponse de deux paires) ;
+  - "categorize" : "instruction" (facultatif), "categories" (2 à 4, toutes différentes), "items" ([{ "text", "category" }], "category" étant l'une des "categories") ;
   - "ordering" : "instruction", "items" (au moins 2, dans le bon ordre) ;
   - "open" : "question", "answers" (réponses courtes acceptées) ;
   - "pair" : "front", "back", "direction" ("front_to_back" ou "both") : carte à retourner ;
   - "paper" : "instruction", "answer" et "answerFormat" ("number", "fraction", "text" ou "none") facultatifs.
 - "assessment" (facultatif) : "type" ("test" ou "brevet"), "draw.perKeyPoint", "exerciseIds" (ids d'exercices de la fiche), "paper" ({ "instruction", "rubric": [{ "keyPoint", "criterion" }] }).
+- Limites vérifiées à l'import (un dépassement fait refuser le JSON) : "summary" 1 à 5 puces de 200 caractères au plus ; "tags" 30 caractères au plus chacun, 10 au maximum ; "keyPoints" 8 au maximum ; chaque point-clé n'a qu'une branche dans "mindMap" (8 au maximum) ; "perKeyPoint" de 1 à 15 ; deux éléments d'une même liste (identifiants, mauvaises réponses, catégories) ne sont jamais identiques ; un champ de texte n'est jamais vide.
 - Relis le JSON : chaque réponse est définitive, sans hésitation ni correction (jamais « x -> non, y »).
 - Si quelque chose est incertain, ajoute une phrase dans "warnings" (tableau de textes) au lieu de l'inventer.`;
 

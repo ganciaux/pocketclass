@@ -76,6 +76,9 @@ const mindMapSchema = z
 /** Theme of a revision card (its label on the card). */
 export const FLASHCARD_TAGS = ['definition', 'rule', 'method', 'true_false', 'pitfall'] as const;
 
+/** Longest text of a revision card, in characters (asked in the prompt, checked at import). */
+export const FLASHCARD_LIMITS = { front: 160, back: 300, example: 200 } as const;
+
 /**
  * Revision cards of the sheet (written by the AI): a short question on the front, the answer
  * and an optional example from the lesson on the back. Optional: without it the app builds
@@ -85,9 +88,9 @@ const flashcardsSchema = z
 	.array(
 		z.object({
 			tag: z.enum(FLASHCARD_TAGS),
-			front: text.max(160),
-			back: text.max(300),
-			example: text.max(200).optional()
+			front: text.max(FLASHCARD_LIMITS.front),
+			back: text.max(FLASHCARD_LIMITS.back),
+			example: text.max(FLASHCARD_LIMITS.example).optional()
 		})
 	)
 	.max(20);
