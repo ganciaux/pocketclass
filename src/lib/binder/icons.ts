@@ -118,10 +118,10 @@ export const UI_ICONS = {
 		'M21 12a9 9 0 0 1-15.4 6.4L3 16',
 		'M3 21v-5h5'
 	),
-	/** Full lines of text: a sheet's sections shown in full (« Détails »). */
-	details: paths('M4 6h16', 'M4 10h16', 'M4 14h16', 'M4 18h10'),
-	/** A bulleted list: a sheet's sections shown as their summary bullets (« Résumé »). */
-	summary: paths('M4 7h.01', 'M4 12h.01', 'M4 17h.01', 'M9 7h11', 'M9 12h11', 'M9 17h7'),
+	/** Chevrons pointing apart: a sheet's sections unfolded, in full (« Détails »). */
+	details: paths('m7 15 5 5 5-5', 'm7 9 5-5 5 5'),
+	/** Chevrons pointing together: a sheet's sections folded to their summary (« Résumé »). */
+	summary: paths('m7 20 5-5 5 5', 'm7 4 5 5 5-5'),
 	/** Two columns of dots: the handle that drags a row to another place. */
 	grip: paths('M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01'),
 	/** A door with an arrow going out: sign out. */

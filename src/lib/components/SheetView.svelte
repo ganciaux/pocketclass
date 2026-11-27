@@ -119,8 +119,8 @@
 	</div>
 </section>
 
-<!-- « Détails » / « Résumé » as one icon button: the icon shows the current view (text lines or
-     bullets, like the eye of « Masquer »), its label names what a tap does. The whole sheet in
+<!-- « Détails » / « Résumé » as one icon button: the icon shows the current view (chevrons apart
+     = unfolded, together = folded, like the eye of « Masquer »), its label names what a tap does. The whole sheet in
      « L'essentiel », one section next to its key point badges. -->
 {#snippet viewToggle(summary: boolean, set: (on: boolean) => void, section?: number)}
 	{@const label = summary ? t.showDetails(section) : t.showSummary(section)}
